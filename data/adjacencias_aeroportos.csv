@@ -1,0 +1,116 @@
+origem,destino,tipo_conexao,justificativa,peso
+BSB,MAO,hub,Fluxo logístico regional,2.57
+GIG,MAO,hub,Rota comercial de alta demanda,3.57
+CGH,CNF,regional,Acordo de compartilhamento (Codeshare),0.88
+CGH,REC,hub,Demanda sazonal identificada,2.78
+SSA,BSB,hub,Demanda sazonal identificada,1.63
+BSB,CNF,hub,Acordo de compartilhamento (Codeshare),0.95
+BSB,POA,hub,Fluxo logístico regional,2.2
+BSB,GRU,hub,Conectividade entre centros urbanos,1.35
+GRU,VIX,regional,Acordo de compartilhamento (Codeshare),1.22
+GRU,CNF,regional,Fluxo logístico regional,0.92
+POA,GIG,hub,Rota comercial de alta demanda,1.63
+BSB,JPA,hub,Demanda sazonal identificada,2.38
+GIG,VIX,regional,Conexão estratégica de malha aérea,0.88
+CNF,VIX,regional,Conectividade entre centros urbanos,0.83
+CGH,VIX,regional,Fluxo logístico regional,1.22
+NAT,REC,regional,Conectividade entre centros urbanos,0.67
+SSA,REC,regional,Conexão estratégica de malha aérea,1.13
+BSB,GYN,regional,Fluxo logístico regional,0.55
+POA,GRU,hub,Fluxo logístico regional,1.37
+CWB,GRU,hub,Rota comercial de alta demanda,0.8
+REC,BSB,hub,Conectividade entre centros urbanos,2.25
+FLN,CWB,regional,Conectividade entre centros urbanos,0.68
+REC,GRU,hub,Rota comercial de alta demanda,2.7
+CNF,FOR,hub,Conexão estratégica de malha aérea,2.48
+BSB,BEL,hub,Acordo de compartilhamento (Codeshare),2.27
+BSB,NAT,hub,Acordo de compartilhamento (Codeshare),2.45
+REC,CNF,hub,Fluxo logístico regional,2.17
+JPA,SSA,regional,Demanda sazonal identificada,1.23
+BSB,FLN,hub,Fluxo logístico regional,1.88
+MAO,FLN,hub,Fluxo logístico regional,4.25
+MAO,SSA,hub,Fluxo logístico regional,3.58
+GIG,BSB,hub,Fluxo logístico regional,1.47
+MAO,CNF,hub,Fluxo logístico regional,3.2
+CNF,GYN,hub,Fluxo logístico regional,1.07
+POA,FLN,regional,Fluxo logístico regional,0.9
+GIG,GRU,regional,Fluxo logístico regional,0.67
+POA,REC,hub,Acordo de compartilhamento (Codeshare),3.62
+SSA,GIG,hub,Acordo de compartilhamento (Codeshare),1.58
+MAO,GRU,hub,Conexão estratégica de malha aérea,3.4
+BEL,SSA,hub,Conexão estratégica de malha aérea,2.67
+GRU,SSA,hub,Acordo de compartilhamento (Codeshare),2.0
+SSA,POA,hub,Fluxo logístico regional,3.22
+SSA,CNF,hub,Conexão estratégica de malha aérea,1.45
+BSB,CWB,hub,Conectividade entre centros urbanos,1.63
+CGH,SSA,hub,Acordo de compartilhamento (Codeshare),2.05
+FLN,CGH,hub,Conectividade entre centros urbanos,0.92
+CGH,FOR,hub,Conexão estratégica de malha aérea,3.12
+VIX,SSA,hub,Conectividade entre centros urbanos,1.37
+CGH,BSB,hub,Fluxo logístico regional,1.37
+FOR,SSA,regional,Conectividade entre centros urbanos,1.62
+GYN,CGH,hub,Fluxo logístico regional,1.28
+CGH,JPA,hub,Rota comercial de alta demanda,2.95
+POA,CGH,hub,Acordo de compartilhamento (Codeshare),1.25
+POA,MAO,hub,Rota comercial de alta demanda,4.42
+REC,GIG,hub,Acordo de compartilhamento (Codeshare),2.45
+BSB,FOR,hub,Fluxo logístico regional,2.32
+SSA,NAT,regional,Rota comercial de alta demanda,1.45
+POA,CWB,regional,Fluxo logístico regional,0.98
+GYN,GRU,hub,Fluxo logístico regional,1.3
+CNF,POA,hub,Rota comercial de alta demanda,1.85
+GIG,CWB,hub,Fluxo logístico regional,1.15
+CWB,SSA,hub,Demanda sazonal identificada,2.45
+GYN,REC,hub,Demanda sazonal identificada,2.42
+MAO,PVH,regional,Conectividade entre centros urbanos,1.23
+GIG,CGH,regional,Demanda sazonal identificada,0.82
+FLN,GIG,hub,Conexão estratégica de malha aérea,1.27
+GRU,THE,hub,Demanda sazonal identificada,2.78
+CNF,GIG,regional,Rota comercial de alta demanda,0.75
+CNF,FLN,hub,Rota comercial de alta demanda,1.55
+GIG,GYN,hub,Acordo de compartilhamento (Codeshare),1.47
+GYN,SSA,hub,Conexão estratégica de malha aérea,1.8
+PVH,BSB,hub,Conectividade entre centros urbanos,2.53
+CGH,CWB,hub,Acordo de compartilhamento (Codeshare),0.7
+JPA,GRU,hub,Conectividade entre centros urbanos,2.83
+BEL,MAO,regional,Conectividade entre centros urbanos,1.85
+GRU,BEL,hub,Acordo de compartilhamento (Codeshare),3.18
+REC,FOR,regional,Acordo de compartilhamento (Codeshare),1.02
+GIG,FOR,hub,Conectividade entre centros urbanos,2.92
+FOR,GRU,hub,Conexão estratégica de malha aérea,3.02
+GIG,JPA,hub,Demanda sazonal identificada,2.67
+NAT,GIG,hub,Acordo de compartilhamento (Codeshare),2.83
+BSB,THE,hub,Fluxo logístico regional,1.97
+JPA,REC,regional,Rota comercial de alta demanda,0.5
+GIG,BEL,hub,Demanda sazonal identificada,3.27
+NAT,GRU,hub,Acordo de compartilhamento (Codeshare),2.88
+REC,MAO,hub,Acordo de compartilhamento (Codeshare),3.5
+CNF,CWB,hub,Acordo de compartilhamento (Codeshare),1.35
+CNF,NAT,hub,Rota comercial de alta demanda,2.5
+CNF,JPA,hub,Fluxo logístico regional,2.37
+BSB,RBR,hub,Acordo de compartilhamento (Codeshare),2.83
+CGH,NAT,hub,Conectividade entre centros urbanos,3.22
+GRU,FLN,hub,Fluxo logístico regional,0.98
+FOR,BEL,hub,Acordo de compartilhamento (Codeshare),1.72
+RBR,MAO,regional,Fluxo logístico regional,1.63
+CNF,PVH,hub,Fluxo logístico regional,2.98
+PVH,RBR,regional,Conexão estratégica de malha aérea,0.88
+RBR,CNF,hub,Demanda sazonal identificada,3.32
+CNF,BEL,hub,Conectividade entre centros urbanos,2.8
+BEL,NAT,hub,Conectividade entre centros urbanos,2.2
+REC,BEL,hub,Conexão estratégica de malha aérea,2.27
+REC,THE,regional,Demanda sazonal identificada,1.43
+VIX,REC,hub,Demanda sazonal identificada,2.1
+CWB,GYN,hub,Conexão estratégica de malha aérea,1.02
+THE,CNF,hub,Fluxo logístico regional,2.28
+THE,FOR,regional,Acordo de compartilhamento (Codeshare),0.97
+GRU,PVH,hub,Demanda sazonal identificada,3.13
+FOR,NAT,regional,Fluxo logístico regional,0.87
+FOR,MAO,hub,Fluxo logístico regional,3.07
+GRU,RBR,hub,Rota comercial de alta demanda,3.48
+NAT,MAO,hub,Conexão estratégica de malha aérea,3.5
+GIG,PVH,hub,Fluxo logístico regional,5.42
+GRU,CGH,regional,Rota comercial de alta demanda,0.5
+BSB,VIX,hub,Conexão estratégica de malha aérea,1.52
+JPA,NAT,regional,Acordo de compartilhamento (Codeshare),0.75
+VIX,FLN,hub,Conexão estratégica de malha aérea,2.08
