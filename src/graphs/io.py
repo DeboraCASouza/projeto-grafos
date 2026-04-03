@@ -8,7 +8,7 @@ def carregar_grafo(caminho_nos, caminho_arestas):
     df_nos = pd.read_csv(caminho_nos)
     for _, linha in df_nos.iterrows():
         grafo.adicionar_aeroporto(
-            iata=linha['codigo_iata'], 
+            iata=linha['iata'], 
             cidade=linha['cidade'], 
             regiao=linha['regiao']
         )
