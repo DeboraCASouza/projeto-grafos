@@ -1,0 +1,6 @@
+origem,destino,custo,caminho
+REC,POA,3.62,REC -> POA
+MAO,GRU,3.4,MAO -> GRU
+POA,GIG,1.63,POA -> GIG
+REC,CNF,2.17,REC -> CNF
+MAO,CGH,3.9,MAO -> GRU -> CGH
