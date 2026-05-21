@@ -1,36 +1,35 @@
-from src.graphs.graph import GrafoAeroportos
+from src.graphs.io import carregar_grafo
 from src.graphs.algorithms import bfs
 
 def test_bfs_grafo_desconexo():
-    g = GrafoAeroportos()
-
-    g.adicionar_aeroporto("A", "Cidade A", "Regiao")
-    g.adicionar_aeroporto("B", "Cidade B", "Regiao")
-    g.adicionar_aeroporto("C", "Cidade C", "Regiao")
-    g.adicionar_conexao("A", "B", 1.0, "tipo", "justificativa")
+    g = carregar_grafo('data/aeroportos_data.csv', 'data/adjacencias_aeroportos.csv')
     
-    visitados = bfs(g, "A")
-    assert visitados == ["A", "B"]
+    g.adicionar_aeroporto("XYZ", "Cidade XYZ", "Regiao")
     
-    visitados_c = bfs(g, "C")
-    assert visitados_c == ["C"]
+    visitados = bfs(g, "PVH")
+    assert "XYZ" not in visitados
+    assert len(visitados) == 20 
+    
+    visitados_xyz = bfs(g, "XYZ")
+    assert visitados_xyz == ["XYZ"]
 
 def test_bfs_grafo_conexo():
-    g = GrafoAeroportos()
-
-    for no in ["A", "B", "C", "D"]:
-        g.adicionar_aeroporto(no, f"Cidade {no}", "Regiao")
-        
-    g.adicionar_conexao("A", "B", 1.0, "t", "j")
-    g.adicionar_conexao("A", "C", 1.0, "t", "j")
-    g.adicionar_conexao("B", "D", 1.0, "t", "j")
+    g = carregar_grafo('data/aeroportos_data.csv', 'data/adjacencias_aeroportos.csv')
     
-    visitados = bfs(g, "A")
-    assert set(visitados) == {"A", "B", "C", "D"}
-    assert visitados[0] == "A"
-
-    assert visitados.index("D") > visitados.index("B")
+    visitados = bfs(g, "PVH")
+    assert len(visitados) == 20
+    assert visitados[0] == "PVH"
+    
+    codigos_esperados = {
+        "REC", "SSA", "FOR", "NAT", "JPA", "GRU", "CGH", "GIG", "CNF", "VIX",
+        "BSB", "GYN", "CWB", "FLN", "POA", "MAO", "BEL", "PVH", "RBR", "THE"
+    }
+    assert set(visitados) == codigos_esperados
+    
+    for vizinho in ["MAO", "BSB", "CNF", "RBR"]:
+        assert vizinho in visitados
+        assert visitados.index(vizinho) < 10
 
 def test_bfs_no_inexistente():
-    g = GrafoAeroportos()
-    assert bfs(g, "X") == []
+    g = carregar_grafo('data/aeroportos_data.csv', 'data/adjacencias_aeroportos.csv')
+    assert bfs(g, "XYZ") == []
