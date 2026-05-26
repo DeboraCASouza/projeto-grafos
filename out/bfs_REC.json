@@ -1,0 +1,26 @@
+{
+  "algoritmo": "BFS",
+  "origem": "REC",
+  "ordem_visita": [
+    "REC",
+    "CGH",
+    "NAT",
+    "SSA",
+    "BSB",
+    "GRU",
+    "CNF",
+    "POA",
+    "GIG",
+    "GYN",
+    "FOR",
+    "JPA",
+    "MAO",
+    "BEL",
+    "THE",
+    "VIX",
+    "FLN",
+    "CWB",
+    "PVH",
+    "RBR"
+  ]
+}

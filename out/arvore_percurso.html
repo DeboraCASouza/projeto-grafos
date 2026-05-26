@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Árvore de Percurso — Rede Aeroportuária Brasileira</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0F172A;
+      color: #E2E8F0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #app { display: flex; height: 100vh; }
+
+    /* ── SIDEBAR ─────────────────────────────────────────────────────── */
+    #sidebar {
+      width: 292px;
+      flex-shrink: 0;
+      background: #1E293B;
+      border-right: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #334155 transparent;
+    }
+    #sidebar::-webkit-scrollbar { width: 4px; }
+    #sidebar::-webkit-scrollbar-track { background: transparent; }
+    #sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
+    .sb-header {
+      padding: 16px 15px 12px;
+      border-bottom: 1px solid #334155;
+    }
+    .sb-header h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #F1F5F9;
+      letter-spacing: -0.02em;
+      margin-bottom: 2px;
+    }
+    .sb-header p { font-size: 11px; color: #64748B; }
+
+    .sb-label {
+      padding: 10px 14px 5px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #475569;
+    }
+
+    .sb-routes {
+      padding: 0 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .route-card {
+      padding: 10px 12px;
+      border: 1.5px solid #2D3F55;
+      border-radius: 9px;
+      cursor: pointer;
+      background: #0F172A;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+      user-select: none;
+    }
+    .route-card:hover  { border-color: var(--c); }
+    .route-card.active { border-color: var(--c); background: var(--c-bg); }
+
+    .rc-head { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+    .rc-dot  { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
+    .rc-name { font-size: 12px; font-weight: 700; color: #E2E8F0; line-height: 1.3; }
+    .rc-path {
+      font-size: 10.5px;
+      color: #64748B;
+      font-family: ui-monospace, monospace;
+      padding-left: 16px;
+      margin-bottom: 4px;
+    }
+    .rc-foot {
+      display: flex; justify-content: space-between; align-items: center; padding-left: 16px;
+    }
+    .rc-cost  { font-size: 11px; font-weight: 700; color: var(--c); }
+    .rc-stops { font-size: 10px; color: #475569; }
+
+    .sb-actions { padding: 8px 8px 2px; }
+    .btn-all {
+      width: 100%;
+      padding: 9px 12px;
+      background: #334155;
+      border: 1.5px solid #475569;
+      border-radius: 9px;
+      color: #CBD5E1;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-all:hover  { background: #475569; border-color: #64748B; }
+    .btn-all.active { background: #1D4ED8; border-color: #3B82F6; color: #E0F2FE; }
+
+    .sb-legend {
+      margin: 8px 8px 0;
+      padding: 10px 11px;
+      background: #0F172A;
+      border: 1px solid #2D3F55;
+      border-radius: 8px;
+    }
+    .sb-legend h3 {
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #475569;
+      margin-bottom: 7px;
+      font-weight: 700;
+    }
+    .leg-row  { display: flex; align-items: center; gap: 7px; font-size: 10.5px; color: #94A3B8; margin-bottom: 5px; }
+    .leg-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .leg-line { width: 20px; height: 2.5px; border-radius: 2px; flex-shrink: 0; }
+
+    .sb-footer {
+      padding: 8px 14px;
+      border-top: 1px solid #2D3748;
+      margin-top: auto;
+      font-size: 9.5px;
+      color: #3D4F63;
+      line-height: 1.6;
+    }
+
+    /* ── MAP ─────────────────────────────────────────────────────────── */
+    #map { flex: 1; position: relative; }
+
+    /* ── INFO PANEL ──────────────────────────────────────────────────── */
+    #info-panel {
+      position: absolute;
+      bottom: 20px; right: 20px;
+      z-index: 500;
+      background: rgba(30,41,59,0.96);
+      backdrop-filter: blur(8px);
+      border: 1px solid #334155;
+      border-radius: 11px;
+      padding: 13px 15px;
+      min-width: 200px;
+      max-width: 280px;
+      display: none;
+      box-shadow: 0 4px 24px rgba(0,0,0,.7);
+    }
+    #info-panel.show { display: block; }
+    #info-title { font-size: 13px; font-weight: 700; margin-bottom: 9px; line-height: 1.3; }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      margin-bottom: 4px;
+      color: #64748B;
+    }
+    .info-val {
+      color: #CBD5E1;
+      font-weight: 600;
+      font-family: ui-monospace, monospace;
+      text-align: right;
+      max-width: 170px;
+    }
+
+    /* ── ANIMATED FLIGHT PATHS ───────────────────────────────────────── */
+    .flow { stroke-dasharray: 12 7; animation: flow 1.4s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -19; } }
+
+    /* ── LEAFLET OVERRIDES ───────────────────────────────────────────── */
+    .leaflet-popup-content-wrapper {
+      background: #1E293B !important;
+      border: 1px solid #334155 !important;
+      border-radius: 9px !important;
+      color: #E2E8F0 !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,.6) !important;
+      font-family: 'Segoe UI', sans-serif !important;
+      font-size: 12px !important;
+    }
+    .leaflet-popup-tip { background: #1E293B !important; }
+    .leaflet-popup-close-button { color: #94A3B8 !important; font-size: 16px !important; }
+    .leaflet-tooltip {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+    .leaflet-tooltip::before { display: none !important; }
+    .leaflet-control-zoom a {
+      background: #1E293B !important;
+      color: #CBD5E1 !important;
+      border-color: #334155 !important;
+    }
+    .leaflet-control-zoom a:hover { background: #2D3748 !important; }
+    .leaflet-bar { border: 1px solid #334155 !important; border-radius: 7px !important; overflow: hidden; }
+
+    .ap-lbl {
+      font-size: 10px; font-weight: 700;
+      color: #94A3B8;
+      background: rgba(15,23,42,.85);
+      border: 1px solid #2D3F55;
+      border-radius: 3px;
+      padding: 1px 4px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .ap-lbl-hi { color: #F1F5F9; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────────────────── -->
+  <div id="sidebar">
+    <div class="sb-header">
+      <h1>Árvore de Percurso</h1>
+      <p>Caminhos mínimos · Algoritmo de Dijkstra</p>
+    </div>
+
+    <div class="sb-actions">
+      <button class="btn-all" id="btn-all">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="flex-shrink:0;">
+          <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M1 6.5h11M6.5 1a8 8 0 0 1 0 11M6.5 1a8 8 0 0 0 0 11"
+                stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        Mostrar Todas as Rotas
+      </button>
+    </div>
+
+    <div class="sb-label">Rotas Calculadas</div>
+    <div class="sb-routes" id="sb-routes"></div>
+    <div style="height:8px;"></div>
+
+    <div class="sb-legend">
+      <h3>Legenda</h3>
+      <div class="leg-row">
+        <div class="leg-dot" style="background:#2D3F55;border:1px solid #3D4F63;"></div>
+        Aeroporto (fora da rota)
+      </div>
+      <div class="leg-row">
+        <div class="leg-dot" style="background:white;box-shadow:0 0 5px rgba(255,255,255,.5);"></div>
+        Origem / Destino
+      </div>
+      <div class="leg-row">
+        <div class="leg-dot" style="background:#CBD5E1;border:2px solid white;"></div>
+        Escala / Conexão
+      </div>
+      <div class="leg-row">
+        <div class="leg-line" style="background:linear-gradient(90deg,#A855F7,#67E8F9);"></div>
+        Caminho mínimo (animado)
+      </div>
+    </div>
+
+    <div style="height:8px;"></div>
+
+    <div class="sb-footer">
+      Algoritmo: Dijkstra<br>
+      Grafo: não-direcionado ponderado<br>
+      20 aeroportos · 116 arestas
+    </div>
+  </div>
+
+  <!-- ── MAP ──────────────────────────────────────────────────────────── -->
+  <div id="map">
+    <div id="info-panel">
+      <div id="info-title"></div>
+      <div class="info-row">
+        <span>Caminho</span>
+        <span class="info-val" id="ip-path"></span>
+      </div>
+      <div class="info-row">
+        <span>Custo</span>
+        <span class="info-val" id="ip-cost"></span>
+      </div>
+      <div class="info-row">
+        <span>Escalas</span>
+        <span class="info-val" id="ip-stops"></span>
+      </div>
+      <div class="info-row" id="ip-via-row" style="display:none;">
+        <span>Via</span>
+        <span class="info-val" id="ip-via"></span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════════
+
+const AP = {
+  REC:{ name:"Recife",          reg:"Nordeste",     lat:-8.126,  lng:-34.924 },
+  SSA:{ name:"Salvador",        reg:"Nordeste",     lat:-12.908, lng:-38.323 },
+  FOR:{ name:"Fortaleza",       reg:"Nordeste",     lat:-3.776,  lng:-38.533 },
+  NAT:{ name:"Natal",           reg:"Nordeste",     lat:-5.911,  lng:-35.248 },
+  JPA:{ name:"João Pessoa",     reg:"Nordeste",     lat:-7.148,  lng:-34.951 },
+  GRU:{ name:"São Paulo (GRU)", reg:"Sudeste",      lat:-23.436, lng:-46.473 },
+  CGH:{ name:"São Paulo (CGH)", reg:"Sudeste",      lat:-23.627, lng:-46.656 },
+  GIG:{ name:"Rio de Janeiro",  reg:"Sudeste",      lat:-22.810, lng:-43.251 },
+  CNF:{ name:"Belo Horizonte",  reg:"Sudeste",      lat:-19.624, lng:-43.972 },
+  VIX:{ name:"Vitória",         reg:"Sudeste",      lat:-20.258, lng:-40.287 },
+  BSB:{ name:"Brasília",        reg:"Centro-Oeste", lat:-15.871, lng:-47.919 },
+  GYN:{ name:"Goiânia",         reg:"Centro-Oeste", lat:-16.632, lng:-49.221 },
+  CWB:{ name:"Curitiba",        reg:"Sul",          lat:-25.529, lng:-49.176 },
+  FLN:{ name:"Florianópolis",   reg:"Sul",          lat:-27.670, lng:-48.552 },
+  POA:{ name:"Porto Alegre",    reg:"Sul",          lat:-29.994, lng:-51.172 },
+  MAO:{ name:"Manaus",          reg:"Norte",        lat:-3.039,  lng:-60.050 },
+  BEL:{ name:"Belém",           reg:"Norte",        lat:-1.379,  lng:-48.476 },
+  PVH:{ name:"Porto Velho",     reg:"Norte",        lat:-8.709,  lng:-63.903 },
+  RBR:{ name:"Rio Branco",      reg:"Norte",        lat:-9.869,  lng:-67.898 },
+  THE:{ name:"Teresina",        reg:"Nordeste",     lat:-5.060,  lng:-42.823 },
+};
+
+const ROUTES = [
+  { id:"rec-poa", label:"Recife → Porto Alegre",    path:["REC","POA"],       cost:3.62, color:"#A855F7" },
+  { id:"mao-gru", label:"Manaus → São Paulo",        path:["MAO","GRU"],       cost:3.40, color:"#F472B6" },
+  { id:"for-cgh", label:"Fortaleza → São Paulo",     path:["FOR","CGH"],       cost:3.12, color:"#34D399" },
+  { id:"bsb-bel", label:"Brasília → Belém",          path:["BSB","BEL"],       cost:2.27, color:"#60A5FA" },
+  { id:"cwb-nat", label:"Curitiba → Natal",           path:["CWB","GRU","NAT"], cost:3.68, color:"#FBBF24" },
+  { id:"vix-mao", label:"Vitória → Manaus",           path:["VIX","CNF","MAO"], cost:4.03, color:"#F87171" },
+  { id:"ssa-fln", label:"Salvador → Florianópolis",  path:["SSA","GIG","FLN"], cost:2.85, color:"#67E8F9" },
+];
+
+const REG_COLOR = {
+  "Norte":        "#34D399",
+  "Nordeste":     "#FBBF24",
+  "Centro-Oeste": "#A78BFA",
+  "Sudeste":      "#60A5FA",
+  "Sul":          "#F472B6",
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// MAP
+// ═══════════════════════════════════════════════════════════════════════
+
+const map = L.map('map', {
+  center: [-14, -52], zoom: 4,
+  zoomControl: true, minZoom: 3, maxZoom: 10,
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors © <a href="https://carto.com">CARTO</a>',
+  subdomains: 'abcd', maxZoom: 19,
+}).addTo(map);
+
+// ═══════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+
+// Quadratic Bézier arc between two lat/lng points
+function arc(la1, ln1, la2, ln2, n = 60) {
+  const mla = (la1+la2)/2, mln = (ln1+ln2)/2;
+  const dla = la2-la1, dln = ln2-ln1;
+  const dist = Math.hypot(dla, dln) || 1e-9;
+  const k = dist * 0.22;
+  const cla = mla + (-dln/dist)*k;
+  const cln = mln + ( dla/dist)*k;
+  return Array.from({length:n+1}, (_,i) => {
+    const t=i/n, u=1-t;
+    return [u*u*la1 + 2*u*t*cla + t*t*la2,
+            u*u*ln1 + 2*u*t*cln + t*t*ln2];
+  });
+}
+
+function hexToRgba(hex, alpha) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function mkIcon(color, size) {
+  return L.divIcon({
+    className:'',
+    html:`<div style="width:${size}px;height:${size}px;border-radius:50%;
+                background:${color};border:2px solid rgba(255,255,255,.85);
+                box-shadow:0 0 ${size+2}px ${hexToRgba(color,.5)};"></div>`,
+    iconSize:[size,size], iconAnchor:[size/2,size/2],
+  });
+}
+
+function mkDimIcon(size) {
+  return L.divIcon({
+    className:'',
+    html:`<div style="width:${size}px;height:${size}px;border-radius:50%;
+                background:#2D3F55;border:2px solid #3D4F63;"></div>`,
+    iconSize:[size,size], iconAnchor:[size/2,size/2],
+  });
+}
+
+function popupHtml(iata, route) {
+  const a = AP[iata];
+  const rc = REG_COLOR[a.reg] || '#94A3B8';
+  return `<div style="font-family:sans-serif;min-width:145px;">
+    <b style="font-size:14px;color:#F1F5F9;">${iata}</b><br>
+    <span style="color:#94A3B8;font-size:11px;">${a.name}</span><br>
+    <span style="display:inline-block;width:7px;height:7px;border-radius:50%;
+                 background:${rc};margin:4px 4px 0 0;vertical-align:middle;"></span>
+    <span style="color:#CBD5E1;font-size:11px;">${a.reg}</span>
+    ${route ? `<div style="margin-top:5px;font-size:11px;font-weight:700;color:${route.color};">${route.label}</div>` : ''}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// LAYER MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════════
+
+let groups = {};
+const bgGroup = L.layerGroup().addTo(map);
+
+function clearGroups() {
+  Object.values(groups).forEach(g => map.removeLayer(g));
+  groups = {};
+}
+
+function renderBg(skipIatas) {
+  bgGroup.clearLayers();
+  Object.entries(AP).forEach(([iata, a]) => {
+    if (skipIatas.has(iata)) return;
+    const icon = L.divIcon({
+      className:'',
+      html:`<div style="width:6px;height:6px;border-radius:50%;background:#2D3F55;border:1px solid #3D4F63;"></div>`,
+      iconSize:[6,6], iconAnchor:[3,3],
+    });
+    const m = L.marker([a.lat,a.lng],{icon}).bindPopup(popupHtml(iata,null));
+    const tt = L.tooltip({permanent:true,direction:'top',offset:[0,-8],className:''})
+      .setContent(`<span class="ap-lbl" style="opacity:.4;">${iata}</span>`);
+    m.bindTooltip(tt);
+    bgGroup.addLayer(m);
+  });
+}
+
+function renderRoute(route, animated) {
+  const g = L.layerGroup();
+
+  for (let i = 0; i < route.path.length-1; i++) {
+    const a = AP[route.path[i]], b = AP[route.path[i+1]];
+    const pts = arc(a.lat,a.lng,b.lat,b.lng);
+    // glow halo
+    L.polyline(pts,{color:route.color,weight:10,opacity:.1,smoothFactor:1}).addTo(g);
+    // main line
+    L.polyline(pts,{
+      color: route.color,
+      weight: animated ? 2.5 : 1.5,
+      opacity: animated ? .85 : .2,
+      smoothFactor: 1,
+      className: animated ? 'flow' : '',
+    }).addTo(g);
+  }
+
+  route.path.forEach((iata, idx) => {
+    const isEnd = idx===0 || idx===route.path.length-1;
+    const sz = isEnd ? 14 : 10;
+    const icon = animated ? mkIcon(route.color, sz) : mkDimIcon(sz);
+    const m = L.marker([AP[iata].lat, AP[iata].lng], {icon})
+      .bindPopup(popupHtml(iata, route));
+
+    if (animated) {
+      const labelColor = isEnd ? route.color : '#CBD5E1';
+      const tt = L.tooltip({permanent:true,direction:'top',offset:[0,-(sz/2+7)],className:''})
+        .setContent(`<span class="ap-lbl ap-lbl-hi" style="color:${labelColor};border-color:${route.color}55;">${iata}</span>`);
+      m.bindTooltip(tt);
+    }
+    g.addLayer(m);
+  });
+
+  return g;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// INTERACTIONS
+// ═══════════════════════════════════════════════════════════════════════
+
+let activeId  = null;
+let allActive = false;
+
+function selectRoute(id) {
+  clearGroups();
+  const panel = document.getElementById('info-panel');
+
+  if (activeId === id) {
+    // toggle off
+    activeId = null; allActive = false;
+    setCardActive(null);
+    panel.classList.remove('show');
+    renderBg(new Set());
+    return;
+  }
+
+  activeId = id; allActive = false;
+  setCardActive(id);
+  document.getElementById('btn-all').classList.remove('active');
+
+  const route = ROUTES.find(r => r.id === id);
+  const activeAPs = new Set(route.path);
+
+  // Dim other routes
+  ROUTES.filter(r => r.id !== id).forEach(r => {
+    const g = renderRoute(r, false);
+    g.addTo(map);
+    groups[r.id+'_dim'] = g;
+  });
+
+  // Active route animated
+  const g = renderRoute(route, true);
+  g.addTo(map);
+  groups[id] = g;
+
+  renderBg(activeAPs);
+
+  const bounds = route.path.map(iata => [AP[iata].lat, AP[iata].lng]);
+  map.flyToBounds(bounds, {padding:[80,80], maxZoom:7, duration:0.8});
+
+  // Info panel
+  const stops = route.path.length - 2;
+  document.getElementById('info-title').textContent = route.label;
+  document.getElementById('info-title').style.color = route.color;
+  document.getElementById('ip-path').textContent = route.path.join(' → ');
+  document.getElementById('ip-cost').textContent = route.cost.toFixed(2);
+  document.getElementById('ip-stops').textContent =
+    stops === 0 ? 'Voo direto' : `${stops} escala${stops>1?'s':''}`;
+
+  const viaRow = document.getElementById('ip-via-row');
+  if (stops > 0) {
+    document.getElementById('ip-via').textContent = route.path.slice(1,-1).join(', ');
+    viaRow.style.display = 'flex';
+  } else {
+    viaRow.style.display = 'none';
+  }
+  panel.classList.add('show');
+}
+
+function toggleAll() {
+  if (allActive) {
+    clearGroups(); allActive = false; activeId = null;
+    setCardActive(null);
+    document.getElementById('btn-all').classList.remove('active');
+    document.getElementById('info-panel').classList.remove('show');
+    renderBg(new Set());
+    return;
+  }
+
+  clearGroups(); allActive = true; activeId = null;
+  setCardActive(null);
+  document.getElementById('btn-all').classList.add('active');
+  document.getElementById('info-panel').classList.remove('show');
+
+  const allAPs = new Set(ROUTES.flatMap(r => r.path));
+  ROUTES.forEach(r => {
+    const g = renderRoute(r, true);
+    g.addTo(map);
+    groups[r.id] = g;
+  });
+  renderBg(allAPs);
+  map.flyToBounds([[-34,-74],[6,-28]], {padding:[20,20], duration:0.8});
+}
+
+function setCardActive(id) {
+  document.querySelectorAll('.route-card').forEach(el =>
+    el.classList.toggle('active', el.dataset.id === id)
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BUILD SIDEBAR
+// ═══════════════════════════════════════════════════════════════════════
+
+const sbRoutes = document.getElementById('sb-routes');
+
+ROUTES.forEach(route => {
+  const stops = route.path.length - 2;
+  const stopsLabel = stops === 0 ? 'Voo direto' : `${stops} escala${stops>1?'s':''}`;
+
+  const el = document.createElement('div');
+  el.className = 'route-card';
+  el.dataset.id = route.id;
+  el.style.setProperty('--c', route.color);
+  el.style.setProperty('--c-bg', hexToRgba(route.color, 0.08));
+  el.innerHTML = `
+    <div class="rc-head">
+      <div class="rc-dot"></div>
+      <div class="rc-name">${route.label}</div>
+    </div>
+    <div class="rc-path">${route.path.join(' → ')}</div>
+    <div class="rc-foot">
+      <span class="rc-cost">Custo: ${route.cost.toFixed(2)}</span>
+      <span class="rc-stops">${stopsLabel}</span>
+    </div>`;
+  el.addEventListener('click', () => selectRoute(route.id));
+  sbRoutes.appendChild(el);
+});
+
+document.getElementById('btn-all').addEventListener('click', toggleAll);
+
+// ── INIT ──────────────────────────────────────────────────────────────
+renderBg(new Set());
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "algoritmo": "DFS",
+  "origem": "MAO",
+  "ordem_visita": [
+    "MAO",
+    "BSB",
+    "SSA",
+    "REC",
+    "CGH",
+    "CNF",
+    "GRU",
+    "VIX",
+    "GIG",
+    "POA",
+    "FLN",
+    "CWB",
+    "GYN",
+    "FOR",
+    "BEL",
+    "NAT",
+    "JPA",
+    "THE",
+    "PVH",
+    "RBR"
+  ]
+}

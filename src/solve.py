@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 from src.graphs.io import carregar_grafo
+from src.graphs.algorithms import dijkstra
 
 def processar_parte1():
     grafo = carregar_grafo('data/aeroportos_data.csv', 'data/adjacencias_aeroportos.csv')
@@ -67,5 +68,26 @@ def processar_parte1():
     
     df_ego[['aeroporto', 'grau']].to_csv('out/graus.csv', index=False)
 
+def processar_rotas():
+    grafo = carregar_grafo('data/aeroportos_data.csv', 'data/adjacencias_aeroportos.csv')
+    df_rotas = pd.read_csv('data/rotas.csv')
+
+    resultados = []
+    for _, row in df_rotas.iterrows():
+        origem, destino = str(row['origem']).strip(), str(row['destino']).strip()
+        custo, caminho = dijkstra(grafo, origem, destino)
+        resultados.append({
+            'origem': origem,
+            'destino': destino,
+            'custo': round(custo, 4) if custo != float('inf') else 'INF',
+            'caminho': '→'.join(caminho) if caminho else '',
+        })
+
+    pd.DataFrame(resultados).to_csv('out/distancias_rotas.csv', index=False)
+    print("Salvo: out/distancias_rotas.csv")
+    return grafo
+
+
 if __name__ == "__main__":
     processar_parte1()
+    processar_rotas()
