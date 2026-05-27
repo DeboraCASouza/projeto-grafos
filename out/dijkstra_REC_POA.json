@@ -1,0 +1,10 @@
+{
+  "algoritmo": "DIJKSTRA",
+  "origem": "REC",
+  "destino": "POA",
+  "custo": 3.62,
+  "caminho": [
+    "REC",
+    "POA"
+  ]
+}
