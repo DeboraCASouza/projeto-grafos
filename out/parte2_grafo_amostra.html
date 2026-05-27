@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Grafo de Similaridade Netflix — Projeto Grafos</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.css" crossorigin="anonymous"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif}
+    body{background:#11111b;color:#cdd6f4;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+    /* oculta tooltip nativo do vis.js — usamos tooltip customizado */
+    .vis-tooltip{display:none!important}
+
+    #main{display:flex;flex:1;overflow:hidden;padding-top:52px}
+
+    /* ── Sidebar ── */
+    #sidebar{
+      width:300px;min-width:300px;background:#1e1e2e;border-right:1px solid #313244;
+      display:flex;flex-direction:column;padding:18px 16px;overflow-y:auto;gap:20px;
+    }
+    #sidebar::-webkit-scrollbar{width:4px}
+    #sidebar::-webkit-scrollbar-thumb{background:#313244;border-radius:2px}
+    .sidebar-title{font-size:16px;font-weight:700;color:#cdd6f4;margin-bottom:2px}
+    .sidebar-sub{font-size:11px;color:#6c7086}
+    .section-label{font-size:10px;font-weight:700;color:#6c7086;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+
+    /* stats */
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .stat-card{background:#181825;border:1px solid #313244;border-radius:8px;padding:10px 12px}
+    .stat-card .val{font-size:18px;font-weight:700;color:#cba6f7}
+    .stat-card .lbl{font-size:10px;color:#6c7086;margin-top:2px}
+
+    /* search */
+    input[type="text"]{
+      width:100%;padding:9px 12px;background:#181825;border:1px solid #313244;
+      color:#cdd6f4;border-radius:8px;outline:none;font-size:13px;
+    }
+    input[type="text"]:focus{border-color:#cba6f7}
+
+    /* slider */
+    .slider-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .slider-val{font-size:12px;color:#cba6f7;font-weight:700}
+    input[type="range"]{width:100%;accent-color:#cba6f7;cursor:pointer}
+    .slider-hint{display:flex;justify-content:space-between;font-size:10px;color:#45475a;margin-top:4px}
+
+    /* legend */
+    .legend-row{display:flex;align-items:center;gap:10px;font-size:12px;color:#a6adc8;margin-bottom:6px}
+    .leg-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;border:2px solid #cba6f7}
+    .leg-line{height:2px;width:22px;border-radius:1px;flex-shrink:0}
+    .leg-line.strong{height:4px;background:#cba6f760}
+    .leg-line.weak{background:#31324450}
+
+    /* ── Network canvas ── */
+    #net{flex:1;background:#11111b}
+
+    /* ── Tooltip customizado ── */
+    #tooltip{
+      position:fixed;display:none;pointer-events:none;
+      background:#1e1e2e;border:1px solid #45475a;border-radius:12px;
+      padding:14px 16px;font-size:12px;color:#cdd6f4;
+      box-shadow:0 8px 32px #000a;z-index:9998;
+      min-width:200px;max-width:260px;
+    }
+    .tt-name{font-size:14px;font-weight:700;color:#cba6f7;margin-bottom:10px;
+               padding-bottom:8px;border-bottom:1px solid #313244}
+    .tt-row{display:flex;justify-content:space-between;gap:12px;margin-bottom:5px}
+    .tt-lbl{color:#6c7086;font-size:11px}
+    .tt-val{color:#cdd6f4;font-weight:600;font-size:11px;text-align:right}
+    .tt-edge{margin-top:8px;padding-top:8px;border-top:1px solid #313244;font-size:11px;color:#a6adc8;line-height:1.5}
+    .tt-tag{display:inline-block;background:#31324460;border-radius:4px;
+              padding:1px 6px;margin:2px 2px 0 0;font-size:10px;color:#89dceb}
+  </style>
+</head>
+<body>
+<script src="navbar.js"></script>
+
+<div id="main">
+  <div id="sidebar">
+    <div>
+      <div class="sidebar-title">Grafo Netflix</div>
+      <div class="sidebar-sub">45 títulos com maior grau de conexão</div>
+    </div>
+
+    <div>
+      <div class="section-label">Estatísticas</div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="val">45</div><div class="lbl">Títulos</div></div>
+        <div class="stat-card"><div class="val" id="stat-edges">333</div><div class="lbl">Conexões visíveis</div></div>
+        <div class="stat-card"><div class="val">182</div><div class="lbl">Nós totais</div></div>
+        <div class="stat-card"><div class="val">615</div><div class="lbl">Arestas totais</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Buscar título</div>
+      <input type="text" id="searchInput" placeholder="Nome do título…" oninput="searchNode(this.value)">
+    </div>
+
+    <div>
+      <div class="section-label">Filtrar por força de conexão</div>
+      <div class="slider-row">
+        <span style="font-size:12px;color:#a6adc8">Atributos em comum</span>
+        <span class="slider-val" id="strength-val">1+</span>
+      </div>
+      <input type="range" id="strength-slider" min="1" max="4" value="1" oninput="filterStrength(this.value)">
+      <div class="slider-hint"><span>Tudo</span><span>Fraco</span><span>Médio</span><span>Forte</span></div>
+      <p style="font-size:10px;color:#45475a;margin-top:6px">Deslize para mostrar só conexões mais fortes e reduzir a densidade visual</p>
+    </div>
+
+    <div>
+      <div class="section-label">Legenda</div>
+      <div class="legend-row"><div class="leg-dot" style="background:#7c3aed;width:14px;height:14px"></div><span>Nó — tamanho proporcional ao grau</span></div>
+      <div class="legend-row"><div class="leg-line weak"></div><span>Conexão simples (1 atributo)</span></div>
+      <div class="legend-row"><div class="leg-line strong"></div><span>Conexão forte (2+ atributos)</span></div>
+      <div class="legend-row"><div class="leg-line" style="width:22px;height:4px;background:#cba6f7;border-radius:1px"></div><span>Conexão muito forte (ator/diretor)</span></div>
+    </div>
+
+    <div style="font-size:10px;color:#45475a;line-height:1.6;margin-top:auto">
+      Arraste para mover · Scroll para zoom · Clique num nó para fixar · Passe o mouse para detalhes
+    </div>
+  </div>
+
+  <div id="net"></div>
+</div>
+
+<!-- Tooltip customizado -->
+<div id="tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-row"><span class="tt-lbl">Grau</span><span class="tt-val" id="tt-grau"></span></div>
+  <div class="tt-row"><span class="tt-lbl">IMDb</span><span class="tt-val" id="tt-imdb"></span></div>
+  <div class="tt-row"><span class="tt-lbl">País</span><span class="tt-val" id="tt-pais"></span></div>
+  <div class="tt-edge" id="tt-edge" style="display:none"></div>
+</div>
+
+<script>
+// ── Dados ────────────────────────────────────────────────────────────────────
+var ALL_NODES = [{"id": "Narcos", "label": "Narcos", "title": "<b>Narcos</b><br>Grau: 11<br>IMDb: 8.8<br>País: USA/Colombia", "value": 11, "size": 19.35}, {"id": "One Day", "label": "One Day", "title": "<b>One Day</b><br>Grau: 17<br>IMDb: 8.1<br>País: UK", "value": 17, "size": 24.45}, {"id": "Fool Me Once", "label": "Fool Me Once", "title": "<b>Fool Me Once</b><br>Grau: 16<br>IMDb: 6.8<br>País: UK", "value": 16, "size": 23.6}, {"id": "Stranger Things 4", "label": "Stranger Things 4", "title": "<b>Stranger Things 4</b><br>Grau: 18<br>IMDb: 8.7<br>País: USA", "value": 18, "size": 25.299999999999997}, {"id": "Maid", "label": "Maid", "title": "<b>Maid</b><br>Grau: 16<br>IMDb: 8.3<br>País: USA", "value": 16, "size": 23.6}, {"id": "Bodies", "label": "Bodies", "title": "<b>Bodies</b><br>Grau: 21<br>IMDb: 7.3<br>País: UK", "value": 21, "size": 27.849999999999998}, {"id": "Sweet Magnolias", "label": "Sweet Magnolias", "title": "<b>Sweet Magnolias</b><br>Grau: 17<br>IMDb: 7.3<br>País: USA", "value": 17, "size": 24.45}, {"id": "Russian Doll", "label": "Russian Doll", "title": "<b>Russian Doll</b><br>Grau: 25<br>IMDb: 7.7<br>País: USA", "value": 25, "size": 31.25}, {"id": "Running Point", "label": "Running Point", "title": "<b>Running Point</b><br>Grau: 12<br>IMDb: 6.7<br>País: USA", "value": 12, "size": 20.2}, {"id": "Fake Profile", "label": "Fake Profile", "title": "<b>Fake Profile</b><br>Grau: 25<br>IMDb: 5.6<br>País: Colombia", "value": 25, "size": 31.25}, {"id": "Flaked", "label": "Flaked", "title": "<b>Flaked</b><br>Grau: 27<br>IMDb: 7.2<br>País: USA", "value": 27, "size": 32.95}, {"id": "1899", "label": "1899", "title": "<b>1899</b><br>Grau: 22<br>IMDb: 7.3<br>País: Germany", "value": 22, "size": 28.7}, {"id": "Love", "label": "Love", "title": "<b>Love</b><br>Grau: 14<br>IMDb: 7.7<br>País: USA", "value": 14, "size": 21.9}, {"id": "Sex/Life", "label": "Sex/Life", "title": "<b>Sex/Life</b><br>Grau: 17<br>IMDb: 5.5<br>País: USA", "value": 17, "size": 24.45}, {"id": "Stranger Things 5", "label": "Stranger Things 5", "title": "<b>Stranger Things 5</b><br>Grau: 18<br>IMDb: 8.7<br>País: USA", "value": 18, "size": 25.299999999999997}, {"id": "Little Women", "label": "Little Women", "title": "<b>Little Women</b><br>Grau: 25<br>IMDb: 8.1<br>País: South Korea", "value": 25, "size": 31.25}, {"id": "Dear White People", "label": "Dear White People", "title": "<b>Dear White People</b><br>Grau: 16<br>IMDb: 6.4<br>País: USA", "value": 16, "size": 23.6}, {"id": "Altered Carbon", "label": "Altered Carbon", "title": "<b>Altered Carbon</b><br>Grau: 14<br>IMDb: 7.9<br>País: USA", "value": 14, "size": 21.9}, {"id": "Stranger Things", "label": "Stranger Things", "title": "<b>Stranger Things</b><br>Grau: 18<br>IMDb: 8.7<br>País: USA", "value": 18, "size": 25.299999999999997}, {"id": "Baby Reindeer", "label": "Baby Reindeer", "title": "<b>Baby Reindeer</b><br>Grau: 17<br>IMDb: 7.8<br>País: UK", "value": 17, "size": 24.45}, {"id": "Beef", "label": "Beef", "title": "<b>Beef</b><br>Grau: 17<br>IMDb: 8<br>País: USA", "value": 17, "size": 24.45}, {"id": "Stranger Things 3", "label": "Stranger Things 3", "title": "<b>Stranger Things 3</b><br>Grau: 18<br>IMDb: 8.7<br>País: USA", "value": 18, "size": 25.299999999999997}, {"id": "Parasyte: The Grey", "label": "Parasyte: The Grey", "title": "<b>Parasyte: The Grey</b><br>Grau: 19<br>IMDb: 6.9<br>País: South Korea", "value": 19, "size": 26.15}, {"id": "Furies", "label": "Furies", "title": "<b>Furies</b><br>Grau: 12<br>IMDb: 6.3<br>País: France", "value": 12, "size": 20.2}, {"id": "The OA", "label": "The OA", "title": "<b>The OA</b><br>Grau: 22<br>IMDb: 7.8<br>País: USA", "value": 22, "size": 28.7}, {"id": "Devil in Ohio", "label": "Devil in Ohio", "title": "<b>Devil in Ohio</b><br>Grau: 17<br>IMDb: 5.9<br>País: USA", "value": 17, "size": 24.45}, {"id": "11.22.63", "label": "11.22.63", "title": "<b>11.22.63</b><br>Grau: 14<br>IMDb: 8.1<br>País: USA", "value": 14, "size": 21.9}, {"id": "Missing You", "label": "Missing You", "title": "<b>Missing You</b><br>Grau: 12<br>IMDb: 7.1<br>País: UK", "value": 12, "size": 20.2}, {"id": "Archive 81", "label": "Archive 81", "title": "<b>Archive 81</b><br>Grau: 17<br>IMDb: 7.3<br>País: USA", "value": 17, "size": 24.45}, {"id": "When They See Us", "label": "When They See Us", "title": "<b>When They See Us</b><br>Grau: 16<br>IMDb: 8.9<br>País: USA", "value": 16, "size": 23.6}, {"id": "Longmire", "label": "Longmire", "title": "<b>Longmire</b><br>Grau: 11<br>IMDb: 8.3<br>País: USA", "value": 11, "size": 19.35}, {"id": "The Perfect Couple", "label": "The Perfect Couple", "title": "<b>The Perfect Couple</b><br>Grau: 16<br>IMDb: 6.5<br>País: USA", "value": 16, "size": 23.6}, {"id": "Bloodline", "label": "Bloodline", "title": "<b>Bloodline</b><br>Grau: 18<br>IMDb: 7.9<br>País: USA", "value": 18, "size": 25.299999999999997}, {"id": "GLOW", "label": "GLOW", "title": "<b>GLOW</b><br>Grau: 26<br>IMDb: 8<br>País: USA", "value": 26, "size": 32.099999999999994}, {"id": "The Brothers Sun", "label": "The Brothers Sun", "title": "<b>The Brothers Sun</b><br>Grau: 16<br>IMDb: 7.6<br>País: USA", "value": 16, "size": 23.6}, {"id": "Cowboy Bebop", "label": "Cowboy Bebop", "title": "<b>Cowboy Bebop</b><br>Grau: 14<br>IMDb: 6.7<br>País: USA", "value": 14, "size": 21.9}, {"id": "A House of Dynamite", "label": "A House of Dynamite", "title": "<b>A House of Dynamite</b><br>Grau: 16<br>IMDb: 7.2<br>País: USA", "value": 16, "size": 23.6}, {"id": "The Ranch", "label": "The Ranch", "title": "<b>The Ranch</b><br>Grau: 12<br>IMDb: 7.5<br>País: USA", "value": 12, "size": 20.2}, {"id": "Travelers", "label": "Travelers", "title": "<b>Travelers</b><br>Grau: 22<br>IMDb: 8<br>País: Canada/USA", "value": 22, "size": 28.7}, {"id": "DAHMER", "label": "DAHMER", "title": "<b>DAHMER</b><br>Grau: 18<br>IMDb: 7.9<br>País: USA", "value": 18, "size": 25.299999999999997}, {"id": "Black Mirror", "label": "Black Mirror", "title": "<b>Black Mirror</b><br>Grau: 16<br>IMDb: 8.7<br>País: UK", "value": 16, "size": 23.6}, {"id": "Fuller House", "label": "Fuller House", "title": "<b>Fuller House</b><br>Grau: 12<br>IMDb: 6.7<br>País: USA", "value": 12, "size": 20.2}, {"id": "3%", "label": "3%", "title": "<b>3%</b><br>Grau: 30<br>IMDb: 7.3<br>País: Brazil", "value": 30, "size": 35.5}, {"id": "The Watcher", "label": "The Watcher", "title": "<b>The Watcher</b><br>Grau: 14<br>IMDb: 6.5<br>País: USA", "value": 14, "size": 21.9}, {"id": "Unorthodox", "label": "Unorthodox", "title": "<b>Unorthodox</b><br>Grau: 16<br>IMDb: 8<br>País: Germany", "value": 16, "size": 23.6}];
+var ALL_EDGES = [{"from": "Narcos", "to": "Longmire", "title": "generos: Crime Drama", "width": 2}, {"from": "Narcos", "to": "Missing You", "title": "generos: Crime Drama", "width": 2}, {"from": "One Day", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "Love", "title": "generos: Romance", "width": 2}, {"from": "One Day", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "Flaked", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "Dear White People", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "When They See Us", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "Sweet Magnolias", "title": "generos: Drama, Romance", "width": 5}, {"from": "One Day", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "Maid", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "Sex/Life", "title": "generos: Drama, Romance", "width": 5}, {"from": "One Day", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "Little Women", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "Beef", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "Fake Profile", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "Baby Reindeer", "title": "generos: Drama", "width": 2}, {"from": "One Day", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "Fool Me Once", "to": "Travelers", "title": "generos: Mystery", "width": 2}, {"from": "Fool Me Once", "to": "The OA", "title": "generos: Mystery", "width": 2}, {"from": "Fool Me Once", "to": "Archive 81", "title": "generos: Mystery", "width": 2}, {"from": "Fool Me Once", "to": "The Watcher", "title": "generos: Mystery", "width": 2}, {"from": "Fool Me Once", "to": "1899", "title": "generos: Mystery", "width": 2}, {"from": "Fool Me Once", "to": "Little Women", "title": "generos: Mystery", "width": 2}, {"from": "Fool Me Once", "to": "Devil in Ohio", "title": "generos: Mystery", "width": 2}, {"from": "Fool Me Once", "to": "Bodies", "title": "generos: Crime", "width": 2}, {"from": "Fool Me Once", "to": "Fake Profile", "title": "generos: Mystery", "width": 2}, {"from": "Fool Me Once", "to": "The Perfect Couple", "title": "generos: Crime, Mystery", "width": 5}, {"from": "Fool Me Once", "to": "Furies", "title": "generos: Crime", "width": 2}, {"from": "Stranger Things 4", "to": "Stranger Things", "title": "atores: Millie Bobby Brown; diretores: The Duffer Brothers; generos: Horror, Sci", "width": 10}, {"from": "Stranger Things 4", "to": "11.22.63", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 4", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 4", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 4", "to": "Travelers", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 4", "to": "The OA", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 4", "to": "Stranger Things 3", "title": "atores: Millie Bobby Brown; diretores: The Duffer Brothers; generos: Horror, Sci", "width": 10}, {"from": "Stranger Things 4", "to": "Russian Doll", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 4", "to": "Altered Carbon", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 4", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 4", "to": "Archive 81", "title": "generos: Horror", "width": 2}, {"from": "Stranger Things 4", "to": "1899", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 4", "to": "Devil in Ohio", "title": "generos: Horror", "width": 2}, {"from": "Stranger Things 4", "to": "Bodies", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 4", "to": "Parasyte: The Grey", "title": "generos: Horror, Sci-Fi", "width": 5}, {"from": "Stranger Things 4", "to": "Stranger Things 5", "title": "diretores: The Duffer Brothers; generos: Horror, Sci-Fi", "width": 8}, {"from": "Maid", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "Flaked", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "Dear White People", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "When They See Us", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "Sweet Magnolias", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "Sex/Life", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "Little Women", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "Beef", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "Fake Profile", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "Baby Reindeer", "title": "generos: Drama", "width": 2}, {"from": "Maid", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "Bodies", "to": "Stranger Things", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "11.22.63", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "Travelers", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "The OA", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "Stranger Things 3", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "Russian Doll", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "Altered Carbon", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "1899", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "The Perfect Couple", "title": "generos: Crime", "width": 2}, {"from": "Bodies", "to": "Parasyte: The Grey", "title": "generos: Sci-Fi", "width": 2}, {"from": "Bodies", "to": "Furies", "title": "generos: Crime", "width": 2}, {"from": "Bodies", "to": "Stranger Things 5", "title": "generos: Sci-Fi", "width": 2}, {"from": "Sweet Magnolias", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "Love", "title": "generos: Romance", "width": 2}, {"from": "Sweet Magnolias", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "Flaked", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "Dear White People", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "When They See Us", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "Sex/Life", "title": "generos: Drama, Romance", "width": 5}, {"from": "Sweet Magnolias", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "Little Women", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "Beef", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "Fake Profile", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "Baby Reindeer", "title": "generos: Drama", "width": 2}, {"from": "Sweet Magnolias", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "Russian Doll", "to": "Stranger Things", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "Fuller House", "title": "generos: Comedy", "width": 2}, {"from": "Russian Doll", "to": "The Ranch", "title": "generos: Comedy", "width": 2}, {"from": "Russian Doll", "to": "11.22.63", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "Love", "title": "generos: Comedy", "width": 2}, {"from": "Russian Doll", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "Flaked", "title": "generos: Comedy", "width": 2}, {"from": "Russian Doll", "to": "Travelers", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "The OA", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "GLOW", "title": "generos: Comedy", "width": 2}, {"from": "Russian Doll", "to": "Stranger Things 3", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "Altered Carbon", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "1899", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "Parasyte: The Grey", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "The Brothers Sun", "title": "generos: Comedy", "width": 2}, {"from": "Russian Doll", "to": "Stranger Things 5", "title": "generos: Sci-Fi", "width": 2}, {"from": "Russian Doll", "to": "Running Point", "title": "generos: Comedy", "width": 2}, {"from": "Running Point", "to": "Fuller House", "title": "generos: Comedy", "width": 2}, {"from": "Running Point", "to": "The Ranch", "title": "generos: Comedy", "width": 2}, {"from": "Running Point", "to": "Love", "title": "generos: Comedy", "width": 2}, {"from": "Running Point", "to": "Flaked", "title": "generos: Comedy", "width": 2}, {"from": "Running Point", "to": "GLOW", "title": "generos: Comedy", "width": 2}, {"from": "Running Point", "to": "The Brothers Sun", "title": "generos: Comedy", "width": 2}, {"from": "Fake Profile", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "Flaked", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "Travelers", "title": "generos: Mystery", "width": 2}, {"from": "Fake Profile", "to": "The OA", "title": "generos: Mystery", "width": 2}, {"from": "Fake Profile", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "Dear White People", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "When They See Us", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "Sex/Life", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "Archive 81", "title": "generos: Mystery", "width": 2}, {"from": "Fake Profile", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "The Watcher", "title": "generos: Mystery", "width": 2}, {"from": "Fake Profile", "to": "1899", "title": "generos: Mystery", "width": 2}, {"from": "Fake Profile", "to": "Little Women", "title": "generos: Drama, Mystery", "width": 5}, {"from": "Fake Profile", "to": "Devil in Ohio", "title": "generos: Mystery", "width": 2}, {"from": "Fake Profile", "to": "Beef", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "Baby Reindeer", "title": "generos: Drama", "width": 2}, {"from": "Fake Profile", "to": "The Perfect Couple", "title": "generos: Mystery", "width": 2}, {"from": "Fake Profile", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "Fuller House", "title": "generos: Comedy", "width": 2}, {"from": "Flaked", "to": "The Ranch", "title": "generos: Comedy", "width": 2}, {"from": "Flaked", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "Love", "title": "generos: Comedy", "width": 2}, {"from": "Flaked", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "GLOW", "title": "generos: Comedy, Drama", "width": 5}, {"from": "Flaked", "to": "Dear White People", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "When They See Us", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "Sex/Life", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "Little Women", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "Beef", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "Baby Reindeer", "title": "generos: Drama", "width": 2}, {"from": "Flaked", "to": "The Brothers Sun", "title": "generos: Comedy", "width": 2}, {"from": "Flaked", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "1899", "to": "Stranger Things", "title": "generos: Sci-Fi", "width": 2}, {"from": "1899", "to": "11.22.63", "title": "generos: Sci-Fi", "width": 2}, {"from": "1899", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "1899", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "1899", "to": "Travelers", "title": "generos: Mystery, Sci-Fi", "width": 5}, {"from": "1899", "to": "The OA", "title": "generos: Mystery, Sci-Fi", "width": 5}, {"from": "1899", "to": "Stranger Things 3", "title": "generos: Sci-Fi", "width": 2}, {"from": "1899", "to": "Altered Carbon", "title": "generos: Sci-Fi", "width": 2}, {"from": "1899", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "1899", "to": "Archive 81", "title": "generos: Mystery", "width": 2}, {"from": "1899", "to": "The Watcher", "title": "generos: Mystery", "width": 2}, {"from": "1899", "to": "Little Women", "title": "generos: Mystery", "width": 2}, {"from": "1899", "to": "Devil in Ohio", "title": "generos: Mystery", "width": 2}, {"from": "1899", "to": "The Perfect Couple", "title": "generos: Mystery", "width": 2}, {"from": "1899", "to": "Parasyte: The Grey", "title": "generos: Sci-Fi", "width": 2}, {"from": "1899", "to": "Stranger Things 5", "title": "generos: Sci-Fi", "width": 2}, {"from": "Love", "to": "Fuller House", "title": "generos: Comedy", "width": 2}, {"from": "Love", "to": "The Ranch", "title": "generos: Comedy", "width": 2}, {"from": "Love", "to": "GLOW", "title": "generos: Comedy", "width": 2}, {"from": "Love", "to": "Sex/Life", "title": "generos: Romance", "width": 2}, {"from": "Love", "to": "The Brothers Sun", "title": "generos: Comedy", "width": 2}, {"from": "Sex/Life", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "Sex/Life", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "Sex/Life", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "Sex/Life", "to": "Dear White People", "title": "generos: Drama", "width": 2}, {"from": "Sex/Life", "to": "When They See Us", "title": "generos: Drama", "width": 2}, {"from": "Sex/Life", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "Sex/Life", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "Sex/Life", "to": "Little Women", "title": "generos: Drama", "width": 2}, {"from": "Sex/Life", "to": "Beef", "title": "generos: Drama", "width": 2}, {"from": "Sex/Life", "to": "Baby Reindeer", "title": "generos: Drama", "width": 2}, {"from": "Sex/Life", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "Stranger Things 5", "to": "Stranger Things", "title": "diretores: The Duffer Brothers; generos: Horror, Sci-Fi", "width": 8}, {"from": "Stranger Things 5", "to": "11.22.63", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 5", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 5", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 5", "to": "Travelers", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 5", "to": "The OA", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 5", "to": "Stranger Things 3", "title": "diretores: The Duffer Brothers; generos: Horror, Sci-Fi", "width": 8}, {"from": "Stranger Things 5", "to": "Altered Carbon", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 5", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 5", "to": "Archive 81", "title": "generos: Horror", "width": 2}, {"from": "Stranger Things 5", "to": "Devil in Ohio", "title": "generos: Horror", "width": 2}, {"from": "Stranger Things 5", "to": "Parasyte: The Grey", "title": "generos: Horror, Sci-Fi", "width": 5}, {"from": "Little Women", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "Little Women", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "Little Women", "to": "Travelers", "title": "generos: Mystery", "width": 2}, {"from": "Little Women", "to": "The OA", "title": "generos: Mystery", "width": 2}, {"from": "Little Women", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "Little Women", "to": "Dear White People", "title": "generos: Drama", "width": 2}, {"from": "Little Women", "to": "When They See Us", "title": "generos: Drama", "width": 2}, {"from": "Little Women", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "Little Women", "to": "Archive 81", "title": "generos: Mystery", "width": 2}, {"from": "Little Women", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "Little Women", "to": "The Watcher", "title": "generos: Mystery", "width": 2}, {"from": "Little Women", "to": "Devil in Ohio", "title": "generos: Mystery", "width": 2}, {"from": "Little Women", "to": "Beef", "title": "generos: Drama", "width": 2}, {"from": "Little Women", "to": "Baby Reindeer", "title": "generos: Drama", "width": 2}, {"from": "Little Women", "to": "The Perfect Couple", "title": "generos: Mystery", "width": 2}, {"from": "Little Women", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "Dear White People", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "Dear White People", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "Dear White People", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "Dear White People", "to": "When They See Us", "title": "generos: Drama", "width": 2}, {"from": "Dear White People", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "Dear White People", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "Dear White People", "to": "Beef", "title": "generos: Drama", "width": 2}, {"from": "Dear White People", "to": "Baby Reindeer", "title": "generos: Drama", "width": 2}, {"from": "Dear White People", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "Altered Carbon", "to": "Stranger Things", "title": "generos: Sci-Fi", "width": 2}, {"from": "Altered Carbon", "to": "11.22.63", "title": "generos: Sci-Fi", "width": 2}, {"from": "Altered Carbon", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "Altered Carbon", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "Altered Carbon", "to": "Travelers", "title": "generos: Sci-Fi", "width": 2}, {"from": "Altered Carbon", "to": "The OA", "title": "generos: Sci-Fi", "width": 2}, {"from": "Altered Carbon", "to": "Stranger Things 3", "title": "generos: Sci-Fi", "width": 2}, {"from": "Altered Carbon", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "Altered Carbon", "to": "Parasyte: The Grey", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things", "to": "11.22.63", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things", "to": "Travelers", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things", "to": "The OA", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things", "to": "Stranger Things 3", "title": "atores: Millie Bobby Brown; diretores: The Duffer Brothers; generos: Horror, Sci", "width": 10}, {"from": "Stranger Things", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things", "to": "Archive 81", "title": "generos: Horror", "width": 2}, {"from": "Stranger Things", "to": "Devil in Ohio", "title": "generos: Horror", "width": 2}, {"from": "Stranger Things", "to": "Parasyte: The Grey", "title": "generos: Horror, Sci-Fi", "width": 5}, {"from": "Baby Reindeer", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "Baby Reindeer", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "Baby Reindeer", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "Baby Reindeer", "to": "When They See Us", "title": "generos: Drama", "width": 2}, {"from": "Baby Reindeer", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "Baby Reindeer", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "Baby Reindeer", "to": "Beef", "title": "generos: Dark Comedy, Drama", "width": 5}, {"from": "Baby Reindeer", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "Beef", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "Beef", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "Beef", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "Beef", "to": "When They See Us", "title": "generos: Drama", "width": 2}, {"from": "Beef", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "Beef", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "Beef", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "Stranger Things 3", "to": "11.22.63", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 3", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 3", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 3", "to": "Travelers", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 3", "to": "The OA", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 3", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "Stranger Things 3", "to": "Archive 81", "title": "generos: Horror", "width": 2}, {"from": "Stranger Things 3", "to": "Devil in Ohio", "title": "generos: Horror", "width": 2}, {"from": "Stranger Things 3", "to": "Parasyte: The Grey", "title": "generos: Horror, Sci-Fi", "width": 5}, {"from": "Parasyte: The Grey", "to": "11.22.63", "title": "generos: Sci-Fi", "width": 2}, {"from": "Parasyte: The Grey", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "Parasyte: The Grey", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "Parasyte: The Grey", "to": "Travelers", "title": "generos: Sci-Fi", "width": 2}, {"from": "Parasyte: The Grey", "to": "The OA", "title": "generos: Sci-Fi", "width": 2}, {"from": "Parasyte: The Grey", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "Parasyte: The Grey", "to": "Archive 81", "title": "generos: Horror", "width": 2}, {"from": "Parasyte: The Grey", "to": "Devil in Ohio", "title": "generos: Horror", "width": 2}, {"from": "Furies", "to": "The Perfect Couple", "title": "generos: Crime", "width": 2}, {"from": "Furies", "to": "The Brothers Sun", "title": "generos: Action", "width": 2}, {"from": "The OA", "to": "11.22.63", "title": "generos: Sci-Fi", "width": 2}, {"from": "The OA", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "The OA", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "The OA", "to": "Travelers", "title": "generos: Mystery, Sci-Fi", "width": 5}, {"from": "The OA", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "The OA", "to": "Archive 81", "title": "generos: Mystery", "width": 2}, {"from": "The OA", "to": "The Watcher", "title": "generos: Mystery", "width": 2}, {"from": "The OA", "to": "Devil in Ohio", "title": "generos: Mystery", "width": 2}, {"from": "The OA", "to": "The Perfect Couple", "title": "generos: Mystery", "width": 2}, {"from": "Devil in Ohio", "to": "Travelers", "title": "generos: Mystery", "width": 2}, {"from": "Devil in Ohio", "to": "Archive 81", "title": "generos: Horror, Mystery", "width": 5}, {"from": "Devil in Ohio", "to": "The Watcher", "title": "generos: Mystery", "width": 2}, {"from": "Devil in Ohio", "to": "The Perfect Couple", "title": "generos: Mystery", "width": 2}, {"from": "11.22.63", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "11.22.63", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "11.22.63", "to": "Travelers", "title": "generos: Sci-Fi", "width": 2}, {"from": "11.22.63", "to": "Cowboy Bebop", "title": "generos: Sci-Fi", "width": 2}, {"from": "Missing You", "to": "Longmire", "title": "generos: Crime Drama", "width": 2}, {"from": "Archive 81", "to": "Travelers", "title": "generos: Mystery", "width": 2}, {"from": "Archive 81", "to": "The Watcher", "title": "generos: Mystery", "width": 2}, {"from": "Archive 81", "to": "The Perfect Couple", "title": "generos: Mystery", "width": 2}, {"from": "When They See Us", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "When They See Us", "to": "Bloodline", "title": "generos: Drama", "width": 2}, {"from": "When They See Us", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "When They See Us", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "When They See Us", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "When They See Us", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "The Perfect Couple", "to": "Travelers", "title": "generos: Mystery", "width": 2}, {"from": "The Perfect Couple", "to": "The Watcher", "title": "generos: Mystery", "width": 2}, {"from": "Bloodline", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "Bloodline", "to": "GLOW", "title": "generos: Drama", "width": 2}, {"from": "Bloodline", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "Bloodline", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "Bloodline", "to": "The Watcher", "title": "generos: Thriller", "width": 2}, {"from": "Bloodline", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "GLOW", "to": "Fuller House", "title": "generos: Comedy", "width": 2}, {"from": "GLOW", "to": "The Ranch", "title": "generos: Comedy", "width": 2}, {"from": "GLOW", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "GLOW", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "GLOW", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "GLOW", "to": "The Brothers Sun", "title": "generos: Comedy", "width": 2}, {"from": "GLOW", "to": "A House of Dynamite", "title": "generos: Drama", "width": 2}, {"from": "The Brothers Sun", "to": "Fuller House", "title": "generos: Comedy", "width": 2}, {"from": "The Brothers Sun", "to": "The Ranch", "title": "generos: Comedy", "width": 2}, {"from": "Cowboy Bebop", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "Cowboy Bebop", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "Cowboy Bebop", "to": "Travelers", "title": "generos: Sci-Fi", "width": 2}, {"from": "A House of Dynamite", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "A House of Dynamite", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "A House of Dynamite", "to": "DAHMER", "title": "generos: Drama", "width": 2}, {"from": "The Ranch", "to": "Fuller House", "title": "generos: Comedy, Sitcom", "width": 5}, {"from": "Travelers", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "Travelers", "to": "Black Mirror", "title": "generos: Sci-Fi", "width": 2}, {"from": "Travelers", "to": "The Watcher", "title": "generos: Mystery", "width": 2}, {"from": "DAHMER", "to": "3%", "title": "generos: Drama", "width": 2}, {"from": "DAHMER", "to": "Unorthodox", "title": "generos: Drama", "width": 2}, {"from": "DAHMER", "to": "The Watcher", "title": "diretores: Ryan Murphy", "width": 2}, {"from": "Black Mirror", "to": "3%", "title": "generos: Sci-Fi", "width": 2}, {"from": "3%", "to": "Unorthodox", "title": "generos: Drama", "width": 2}];
+
+// ── Pre-processamento ─────────────────────────────────────────────────────────
+// Extrai campos dos nós a partir do título HTML e remove o title nativo
+var NODE_META = {};
+ALL_NODES.forEach(function(n) {
+  var m = n.title ? n.title.match(/Grau:\s*([\d]+).*?IMDb:\s*([\d.]+).*?País:\s*([^<"]+)/) : null;
+  NODE_META[n.id] = {
+    grau: m ? m[1] : String(n.value || '-'),
+    imdb: m ? m[2] : '-',
+    pais: m ? m[3].trim() : '-'
+  };
+  delete n.title; // remove para não aparecer tooltip nativo
+});
+
+// Colore arestas por força
+ALL_EDGES.forEach(function(e) {
+  var w = e.width || 2;
+  if (w >= 8)      e.color = {color:'#cba6f780',highlight:'#cba6f7',hover:'#cba6f7'};
+  else if (w >= 4) e.color = {color:'#45475a80',highlight:'#89b4fa',hover:'#89b4fa'};
+  else             e.color = {color:'#31324450',highlight:'#89b4fa',hover:'#89b4fa'};
+});
+
+var nodes = new vis.DataSet(ALL_NODES);
+var edges = new vis.DataSet(ALL_EDGES);
+
+// ── Opções de física ──────────────────────────────────────────────────────────
+var network = new vis.Network(
+  document.getElementById('net'),
+  {nodes: nodes, edges: edges},
+  {
+    nodes: {
+      shape: 'dot',
+      font: {color:'#cdd6f4', size:11, face:"'Segoe UI',Arial"},
+      borderWidth: 1.5,
+      color: {
+        background: '#7c3aed', border: '#cba6f7',
+        highlight: {background:'#f38ba8', border:'#f5c2e7'},
+        hover: {background:'#a78bfa', border:'#cba6f7'}
+      }
+    },
+    edges: {
+      smooth: {type:'continuous'},
+      selectionWidth: 3,
+      hoverWidth: 2
+    },
+    physics: {
+      stabilization: {iterations:400, fit:true},
+      barnesHut: {
+        gravitationalConstant: -20000,
+        centralGravity: 0.08,
+        springLength: 230,
+        springConstant: 0.018,
+        damping: 0.15,
+        avoidOverlap: 0.7
+      }
+    },
+    interaction: {
+      hover: true,
+      navigationButtons: true,
+      keyboard: {enabled:true},
+      tooltipDelay: 9999999
+    }
+  }
+);
+
+// ── Tooltip customizado ───────────────────────────────────────────────────────
+var tooltip = document.getElementById('tooltip');
+var mouseX = 0, mouseY = 0;
+
+document.getElementById('net').addEventListener('mousemove', function(e) {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  if (tooltip.style.display === 'block') positionTooltip();
+});
+
+function positionTooltip() {
+  var tx = mouseX + 16;
+  var ty = mouseY + 16;
+  var tw = tooltip.offsetWidth;
+  var th = tooltip.offsetHeight;
+  if (tx + tw > window.innerWidth  - 8) tx = mouseX - tw - 16;
+  if (ty + th > window.innerHeight - 8) ty = mouseY - th - 16;
+  tooltip.style.left = tx + 'px';
+  tooltip.style.top  = ty + 'px';
+}
+
+network.on('hoverNode', function(p) {
+  var id   = p.node;
+  var meta = NODE_META[id] || {};
+  document.getElementById('tt-name').textContent = id;
+  document.getElementById('tt-grau').textContent = meta.grau + ' conexões';
+  document.getElementById('tt-imdb').textContent = '★ ' + meta.imdb;
+  document.getElementById('tt-pais').textContent = meta.pais;
+  document.getElementById('tt-edge').style.display = 'none';
+  tooltip.style.display = 'block';
+  positionTooltip();
+});
+
+network.on('blurNode', function() {
+  tooltip.style.display = 'none';
+});
+
+network.on('hoverEdge', function(p) {
+  var e = ALL_EDGES.find(function(x) { return x.id === p.edge || (x.from + '__' + x.to) === p.edge; });
+  if (!e) { tooltip.style.display = 'none'; return; }
+  document.getElementById('tt-name').textContent = e.from + '  ↔  ' + e.to;
+  document.getElementById('tt-grau').textContent = '';
+  document.getElementById('tt-imdb').textContent = '';
+  document.getElementById('tt-pais').textContent = '';
+
+  var parts = e.title ? e.title.split(';') : [];
+  var html = parts.map(function(p) {
+    p = p.trim();
+    var colon = p.indexOf(':');
+    var tipo  = colon >= 0 ? p.slice(0, colon).trim() : 'conexão';
+    var vals  = colon >= 0 ? p.slice(colon+1).trim() : p;
+    var tags  = vals.split(',').map(function(v) { return '<span class="tt-tag">' + v.trim() + '</span>'; }).join('');
+    return '<div style="margin-bottom:4px"><span style="color:#6c7086;font-size:10px">' + tipo + '</span><br>' + tags + '</div>';
+  }).join('');
+  var ed = document.getElementById('tt-edge');
+  ed.innerHTML = html || e.title || '';
+  ed.style.display = html ? 'block' : 'none';
+
+  tooltip.style.display = 'block';
+  positionTooltip();
+});
+
+network.on('blurEdge', function() {
+  tooltip.style.display = 'none';
+});
+
+// ── Busca por título ──────────────────────────────────────────────────────────
+function searchNode(val) {
+  val = val.trim().toLowerCase();
+  if (!val) { network.unselectAll(); return; }
+  var found = ALL_NODES.filter(function(n) { return n.id.toLowerCase().includes(val); }).map(function(n) { return n.id; });
+  if (found.length) {
+    network.selectNodes(found);
+    if (found.length === 1) network.focus(found[0], {scale:1.5, animation:{duration:400}});
+  }
+}
+
+// ── Filtro por força de aresta ────────────────────────────────────────────────
+var STRENGTH_WIDTH = [2, 4, 7, 9]; // min width para 1,2,3,4 atributos compartilhados
+var STRENGTH_LABEL = ['1+ (tudo)', '2+ atributos', '3+ atributos', '4+ atributos'];
+
+function filterStrength(val) {
+  val = parseInt(val);
+  document.getElementById('strength-val').textContent = STRENGTH_LABEL[val-1];
+  var minW = STRENGTH_WIDTH[val-1];
+  var visible = ALL_EDGES.filter(function(e) { return (e.width||2) >= minW; });
+  edges.clear();
+  edges.add(visible);
+  document.getElementById('stat-edges').textContent = visible.length;
+}
+</script>
+</body>
+</html>

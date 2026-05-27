@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Projeto Grafos — Rede de Aeroportos + Netflix</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#11111b;color:#cdd6f4;font-family:'Segoe UI',Arial,sans-serif;
+         padding-top:52px;min-height:100vh}
+    
+
+*,*::before,*::after{box-sizing:border-box}
+#topbar{
+  position:fixed;top:0;left:0;right:0;height:52px;
+  background:#1e1e2e;border-bottom:1px solid #313244;
+  display:flex;align-items:center;padding:0 22px;gap:18px;
+  z-index:9999;box-shadow:0 2px 16px #0006;
+  font-family:'Segoe UI',Arial,sans-serif;
+}
+.nav-brand{
+  color:#cba6f7;font-weight:700;font-size:15px;
+  text-decoration:none;white-space:nowrap;letter-spacing:-.3px;
+  display:flex;align-items:center;gap:7px;
+}
+.nav-brand:hover{color:#f5c2e7}
+.nav-sep{width:1px;height:28px;background:#313244;flex-shrink:0}
+.nav-links{display:flex;gap:6px;align-items:center}
+.dropdown{position:relative}
+.dropbtn{
+  background:transparent;border:1px solid #313244;color:#cdd6f4;
+  padding:7px 14px;border-radius:7px;cursor:pointer;font-size:13px;
+  transition:background .15s,color .15s;white-space:nowrap;
+}
+.dropbtn:hover,.dropbtn.active{background:#313244;color:#cba6f7;border-color:#45475a}
+.dropdown-content{
+  display:none;position:absolute;top:46px;left:0;
+  background:#181825;border:1px solid #313244;border-radius:10px;
+  min-width:230px;box-shadow:0 12px 32px #0008;
+  z-index:10000;overflow:hidden;
+}
+.dropdown:hover .dropdown-content{display:block}
+.dropdown-content a{
+  display:flex;align-items:center;gap:10px;
+  color:#a6adc8;padding:10px 16px;text-decoration:none;
+  font-size:13px;transition:background .1s,color .1s;border-bottom:1px solid #31324430;
+}
+.dropdown-content a:last-child{border-bottom:none}
+.dropdown-content a:hover{background:#31324470;color:#cba6f7}
+.dropdown-content a.current{color:#cba6f7;background:#31324450;font-weight:600}
+.nav-tag{
+  margin-left:auto;background:#31324460;color:#a6adc8;
+  font-size:11px;padding:2px 8px;border-radius:99px;
+}
+
+    .hero{text-align:center;padding:64px 24px 48px}
+    .hero h1{font-size:32px;font-weight:800;color:#cba6f7;margin-bottom:10px}
+    .hero p{font-size:15px;color:#6c7086;max-width:560px;margin:0 auto;line-height:1.7}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:860px;margin:0 auto;padding:0 24px 64px}
+    @media(max-width:640px){.grid{grid-template-columns:1fr}}
+    .section-card{background:#1e1e2e;border:1px solid #313244;border-radius:14px;padding:28px;}
+    .section-card h2{font-size:16px;font-weight:700;margin-bottom:6px}
+    .section-card p{font-size:13px;color:#6c7086;margin-bottom:18px;line-height:1.6}
+    .link-list a{display:flex;align-items:center;gap:10px;color:#a6adc8;
+                  text-decoration:none;padding:9px 12px;border-radius:7px;
+                  font-size:13px;transition:.12s;border:1px solid transparent}
+    .link-list a:hover{background:#313244;color:#cba6f7;border-color:#45475a}
+    .tag{background:#31324460;color:#6c7086;font-size:10px;
+          padding:2px 8px;border-radius:99px;margin-left:auto}
+  </style>
+</head>
+<body>
+<script src="navbar.js"></script>
+
+<div class="hero">
+  <h1>✈ Projeto Grafos</h1>
+  <p>Teoria dos Grafos + Análise e Visualização de Dados<br>
+     Rede de Aeroportos Brasileira (Parte 1) · Similaridade Netflix (Parte 2)</p>
+</div>
+<div class="grid">
+  <div class="section-card">
+    <h2 style="color:#cba6f7">Parte 1 — Aeroportos do Brasil</h2>
+    <p>20 aeroportos · 115 conexões · densidade 0,60<br>Algoritmos: BFS, DFS, Dijkstra</p>
+    <div class="link-list">
+      <a href="grafo_interativo.html">🗺 Grafo Interativo <span class="tag">Plotly</span></a>
+      <a href="arvore_percurso.html">🌳 Árvore de Percurso <span class="tag">Leaflet</span></a>
+      <a href="dashboard_interativo.html">🎛 Dashboard com Filtros <span class="tag">novo</span></a>
+      <a href="storytelling.html">📖 Storytelling Analítico <span class="tag">novo</span></a>
+      <a href="parte1_galeria.html">📊 Galeria de Visualizações <span class="tag">12 PNGs</span></a>
+    </div>
+  </div>
+  <div class="section-card">
+    <h2 style="color:#89b4fa">Parte 2 — Netflix Top Shows</h2>
+    <p>182 títulos · 615 arestas · densidade 0,037<br>Algoritmos: BFS, DFS, Dijkstra, Bellman-Ford</p>
+    <div class="link-list">
+      <a href="parte2_grafo_amostra.html">🎬 Grafo de Similaridade <span class="tag">vis.js</span></a>
+      <a href="parte2_distribuicao_graus.html">📈 Distribuição de Graus <span class="tag">SVG</span></a>
+      <a href="parte2_comparacao_algoritmos.html">⚡ Comparação de Algoritmos <span class="tag">SVG</span></a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

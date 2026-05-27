@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Galeria de Visualizações — Parte 1 — Projeto Grafos</title>
+  <style>
+    body{margin:0;padding:52px 0 0;background:#11111b;color:#cdd6f4;
+         font-family:'Segoe UI',Arial,sans-serif;min-height:100vh}
+    .page-wrap{max-width:1080px;margin:0 auto;padding:32px 24px 56px}
+    h1{font-size:22px;font-weight:700;color:#cdd6f4;margin:0 0 6px}
+    .subtitle{color:#6c7086;font-size:13px;margin:0 0 28px}
+    .card{background:#1e1e2e;border:1px solid #313244;border-radius:12px;
+           padding:28px;margin-bottom:24px}
+    .nota{color:#6c7086;font-size:12.5px;margin-top:18px;line-height:1.7;
+           background:#181825;border-left:3px solid #313244;padding:12px 16px;border-radius:0 6px 6px 0}
+    .nota b{color:#a6adc8}
+    .chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+    .chip{background:#313244;color:#cdd6f4;border-radius:99px;
+           padding:5px 14px;font-size:12px;white-space:nowrap}
+    .chip b{color:#cba6f7}
+  </style>
+</head>
+<body>
+<script src="navbar.js"></script>
+
+<div class="page-wrap">
+  <h1>Galeria de Visualizações — Parte 1</h1>
+  
+    <p class="subtitle">Clique em qualquer imagem para ampliar. Gerado com matplotlib.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px">
+      
+        <div class="card">
+          <img src="viz_analitica_distribuicao_graus.png" alt="Distribuição de Graus"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Distribuição de Graus</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Histograma dos graus dos 20 aeroportos. Evidencia a estrutura hub-and-spoke: GRU, CNF e BSB dominam com grau 19.</p>
+        </div>
+        <div class="card">
+          <img src="viz_analitica_ranking_aeroportos.png" alt="Ranking de Aeroportos"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Ranking de Aeroportos</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Barras ordenadas por grau decrescente. Permite identificar rapidamente os hubs nacionais e regionais.</p>
+        </div>
+        <div class="card">
+          <img src="viz_analitica_comparacao_regional.png" alt="Comparação Regional"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Comparação Regional</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Densidade por região. Sudeste, Sul e Centro-Oeste têm densidade 1,0; Norte é o menos denso (0,67).</p>
+        </div>
+        <div class="card">
+          <img src="viz_analitica_subgrafo_maior_grau.png" alt="Subgrafo dos Hubs"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Subgrafo dos Hubs</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Os 5 aeroportos de maior grau e suas interconexões. Formam um clique quase completo no núcleo da rede.</p>
+        </div>
+        <div class="card">
+          <img src="viz_analitica_heatmap_regional.png" alt="Heatmap Regional"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Heatmap de Densidade Regional</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Matriz 5×5 de densidade entre regiões. Diagonal = intra-regional; demais = inter-regional. Sudeste, Sul e Centro-Oeste têm densidade máxima (1,0).</p>
+        </div>
+        <div class="card">
+          <img src="viz_analitica_benchmark_algoritmos.png" alt="Benchmark de Algoritmos"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Benchmark de Algoritmos</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Tempo médio (barras) e variação por origem (linhas) para BFS, DFS e Dijkstra. Eixos e cores padronizados por algoritmo.</p>
+        </div>
+        <div class="card">
+          <img src="viz_analitica_ordem_vs_tempo.png" alt="Ordem vs Tempo"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Ordem do Grafo × Tempo</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Dispersão: crescimento quadrático do Dijkstra (O(V²)) vs linear do BFS (O(V+E)) confirmado empiricamente em subgrafos crescentes.</p>
+        </div>
+        <div class="card">
+          <img src="viz_exploratorio_grau_vs_densidade.png" alt="Grau vs Densidade Ego"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Grau vs Densidade Ego</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Dispersão: aeroportos com alto grau (hubs) têm menor densidade ego; aeroportos pequenos têm ego-redes completas.</p>
+        </div>
+        <div class="card">
+          <img src="viz_exploratorio_ego_metricas.png" alt="Métricas de Ego-Redes"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Métricas de Ego-Redes</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Painel comparativo com grau, tamanho e densidade da ego-rede por aeroporto.</p>
+        </div>
+        <div class="card">
+          <img src="viz_explanatorio_rede_completa.png" alt="Rede Completa"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Rede Completa</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Grafo completo com 20 nós e 115 arestas. Nós coloridos por região, tamanho proporcional ao grau.</p>
+        </div>
+        <div class="card">
+          <img src="viz_explanatorio_dashboard.png" alt="Dashboard Executivo"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Dashboard Executivo</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Síntese dos principais achados da Parte 1 em um único painel.</p>
+        </div>
+        <div class="card">
+          <img src="arvore_percurso.png" alt="Árvore de Percurso"
+               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
+                      border:1px solid #313244;cursor:zoom-in"
+               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
+          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">Árvore de Percurso</h3>
+          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">Caminhos obrigatórios REC→POA e MAO→GRU destacados sobre o grafo de aeroportos.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

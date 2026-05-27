@@ -1,5 +1,6 @@
 from src.graphs.graph import GrafoAeroportos
 from src.graphs.algorithms import dijkstra
+import pytest
 
 def build_graph():
     g = GrafoAeroportos()
@@ -48,3 +49,13 @@ def test_dijkstra_nos_invalidos():
     custo, caminho = dijkstra(g, "X", "Y")
     assert custo == float('inf')
     assert caminho == []
+
+def test_dijkstra_rejeita_peso_negativo():
+    g = GrafoAeroportos()
+    for no in ["A", "B", "C"]:
+        g.adicionar_aeroporto(no, f"Cidade {no}", "Regiao")
+    g.adicionar_conexao("A", "B",  2.0, "t", "j")
+    g.adicionar_conexao("B", "C", -1.0, "t", "j")   # peso negativo
+
+    with pytest.raises(ValueError):
+        dijkstra(g, "A", "C")

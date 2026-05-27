@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="utf-8">
+<title>Storytelling — Rede Aeroportuária Brasileira</title>
+<style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:#0F172A;color:#E2E8F0;line-height:1.7}
+    header{background:linear-gradient(135deg,#1E293B 0%,#0F172A 100%);border-bottom:1px solid #334155;padding:48px 0 40px;text-align:center}
+    header h1{font-size:2rem;font-weight:800;color:#F1F5F9;letter-spacing:-.03em;margin-bottom:8px}
+    header p{color:#64748B;font-size:1rem}
+    .toc{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:20px 24px;background:#0F172A;border-bottom:1px solid #1E293B}
+    .toc a{color:#94A3B8;text-decoration:none;font-size:12px;padding:4px 10px;border:1px solid #334155;border-radius:99px;transition:all .15s}
+    .toc a:hover{color:white;border-color:#A855F7;background:#1E293B}
+    main{max-width:860px;margin:0 auto;padding:48px 24px}
+    section{margin-bottom:64px}
+    h2{font-size:1.35rem;font-weight:700;color:#A855F7;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+    h2 .num{font-size:.85rem;background:#1E293B;border:1px solid #334155;color:#64748B;padding:2px 8px;border-radius:4px}
+    .lead{color:#CBD5E1;font-size:1.05rem;margin-bottom:20px;line-height:1.75}
+    p{color:#94A3B8;margin-bottom:14px}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+    .metric{background:#1E293B;border:1px solid #334155;border-radius:10px;padding:16px;text-align:center}
+    .metric .val{font-size:1.8rem;font-weight:800;color:#A855F7}
+    .metric .lbl{font-size:11px;color:#64748B;margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+    table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+    th{background:#1E293B;color:#94A3B8;padding:8px 12px;text-align:left;border-bottom:1px solid #334155;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+    td{padding:8px 12px;border-bottom:1px solid #1E293B;color:#CBD5E1}
+    tr:last-child td{border-bottom:none}
+    .viz-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+    .viz-row.single{grid-template-columns:1fr}
+    .viz-card{background:#1E293B;border:1px solid #334155;border-radius:10px;overflow:hidden}
+    .viz-card img{width:100%;display:block}
+    .viz-card .cap{padding:8px 12px;font-size:11px;color:#64748B;border-top:1px solid #334155}
+    .chip{display:inline-block;background:#1E293B;border:1px solid #334155;color:#94A3B8;border-radius:6px;padding:3px 9px;font-size:12px;margin:2px}
+    .note{background:#1E293B;border-left:3px solid #A855F7;padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0;font-size:13px;color:#94A3B8}
+    footer{text-align:center;padding:32px;color:#334155;font-size:12px;border-top:1px solid #1E293B}
+    a{color:#A855F7;text-decoration:none}
+    a:hover{text-decoration:underline}
+    ul li{margin-bottom:6px;color:#94A3B8}</style>
+</head>
+<body>
+<script src="navbar.js"></script>
+<header>
+  <h1>Rede Aeroportuária Brasileira</h1>
+  <p>Análise de Teoria dos Grafos · AVD — Análise e Visualização de Dados</p>
+</header>
+<nav class="toc">
+  <a href="#contexto">1. Contexto</a>
+  <a href="#exploracao">2. Exploração</a>
+  <a href="#modelagem">3. Modelagem</a>
+  <a href="#resultados">4. Resultados</a>
+  <a href="#limitacoes">5. Limitações</a>
+  <a href="#conclusao">6. Conclusão</a>
+</nav>
+<main>
+
+<section id="contexto">
+  <h2><span class="num">1</span> Contexto</h2>
+  <p class="lead">O Brasil possui mais de 8,5 milhões de km². A malha aérea é infraestrutura crítica, conectando regiões com realidades econômicas e geográficas muito distintas.</p>
+  <p>Este projeto modela a rede como um <strong style="color:#E2E8F0">grafo ponderado não-direcionado</strong>: aeroportos são nós, rotas aéreas são arestas com peso proporcional ao tempo médio de voo. O objetivo é aplicar BFS, DFS e Dijkstra para extrair padrões estruturais e otimizar rotas.</p>
+  <div class="note">Avaliação conjunta: <strong style="color:#E2E8F0">Teoria dos Grafos</strong> (correção algorítmica) e <strong style="color:#E2E8F0">AVD</strong> (comunicação visual e analítica dos dados).</div>
+</section>
+
+<section id="exploracao">
+  <h2><span class="num">2</span> Exploração</h2>
+  <p class="lead">Antes de modelar, exploramos distribuição de conexões, densidade regional e centralidade dos aeroportos.</p>
+  <div class="metrics">
+    <div class="metric"><div class="val">20</div><div class="lbl">Aeroportos (|V|)</div></div>
+    <div class="metric"><div class="val">115</div><div class="lbl">Conexões (|E|)</div></div>
+    <div class="metric"><div class="val">0.605</div><div class="lbl">Densidade global</div></div>
+  </div>
+  <p>Os três aeroportos de maior grau são <strong style="color:#E2E8F0">GRU (grau 19), CNF (grau 19), BSB (grau 19)</strong> — hubs nacionais que concentram a maioria das conexões inter-regionais.</p>
+  <div class="viz-row">
+    <div class="viz-card"><img src="viz_analitica_distribuicao_graus.png" alt="Distribuição de graus"><div class="cap">Distribuição de graus — histograma com média (princípio da similaridade: mesma cor = mesma métrica)</div></div>
+    <div class="viz-card"><img src="viz_exploratorio_grau_vs_densidade.png" alt="Grau × Densidade ego"><div class="cap">Grau × densidade do ego network — dispersão com agrupamento por região (proximidade/cor)</div></div>
+  </div>
+  <div class="viz-row single">
+    <div class="viz-card"><img src="viz_analitica_heatmap_regional.png" alt="Heatmap regional"><div class="cap">Heatmap de densidade regional — diagonal = intra, demais = inter-regional (figura-fundo: célula escura destaca-se)</div></div>
+  </div>
+</section>
+
+<section id="modelagem">
+  <h2><span class="num">3</span> Modelagem</h2>
+  <p class="lead">O grafo foi implementado com lista de adjacência, sem bibliotecas de algoritmos. A espessura de cada aresta é proporcional ao peso (duração do voo).</p>
+  <p>
+    <span class="chip">Lista de adjacência</span>
+    <span class="chip">Não-direcionado</span>
+    <span class="chip">Peso = horas de voo</span>
+    <span class="chip">hub = inter-regional</span>
+    <span class="chip">regional = intra-regional</span>
+  </p>
+  <table>
+    <thead><tr><th>Região</th><th>Aeroportos (|V|)</th><th>Conexões (|E|)</th><th>Densidade</th></tr></thead>
+    <tbody><tr><td>Norte</td><td>4</td><td>4</td><td>0.667</td></tr><tr><td>Nordeste</td><td>6</td><td>11</td><td>0.733</td></tr><tr><td>Sudeste</td><td>5</td><td>10</td><td>1.000</td></tr><tr><td>Sul</td><td>3</td><td>3</td><td>1.000</td></tr><tr><td>Centro-Oeste</td><td>2</td><td>1</td><td>1.000</td></tr></tbody>
+  </table>
+  <div class="viz-row">
+    <div class="viz-card"><img src="viz_explanatorio_rede_completa.png" alt="Rede completa"><div class="cap">Rede completa — espessura ∝ peso; cores = regiões (Gestalt: similaridade + conectividade)</div></div>
+    <div class="viz-card"><img src="viz_analitica_subgrafo_maior_grau.png" alt="Top-8 hubs"><div class="cap">Subgrafo dos 8 maiores hubs — figura-fundo: hubs em destaque, rede ao fundo (fechamento visual)</div></div>
+  </div>
+</section>
+
+<section id="resultados">
+  <h2><span class="num">4</span> Resultados</h2>
+  <p class="lead">Dijkstra computou caminhos mínimos para todas as rotas. BFS e DFS mapearam alcançabilidade e detectaram ciclos na malha.</p>
+  <table><thead><tr><th>Origem</th><th>Destino</th><th>Custo (h)</th><th>Caminho</th></tr></thead><tbody><tr><td>REC</td><td>POA</td><td>3.62</td><td style='font-family:monospace;font-size:12px'>REC→POA</td></tr><tr><td>MAO</td><td>GRU</td><td>3.4</td><td style='font-family:monospace;font-size:12px'>MAO→GRU</td></tr><tr><td>FOR</td><td>CGH</td><td>3.12</td><td style='font-family:monospace;font-size:12px'>FOR→CGH</td></tr><tr><td>BSB</td><td>BEL</td><td>2.27</td><td style='font-family:monospace;font-size:12px'>BSB→BEL</td></tr><tr><td>CWB</td><td>NAT</td><td>3.68</td><td style='font-family:monospace;font-size:12px'>CWB→GRU→NAT</td></tr><tr><td>VIX</td><td>MAO</td><td>4.03</td><td style='font-family:monospace;font-size:12px'>VIX→CNF→MAO</td></tr><tr><td>SSA</td><td>FLN</td><td>2.85</td><td style='font-family:monospace;font-size:12px'>SSA→GIG→FLN</td></tr></tbody></table>
+  <div class="viz-row">
+    <div class="viz-card"><img src="viz_analitica_benchmark_algoritmos.png" alt="Benchmark"><div class="cap">Benchmark — barras (média) e linhas (variação por origem); eixos e cores padronizados por algoritmo</div></div>
+    <div class="viz-card"><img src="viz_analitica_ordem_vs_tempo.png" alt="Ordem vs tempo"><div class="cap">Dispersão: ordem × tempo — crescimento quadrático de Dijkstra confirmado empiricamente</div></div>
+  </div>
+  <div class="viz-row single">
+    <div class="viz-card"><img src="arvore_percurso.png" alt="Árvore de percurso"><div class="cap">Rotas obrigatórias REC→POA e MAO→GRU com pesos nas arestas</div></div>
+  </div>
+  <p>Exploração interativa: <a href="arvore_percurso.html">Árvore de percurso (Leaflet)</a> · <a href="dashboard_interativo.html">Dashboard com filtros por região, grau e busca IATA</a></p>
+</section>
+
+<section id="limitacoes">
+  <h2><span class="num">5</span> Limitações</h2>
+  <p class="lead">Reconhecer as limitações é parte essencial da análise honesta.</p>
+  <div class="note"><strong style="color:#E2E8F0">Escalabilidade visual:</strong> Com 20 nós o grafo é legível. Acima de ~100 nós, layouts força-dirigidos colapsam em hairballs — seria necessário amostragem hierárquica ou agrupamento (clustering).</div>
+  <div class="note"><strong style="color:#E2E8F0">Pesos estáticos:</strong> O peso representa duração média de voo, ignorando tarifas, sazonalidade e disponibilidade — fatores que alterariam radicalmente as rotas "ótimas" em contexto real.</div>
+  <div class="note"><strong style="color:#E2E8F0">Dijkstra O(V²):</strong> A implementação usa varredura linear sobre nós não visitados. Para grafos esparsos grandes, a versão com heap (O(E log V)) seria necessária.</div>
+  <div class="note"><strong style="color:#E2E8F0">Cobertura parcial:</strong> O dataset cobre 20 dos 60+ aeroportos com voos regulares, subestimando a real densidade da malha nacional.</div>
+</section>
+
+<section id="conclusao">
+  <h2><span class="num">6</span> Conclusão</h2>
+  <p class="lead">A rede aeroportuária brasileira é dominada por poucos hubs de alta conectividade, com forte assimetria regional.</p>
+  <p>Sudeste, Sul e Centro-Oeste formam um núcleo de densidade máxima (1,0). Norte e Nordeste dependem de conexões via GRU e BSB — sua remoção fragmentaria significativamente a conectividade nacional.</p>
+  <p><strong style="color:#E2E8F0">Quando usar cada algoritmo:</strong></p>
+  <ul style="padding-left:20px;margin-bottom:14px">
+    <li><strong style="color:#E2E8F0">BFS</strong> — caminho com menor número de escalas; exploração em camadas.</li>
+    <li><strong style="color:#E2E8F0">DFS</strong> — detecção de ciclos; classificação de arestas (árvore, retorno, cruzamento).</li>
+    <li><strong style="color:#E2E8F0">Dijkstra</strong> — custo mínimo real (tempo de voo), obrigatório quando o peso importa.</li>
+  </ul>
+  <div class="viz-row single">
+    <div class="viz-card"><img src="viz_explanatorio_dashboard.png" alt="Dashboard analítico"><div class="cap">Dashboard analítico consolidado — hierarquia visual: título › métricas › ranking</div></div>
+  </div>
+</section>
+
+</main>
+<footer>Projeto de Teoria dos Grafos &amp; AVD · 20 aeroportos · 115 conexões · Densidade 0.6053</footer>
+</body>
+</html>

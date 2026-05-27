@@ -1,325 +1,235 @@
-<html>
-    <head>
-        <meta charset="utf-8">
-        
-            <script src="lib/bindings/utils.js"></script>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-            
-                <link href="lib/tom-select/tom-select.css" rel="stylesheet">
-                <script src="lib/tom-select/tom-select.complete.min.js"></script>
-            
-        
-<center>
-<h1></h1>
-</center>
-
-<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
-<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
-        <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
-          crossorigin="anonymous"
-        />
-        <script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
-          crossorigin="anonymous"
-        ></script>
-
-
-        <center>
-          <h1></h1>
-        </center>
-        <style type="text/css">
-
-             #mynetwork {
-                 width: 100%;
-                 height: 850px;
-                 background-color: #0F172A;
-                 border: 1px solid lightgray;
-                 position: relative;
-                 float: left;
-             }
-
-             
-
-             
-
-             
-        </style>
-    </head>
-
-
-    <body>
-        <div class="card" style="width: 100%">
-            
-            
-              <div id="filter-menu" class="card-header">
-                <div class="row no-gutters">
-                  <div class="col-3 pb-2">
-                    <select
-                            class="form-select"
-                            aria-label="Default select example"
-                            onchange="updateFilter(value, 'item')"
-                            id="select-item"
-                        >
-                        <option value="">Select a network item</option>
-                        <option value="edge">edge</option>
-                        <option value="node">node</option>
-                    </select>
-                  </div>
-                  <div class="col-3 pb-2">
-                    <select
-                            class="form-select"
-                            aria-label="Default select example"
-                            onchange="updateFilter(value, 'property')"
-                            id="select-property"
-                        >
-                        <option value="">Select a property...</option>
-                    </select>
-                  </div>
-                  <div class="col-3 pb-2">
-                    <select
-                            class="form-select"
-                            aria-label="Default select example"
-                            id="select-value"
-                        >
-                        <option value="">Select value(s)...</option>
-                    </select>
-                  </div>
-                  <div class="col-1 pb-2">
-                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
-                  </div>
-                  <div class="col-2 pb-2">
-                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
-                  </div>
-                </div>
-              </div>
-            
-            <div id="mynetwork" class="card-body"></div>
-        </div>
-
-        
-        
-
-        <script type="text/javascript">
-
-              // initialize global variables.
-              var edges;
-              var nodes;
-              var allNodes;
-              var allEdges;
-              var nodeColors;
-              var originalNodes;
-              var network;
-              var container;
-              var options, data;
-              var filter = {
-                  item : '',
-                  property : '',
-                  value : []
-              };
-
-              
-
-              
-                  // explicitly using onItemAdd and this function as we need to save multiple values
-                  let updateValueFilter = function() {
-                      return function () {
-                      filter['value'].push(arguments[0])
-                      }
-                  }
-
-                  let valueControl = new TomSelect("#select-value",{
-                      maxItems: null,
-                      valueField: 'id',
-                      labelField: 'title',
-                      searchField: 'title',
-                      create: false,
-                      sortField: {
-                          field: "text",
-                          direction: "asc"
-                      },
-                      onItemAdd: updateValueFilter()
-                  });
-
-                  let addValues = function() {
-                      return function () {
-                          // clear the current value options and add the selected attribute values
-                          // tom-select handles duplicates
-                          let selectedProperty = arguments[0];
-                          valueControl.clear();
-                          valueControl.clearOptions();
-                          filter['value'] = []
-                          if (filter['item'] === 'node') {
-                              for (let each in allNodes) {
-                                  valueControl.addOption({
-                                      id:allNodes[each][selectedProperty],
-                                      title:allNodes[each][selectedProperty]
-                                  })
-                              }
-                          }
-                          else if (filter['item'] === 'edge') {
-                              for (let each in allEdges) {
-                                  valueControl.addOption({
-                                      id:allEdges[each][selectedProperty],
-                                      title:allEdges[each][selectedProperty]
-                                  })
-                              }
-                          }
-                      }
-                  };
-
-                  let propControl = new TomSelect("#select-property",{
-                      valueField: 'id',
-                      labelField: 'title',
-                      searchField: 'title',
-                      create: false,
-                      sortField: {
-                          field: "text",
-                          direction: "asc"
-                      },
-                      onItemAdd: addValues()
-                  });
-
-                  let addProperties = function() {
-                      return function () {
-                          // loops through the selected network item and adds the attributes to dropdown
-                          // tom-select handles duplicates
-                          clearFilter(false)
-                          if (arguments[0] === 'edge') {
-                              for (let each in allEdges) {
-                                  if (allEdges.hasOwnProperty(each)) {
-                                      for (let eachProp in allEdges[each]) {
-                                          if (allEdges[each].hasOwnProperty(eachProp)) {
-                                              propControl.addOption({id: eachProp, title: eachProp})
-                                          }
-                                      }
-                                  }
-                              }
-                          }
-                          else if (arguments[0] === 'node') {
-                              for (let each in allNodes) {
-                                  if (allNodes.hasOwnProperty(each)) {
-                                      for (let eachProp in allNodes[each]) {
-                                          if (allNodes[each].hasOwnProperty(eachProp)
-                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
-                                                  && eachProp !== 'hiddenLabel')) {
-                                              propControl.addOption({id: eachProp, title: eachProp})
-
-                                          }
-                                      }
-                                  }
-                              }
-                          }
-                      }
-                  };
-
-                  let itemControl = new TomSelect("#select-item",{
-                      create: false,
-                      sortField:{
-                          field: "text",
-                          direction: "asc"
-                      },
-                      onItemAdd: addProperties()
-                  });
-
-                  function clearFilter(reset) {
-                      // utility function to clear all the selected filter options
-                      // if reset is set to true, the existing filter will be removed
-                      // else, only the dropdown options are cleared
-                      propControl.clear();
-                      propControl.clearOptions();
-                      valueControl.clear();
-                      valueControl.clearOptions();
-                      filter = {
-                          item : '',
-                          property : '',
-                          value : []
-                      }
-                      if (reset) {
-                          itemControl.clear();
-                          filterHighlight({nodes: []})
-                      }
-                  }
-
-                  function updateFilter(value, key) {
-                      // key could be 'item' or 'property' and value is as selected in dropdown
-                      filter[key] = value
-                  }
-
-              
-
-              // This method is responsible for drawing the graph, returns the drawn network
-              function drawGraph() {
-                  var container = document.getElementById('mynetwork');
-
-                  
-
-                  // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "#A855F7", "font": {"color": "white"}, "id": "REC", "label": "REC", "shape": "dot", "size": 45, "title": "\u003cb\u003eREC\u003c/b\u003e \u2013 Recife\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 15\u003cbr\u003eDensidade ego: 0.7333\u003cbr\u003e\u003cb style=\u0027color:#A855F7\u0027\u003e\u25a0 Caminho REC \u2192 POA\u003c/b\u003e"}, {"color": "#A855F7", "font": {"color": "white"}, "id": "SSA", "label": "SSA", "shape": "dot", "size": 45, "title": "\u003cb\u003eSSA\u003c/b\u003e \u2013 Salvador\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 15\u003cbr\u003eDensidade ego: 0.7583"}, {"color": "#A855F7", "font": {"color": "white"}, "id": "FOR", "label": "FOR", "shape": "dot", "size": 37, "title": "\u003cb\u003eFOR\u003c/b\u003e \u2013 Fortaleza\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 11\u003cbr\u003eDensidade ego: 0.8788"}, {"color": "#A855F7", "font": {"color": "white"}, "id": "NAT", "label": "NAT", "shape": "dot", "size": 37, "title": "\u003cb\u003eNAT\u003c/b\u003e \u2013 Natal\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 11\u003cbr\u003eDensidade ego: 0.9242"}, {"color": "#A855F7", "font": {"color": "white"}, "id": "JPA", "label": "JPA", "shape": "dot", "size": 31, "title": "\u003cb\u003eJPA\u003c/b\u003e \u2013 Jo\u00e3o Pessoa\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 8\u003cbr\u003eDensidade ego: 1.0000"}, {"color": "#F472B6", "font": {"color": "white"}, "id": "GRU", "label": "GRU", "shape": "dot", "size": 53, "title": "\u003cb\u003eGRU\u003c/b\u003e \u2013 S\u00e3o Paulo\u003cbr\u003eRegi\u00e3o: Sudeste\u003cbr\u003eGrau: 19\u003cbr\u003eDensidade ego: 0.6053\u003cbr\u003e\u003cb style=\u0027color:#F472B6\u0027\u003e\u25a0 Caminho MAO \u2192 GRU\u003c/b\u003e"}, {"color": "#D946EF", "font": {"color": "white"}, "id": "CGH", "label": "CGH", "shape": "dot", "size": 43, "title": "\u003cb\u003eCGH\u003c/b\u003e \u2013 S\u00e3o Paulo\u003cbr\u003eRegi\u00e3o: Sudeste\u003cbr\u003eGrau: 14\u003cbr\u003eDensidade ego: 0.7714"}, {"color": "#D946EF", "font": {"color": "white"}, "id": "GIG", "label": "GIG", "shape": "dot", "size": 49, "title": "\u003cb\u003eGIG\u003c/b\u003e \u2013 Rio de Janeiro\u003cbr\u003eRegi\u00e3o: Sudeste\u003cbr\u003eGrau: 17\u003cbr\u003eDensidade ego: 0.6863"}, {"color": "#D946EF", "font": {"color": "white"}, "id": "CNF", "label": "CNF", "shape": "dot", "size": 53, "title": "\u003cb\u003eCNF\u003c/b\u003e \u2013 Belo Horizonte\u003cbr\u003eRegi\u00e3o: Sudeste\u003cbr\u003eGrau: 19\u003cbr\u003eDensidade ego: 0.6053"}, {"color": "#D946EF", "font": {"color": "white"}, "id": "VIX", "label": "VIX", "shape": "dot", "size": 31, "title": "\u003cb\u003eVIX\u003c/b\u003e \u2013 Vit\u00f3ria\u003cbr\u003eRegi\u00e3o: Sudeste\u003cbr\u003eGrau: 8\u003cbr\u003eDensidade ego: 0.9444"}, {"color": "#FB7185", "font": {"color": "white"}, "id": "BSB", "label": "BSB", "shape": "dot", "size": 53, "title": "\u003cb\u003eBSB\u003c/b\u003e \u2013 Bras\u00edlia\u003cbr\u003eRegi\u00e3o: Centro-Oeste\u003cbr\u003eGrau: 19\u003cbr\u003eDensidade ego: 0.6053"}, {"color": "#FB7185", "font": {"color": "white"}, "id": "GYN", "label": "GYN", "shape": "dot", "size": 31, "title": "\u003cb\u003eGYN\u003c/b\u003e \u2013 Goi\u00e2nia\u003cbr\u003eRegi\u00e3o: Centro-Oeste\u003cbr\u003eGrau: 8\u003cbr\u003eDensidade ego: 0.9722"}, {"color": "#F472B6", "font": {"color": "white"}, "id": "CWB", "label": "CWB", "shape": "dot", "size": 33, "title": "\u003cb\u003eCWB\u003c/b\u003e \u2013 Curitiba\u003cbr\u003eRegi\u00e3o: Sul\u003cbr\u003eGrau: 9\u003cbr\u003eDensidade ego: 0.9333"}, {"color": "#F472B6", "font": {"color": "white"}, "id": "FLN", "label": "FLN", "shape": "dot", "size": 33, "title": "\u003cb\u003eFLN\u003c/b\u003e \u2013 Florian\u00f3polis\u003cbr\u003eRegi\u00e3o: Sul\u003cbr\u003eGrau: 9\u003cbr\u003eDensidade ego: 0.8889"}, {"color": "#A855F7", "font": {"color": "white"}, "id": "POA", "label": "POA", "shape": "dot", "size": 35, "title": "\u003cb\u003ePOA\u003c/b\u003e \u2013 Porto Alegre\u003cbr\u003eRegi\u00e3o: Sul\u003cbr\u003eGrau: 10\u003cbr\u003eDensidade ego: 0.9091\u003cbr\u003e\u003cb style=\u0027color:#A855F7\u0027\u003e\u25a0 Caminho REC \u2192 POA\u003c/b\u003e"}, {"color": "#F472B6", "font": {"color": "white"}, "id": "MAO", "label": "MAO", "shape": "dot", "size": 41, "title": "\u003cb\u003eMAO\u003c/b\u003e \u2013 Manaus\u003cbr\u003eRegi\u00e3o: Norte\u003cbr\u003eGrau: 13\u003cbr\u003eDensidade ego: 0.7473\u003cbr\u003e\u003cb style=\u0027color:#F472B6\u0027\u003e\u25a0 Caminho MAO \u2192 GRU\u003c/b\u003e"}, {"color": "#7C3AED", "font": {"color": "white"}, "id": "BEL", "label": "BEL", "shape": "dot", "size": 33, "title": "\u003cb\u003eBEL\u003c/b\u003e \u2013 Bel\u00e9m\u003cbr\u003eRegi\u00e3o: Norte\u003cbr\u003eGrau: 9\u003cbr\u003eDensidade ego: 1.0000"}, {"color": "#7C3AED", "font": {"color": "white"}, "id": "PVH", "label": "PVH", "shape": "dot", "size": 27, "title": "\u003cb\u003ePVH\u003c/b\u003e \u2013 Porto Velho\u003cbr\u003eRegi\u00e3o: Norte\u003cbr\u003eGrau: 6\u003cbr\u003eDensidade ego: 0.9524"}, {"color": "#7C3AED", "font": {"color": "white"}, "id": "RBR", "label": "RBR", "shape": "dot", "size": 25, "title": "\u003cb\u003eRBR\u003c/b\u003e \u2013 Rio Branco\u003cbr\u003eRegi\u00e3o: Norte\u003cbr\u003eGrau: 5\u003cbr\u003eDensidade ego: 1.0000"}, {"color": "#A855F7", "font": {"color": "white"}, "id": "THE", "label": "THE", "shape": "dot", "size": 25, "title": "\u003cb\u003eTHE\u003c/b\u003e \u2013 Teresina\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 5\u003cbr\u003eDensidade ego: 1.0000"}]);
-                  edges = new vis.DataSet([{"color": "#334155", "from": "REC", "title": "REC \u2194 CGH | Peso: 2.78 | hub", "to": "CGH", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 NAT | Peso: 0.67 | regional", "to": "NAT", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 SSA | Peso: 1.13 | regional", "to": "SSA", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 BSB | Peso: 2.25 | hub", "to": "BSB", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 GRU | Peso: 2.70 | hub", "to": "GRU", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 CNF | Peso: 2.17 | hub", "to": "CNF", "width": 1}, {"color": "#A855F7", "from": "REC", "title": "REC \u2194 POA | Peso: 3.62 | hub", "to": "POA", "width": 4}, {"color": "#334155", "from": "REC", "title": "REC \u2194 GIG | Peso: 2.45 | hub", "to": "GIG", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 GYN | Peso: 2.42 | hub", "to": "GYN", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 FOR | Peso: 1.02 | regional", "to": "FOR", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 JPA | Peso: 0.50 | regional", "to": "JPA", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 MAO | Peso: 3.50 | hub", "to": "MAO", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 BEL | Peso: 2.27 | hub", "to": "BEL", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 THE | Peso: 1.43 | regional", "to": "THE", "width": 1}, {"color": "#334155", "from": "REC", "title": "REC \u2194 VIX | Peso: 2.10 | hub", "to": "VIX", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 BSB | Peso: 1.63 | hub", "to": "BSB", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 JPA | Peso: 1.23 | regional", "to": "JPA", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 MAO | Peso: 3.58 | hub", "to": "MAO", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 GIG | Peso: 1.58 | hub", "to": "GIG", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 BEL | Peso: 2.67 | hub", "to": "BEL", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 GRU | Peso: 2.00 | hub", "to": "GRU", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 POA | Peso: 3.22 | hub", "to": "POA", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 CNF | Peso: 1.45 | hub", "to": "CNF", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 CGH | Peso: 2.05 | hub", "to": "CGH", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 VIX | Peso: 1.37 | hub", "to": "VIX", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 FOR | Peso: 1.62 | regional", "to": "FOR", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 NAT | Peso: 1.45 | regional", "to": "NAT", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 CWB | Peso: 2.45 | hub", "to": "CWB", "width": 1}, {"color": "#334155", "from": "SSA", "title": "SSA \u2194 GYN | Peso: 1.80 | hub", "to": "GYN", "width": 1}, {"color": "#334155", "from": "FOR", "title": "FOR \u2194 CNF | Peso: 2.48 | hub", "to": "CNF", "width": 1}, {"color": "#334155", "from": "FOR", "title": "FOR \u2194 CGH | Peso: 3.12 | hub", "to": "CGH", "width": 1}, {"color": "#334155", "from": "FOR", "title": "FOR \u2194 BSB | Peso: 2.32 | hub", "to": "BSB", "width": 1}, {"color": "#334155", "from": "FOR", "title": "FOR \u2194 GIG | Peso: 2.92 | hub", "to": "GIG", "width": 1}, {"color": "#334155", "from": "FOR", "title": "FOR \u2194 GRU | Peso: 3.02 | hub", "to": "GRU", "width": 1}, {"color": "#334155", "from": "FOR", "title": "FOR \u2194 BEL | Peso: 1.72 | hub", "to": "BEL", "width": 1}, {"color": "#334155", "from": "FOR", "title": "FOR \u2194 THE | Peso: 0.97 | regional", "to": "THE", "width": 1}, {"color": "#334155", "from": "FOR", "title": "FOR \u2194 NAT | Peso: 0.87 | regional", "to": "NAT", "width": 1}, {"color": "#334155", "from": "FOR", "title": "FOR \u2194 MAO | Peso: 3.07 | hub", "to": "MAO", "width": 1}, {"color": "#334155", "from": "NAT", "title": "NAT \u2194 BSB | Peso: 2.45 | hub", "to": "BSB", "width": 1}, {"color": "#334155", "from": "NAT", "title": "NAT \u2194 GIG | Peso: 2.83 | hub", "to": "GIG", "width": 1}, {"color": "#334155", "from": "NAT", "title": "NAT \u2194 GRU | Peso: 2.88 | hub", "to": "GRU", "width": 1}, {"color": "#334155", "from": "NAT", "title": "NAT \u2194 CNF | Peso: 2.50 | hub", "to": "CNF", "width": 1}, {"color": "#334155", "from": "NAT", "title": "NAT \u2194 CGH | Peso: 3.22 | hub", "to": "CGH", "width": 1}, {"color": "#334155", "from": "NAT", "title": "NAT \u2194 BEL | Peso: 2.20 | hub", "to": "BEL", "width": 1}, {"color": "#334155", "from": "NAT", "title": "NAT \u2194 MAO | Peso: 3.50 | hub", "to": "MAO", "width": 1}, {"color": "#334155", "from": "NAT", "title": "NAT \u2194 JPA | Peso: 0.75 | regional", "to": "JPA", "width": 1}, {"color": "#334155", "from": "JPA", "title": "JPA \u2194 BSB | Peso: 2.38 | hub", "to": "BSB", "width": 1}, {"color": "#334155", "from": "JPA", "title": "JPA \u2194 CGH | Peso: 2.95 | hub", "to": "CGH", "width": 1}, {"color": "#334155", "from": "JPA", "title": "JPA \u2194 GRU | Peso: 2.83 | hub", "to": "GRU", "width": 1}, {"color": "#334155", "from": "JPA", "title": "JPA \u2194 GIG | Peso: 2.67 | hub", "to": "GIG", "width": 1}, {"color": "#334155", "from": "JPA", "title": "JPA \u2194 CNF | Peso: 2.37 | hub", "to": "CNF", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 BSB | Peso: 1.35 | hub", "to": "BSB", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 VIX | Peso: 1.22 | regional", "to": "VIX", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 CNF | Peso: 0.92 | regional", "to": "CNF", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 POA | Peso: 1.37 | hub", "to": "POA", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 CWB | Peso: 0.80 | hub", "to": "CWB", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 GIG | Peso: 0.67 | regional", "to": "GIG", "width": 1}, {"color": "#F472B6", "from": "GRU", "title": "GRU \u2194 MAO | Peso: 3.40 | hub", "to": "MAO", "width": 4}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 GYN | Peso: 1.30 | hub", "to": "GYN", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 THE | Peso: 2.78 | hub", "to": "THE", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 BEL | Peso: 3.18 | hub", "to": "BEL", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 FLN | Peso: 0.98 | hub", "to": "FLN", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 PVH | Peso: 3.13 | hub", "to": "PVH", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 RBR | Peso: 3.48 | hub", "to": "RBR", "width": 1}, {"color": "#334155", "from": "GRU", "title": "GRU \u2194 CGH | Peso: 0.50 | regional", "to": "CGH", "width": 1}, {"color": "#334155", "from": "CGH", "title": "CGH \u2194 CNF | Peso: 0.88 | regional", "to": "CNF", "width": 1}, {"color": "#334155", "from": "CGH", "title": "CGH \u2194 VIX | Peso: 1.22 | regional", "to": "VIX", "width": 1}, {"color": "#334155", "from": "CGH", "title": "CGH \u2194 FLN | Peso: 0.92 | hub", "to": "FLN", "width": 1}, {"color": "#334155", "from": "CGH", "title": "CGH \u2194 BSB | Peso: 1.37 | hub", "to": "BSB", "width": 1}, {"color": "#334155", "from": "CGH", "title": "CGH \u2194 GYN | Peso: 1.28 | hub", "to": "GYN", "width": 1}, {"color": "#334155", "from": "CGH", "title": "CGH \u2194 POA | Peso: 1.25 | hub", "to": "POA", "width": 1}, {"color": "#334155", "from": "CGH", "title": "CGH \u2194 GIG | Peso: 0.82 | regional", "to": "GIG", "width": 1}, {"color": "#334155", "from": "CGH", "title": "CGH \u2194 CWB | Peso: 0.70 | hub", "to": "CWB", "width": 1}, {"color": "#334155", "from": "GIG", "title": "GIG \u2194 MAO | Peso: 3.57 | hub", "to": "MAO", "width": 1}, {"color": "#334155", "from": "GIG", "title": "GIG \u2194 POA | Peso: 1.63 | hub", "to": "POA", "width": 1}, {"color": "#334155", "from": "GIG", "title": "GIG \u2194 VIX | Peso: 0.88 | regional", "to": "VIX", "width": 1}, {"color": "#334155", "from": "GIG", "title": "GIG \u2194 BSB | Peso: 1.47 | hub", "to": "BSB", "width": 1}, {"color": "#334155", "from": "GIG", "title": "GIG \u2194 CWB | Peso: 1.15 | hub", "to": "CWB", "width": 1}, {"color": "#334155", "from": "GIG", "title": "GIG \u2194 FLN | Peso: 1.27 | hub", "to": "FLN", "width": 1}, {"color": "#334155", "from": "GIG", "title": "GIG \u2194 CNF | Peso: 0.75 | regional", "to": "CNF", "width": 1}, {"color": "#334155", "from": "GIG", "title": "GIG \u2194 GYN | Peso: 1.47 | hub", "to": "GYN", "width": 1}, {"color": "#334155", "from": "GIG", "title": "GIG \u2194 BEL | Peso: 3.27 | hub", "to": "BEL", "width": 1}, {"color": "#334155", "from": "GIG", "title": "GIG \u2194 PVH | Peso: 5.42 | hub", "to": "PVH", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 BSB | Peso: 0.95 | hub", "to": "BSB", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 VIX | Peso: 0.83 | regional", "to": "VIX", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 MAO | Peso: 3.20 | hub", "to": "MAO", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 GYN | Peso: 1.07 | hub", "to": "GYN", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 POA | Peso: 1.85 | hub", "to": "POA", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 FLN | Peso: 1.55 | hub", "to": "FLN", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 CWB | Peso: 1.35 | hub", "to": "CWB", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 PVH | Peso: 2.98 | hub", "to": "PVH", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 RBR | Peso: 3.32 | hub", "to": "RBR", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 BEL | Peso: 2.80 | hub", "to": "BEL", "width": 1}, {"color": "#334155", "from": "CNF", "title": "CNF \u2194 THE | Peso: 2.28 | hub", "to": "THE", "width": 1}, {"color": "#334155", "from": "VIX", "title": "VIX \u2194 BSB | Peso: 1.52 | hub", "to": "BSB", "width": 1}, {"color": "#334155", "from": "VIX", "title": "VIX \u2194 FLN | Peso: 2.08 | hub", "to": "FLN", "width": 1}, {"color": "#334155", "from": "BSB", "title": "BSB \u2194 MAO | Peso: 2.57 | hub", "to": "MAO", "width": 1}, {"color": "#334155", "from": "BSB", "title": "BSB \u2194 POA | Peso: 2.20 | hub", "to": "POA", "width": 1}, {"color": "#334155", "from": "BSB", "title": "BSB \u2194 GYN | Peso: 0.55 | regional", "to": "GYN", "width": 1}, {"color": "#334155", "from": "BSB", "title": "BSB \u2194 BEL | Peso: 2.27 | hub", "to": "BEL", "width": 1}, {"color": "#334155", "from": "BSB", "title": "BSB \u2194 FLN | Peso: 1.88 | hub", "to": "FLN", "width": 1}, {"color": "#334155", "from": "BSB", "title": "BSB \u2194 CWB | Peso: 1.63 | hub", "to": "CWB", "width": 1}, {"color": "#334155", "from": "BSB", "title": "BSB \u2194 PVH | Peso: 2.53 | hub", "to": "PVH", "width": 1}, {"color": "#334155", "from": "BSB", "title": "BSB \u2194 THE | Peso: 1.97 | hub", "to": "THE", "width": 1}, {"color": "#334155", "from": "BSB", "title": "BSB \u2194 RBR | Peso: 2.83 | hub", "to": "RBR", "width": 1}, {"color": "#334155", "from": "GYN", "title": "GYN \u2194 CWB | Peso: 1.02 | hub", "to": "CWB", "width": 1}, {"color": "#334155", "from": "CWB", "title": "CWB \u2194 FLN | Peso: 0.68 | regional", "to": "FLN", "width": 1}, {"color": "#334155", "from": "CWB", "title": "CWB \u2194 POA | Peso: 0.98 | regional", "to": "POA", "width": 1}, {"color": "#334155", "from": "FLN", "title": "FLN \u2194 MAO | Peso: 4.25 | hub", "to": "MAO", "width": 1}, {"color": "#334155", "from": "FLN", "title": "FLN \u2194 POA | Peso: 0.90 | regional", "to": "POA", "width": 1}, {"color": "#334155", "from": "POA", "title": "POA \u2194 MAO | Peso: 4.42 | hub", "to": "MAO", "width": 1}, {"color": "#334155", "from": "MAO", "title": "MAO \u2194 PVH | Peso: 1.23 | regional", "to": "PVH", "width": 1}, {"color": "#334155", "from": "MAO", "title": "MAO \u2194 BEL | Peso: 1.85 | regional", "to": "BEL", "width": 1}, {"color": "#334155", "from": "MAO", "title": "MAO \u2194 RBR | Peso: 1.63 | regional", "to": "RBR", "width": 1}, {"color": "#334155", "from": "PVH", "title": "PVH \u2194 RBR | Peso: 0.88 | regional", "to": "RBR", "width": 1}]);
-
-                  nodeColors = {};
-                  allNodes = nodes.get({ returnType: "Object" });
-                  for (nodeId in allNodes) {
-                    nodeColors[nodeId] = allNodes[nodeId].color;
-                  }
-                  allEdges = edges.get({ returnType: "Object" });
-                  // adding nodes and edges to the graph
-                  data = {nodes: nodes, edges: edges};
-
-                  var options = {"physics": {"solver": "forceAtlas2Based", "forceAtlas2Based": {"gravitationalConstant": -80, "centralGravity": 0.01, "springLength": 160, "springConstant": 0.08, "damping": 0.4}, "stabilization": {"iterations": 300}}, "interaction": {"hover": true, "tooltipDelay": 100, "hideEdgesOnDrag": true, "navigationButtons": true}};
-
-                  
-
-
-                  
-
-                  network = new vis.Network(container, data, options);
-
-                  
-
-                  
-
-                  
-
-
-                  
-
-                  return network;
-
-              }
-              drawGraph();
-        </script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Grafo Interativo — Rede Aeroportuária</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { display: flex; height: 100vh; background: #0F172A; color: #E2E8F0; overflow: hidden; }
     
-<div style="position:fixed;bottom:20px;right:20px;z-index:9999;
-            background:#1E293B;border:1px solid #334155;border-radius:10px;
-            padding:14px 18px;color:#E2E8F0;font-family:sans-serif;font-size:12px;
-            max-width:380px;box-shadow:0 4px 20px rgba(0,0,0,.6);">
-  <div style="font-weight:bold;font-size:14px;color:white;margin-bottom:10px;">
-    Legenda — Caminhos Obrigatórios
+    #sidebar {
+      width: 340px; background: #1E293B; border-right: 1px solid #334155;
+      display: flex; flex-direction: column; padding: 20px; z-index: 1000;
+      overflow-y: auto;
+    }
+    #sidebar::-webkit-scrollbar { width: 6px; }
+    #sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+    h1 { font-size: 18px; color: #F1F5F9; margin-bottom: 5px; }
+    p.sub { font-size: 12px; color: #94A3B8; margin-bottom: 20px; }
+    
+    .control-group { margin-bottom: 20px; }
+    label { font-size: 11px; font-weight: bold; color: #94A3B8; text-transform: uppercase; margin-bottom: 8px; display: block; }
+    
+    input[type="text"] {
+      width: 100%; padding: 10px; background: #0F172A; border: 1px solid #334155;
+      color: #F1F5F9; border-radius: 6px; outline: none; margin-bottom: 10px;
+    }
+    input[type="text"]:focus { border-color: #3B82F6; }
+    
+    .filter-btn {
+      display: block; width: 100%; padding: 8px; margin-bottom: 6px;
+      background: #0F172A; border: 1px solid #334155; color: #CBD5E1;
+      border-radius: 6px; cursor: pointer; text-align: left; font-size: 13px;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { background: #334155; }
+    .filter-btn.active { background: #3B82F6; border-color: #2563EB; color: #FFF; font-weight: bold; }
+    
+    .route-btn {
+      display: flex; justify-content: space-between; align-items: center; width: 100%; 
+      padding: 10px; margin-bottom: 6px; background: #0F172A; border: 1px solid #334155; 
+      border-radius: 6px; color: #F1F5F9; cursor: pointer; font-size: 12px; font-weight: bold;
+      transition: all 0.2s;
+    }
+    .route-btn:hover { border-color: #94A3B8; }
+    
+    #map { flex: 1; height: 100vh; }
+    
+    /* Estilos Customizados para os Nós (Aeroportos) */
+    .airport-node {
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      transition: transform 0.2s ease-out, border-color 0.2s;
+    }
+    .airport-node:hover {
+      transform: scale(1.35);
+      border-color: #FFF;
+      z-index: 9999 !important;
+    }
+
+    /* Tooltips e Animações */
+    .leaflet-tooltip {
+      background: rgba(15, 23, 42, 0.95) !important; border: 1px solid #334155 !important;
+      color: #F1F5F9 !important; border-radius: 8px !important; padding: 10px !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+    }
+    .leaflet-tooltip::before { display: none !important; }
+    .tt-title { font-size: 14px; font-weight: bold; color: #FFF; margin-bottom: 5px; border-bottom: 1px solid #334155; padding-bottom: 3px; }
+    .tt-stat { font-size: 11px; color: #94A3B8; margin-bottom: 2px; }
+    .tt-stat span { color: #34D399; font-weight: bold; }
+    
+    .flow { stroke-dasharray: 12 8; animation: flow 1.5s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -20; } }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar">
+    <h1>Rede Aeroportuária</h1>
+    <p class="sub">Painel de Exploração Interativa</p>
+
+    <div class="control-group">
+      <label>Buscar Aeroporto</label>
+      <input type="text" id="searchInput" placeholder="Digite IATA ou Cidade..." onkeyup="applyFilters()">
+    </div>
+
+    <div class="control-group">
+      <label>Filtrar por Região</label>
+      <button class="filter-btn active" data-region="Todas" onclick="toggleRegion(this)">Todas as Regiões</button>
+      <button class="filter-btn" data-region="Norte" onclick="toggleRegion(this)">Norte</button>
+      <button class="filter-btn" data-region="Nordeste" onclick="toggleRegion(this)">Nordeste</button>
+      <button class="filter-btn" data-region="Centro-Oeste" onclick="toggleRegion(this)">Centro-Oeste</button>
+      <button class="filter-btn" data-region="Sudeste" onclick="toggleRegion(this)">Sudeste</button>
+      <button class="filter-btn" data-region="Sul" onclick="toggleRegion(this)">Sul</button>
+    </div>
+
+    <div class="control-group">
+      <label>Destacar Rotas (Animadas)</label>
+      <div id="routes-container"></div>
+    </div>
   </div>
-  <div style="margin-bottom:7px;">
-    <span style="color:#A855F7;font-size:16px;">■</span>
-    <b>REC → POA</b><br>
-    <span style="color:#94A3B8;font-size:11px;">REC → POA</span>
-  </div>
-  <div style="margin-bottom:7px;">
-    <span style="color:#F472B6;font-size:16px;">■</span>
-    <b>MAO → GRU</b><br>
-    <span style="color:#94A3B8;font-size:11px;">MAO → GRU</span>
-  </div>
-  <div style="margin-bottom:7px;">
-    <span style="color:#FBBF24;font-size:16px;">■</span> Nó compartilhado entre rotas
-  </div>
-  <hr style="border-color:#334155;margin:8px 0;"/>
-  <div style="color:#94A3B8;font-size:11px;">
-    Use a caixa de busca para filtrar aeroportos.<br>
-    Passe o mouse sobre nós para ver grau, região e densidade.
-  </div>
-</div>
+
+  <div id="map"></div>
+
+  <script>
+    const data = {"nodes": {"REC": {"cidade": "Recife", "regiao": "Nordeste", "lat": -8.13, "lng": -34.92, "grau": 15, "densidade": 0.733333}, "SSA": {"cidade": "Salvador", "regiao": "Nordeste", "lat": -12.91, "lng": -38.32, "grau": 15, "densidade": 0.758333}, "FOR": {"cidade": "Fortaleza", "regiao": "Nordeste", "lat": -3.78, "lng": -38.53, "grau": 11, "densidade": 0.878788}, "NAT": {"cidade": "Natal", "regiao": "Nordeste", "lat": -5.91, "lng": -35.25, "grau": 11, "densidade": 0.924242}, "JPA": {"cidade": "João Pessoa", "regiao": "Nordeste", "lat": -7.15, "lng": -34.95, "grau": 8, "densidade": 1.0}, "GRU": {"cidade": "São Paulo", "regiao": "Sudeste", "lat": -23.44, "lng": -46.47, "grau": 19, "densidade": 0.605263}, "CGH": {"cidade": "São Paulo", "regiao": "Sudeste", "lat": -23.63, "lng": -46.66, "grau": 14, "densidade": 0.771429}, "GIG": {"cidade": "Rio de Janeiro", "regiao": "Sudeste", "lat": -22.81, "lng": -43.25, "grau": 17, "densidade": 0.686275}, "CNF": {"cidade": "Belo Horizonte", "regiao": "Sudeste", "lat": -19.62, "lng": -43.97, "grau": 19, "densidade": 0.605263}, "VIX": {"cidade": "Vitória", "regiao": "Sudeste", "lat": -20.26, "lng": -40.29, "grau": 8, "densidade": 0.944444}, "BSB": {"cidade": "Brasília", "regiao": "Centro-Oeste", "lat": -15.87, "lng": -47.92, "grau": 19, "densidade": 0.605263}, "GYN": {"cidade": "Goiânia", "regiao": "Centro-Oeste", "lat": -16.63, "lng": -49.22, "grau": 8, "densidade": 0.972222}, "CWB": {"cidade": "Curitiba", "regiao": "Sul", "lat": -25.53, "lng": -49.18, "grau": 9, "densidade": 0.933333}, "FLN": {"cidade": "Florianópolis", "regiao": "Sul", "lat": -27.67, "lng": -48.55, "grau": 9, "densidade": 0.888889}, "POA": {"cidade": "Porto Alegre", "regiao": "Sul", "lat": -29.99, "lng": -51.17, "grau": 10, "densidade": 0.909091}, "MAO": {"cidade": "Manaus", "regiao": "Norte", "lat": -3.04, "lng": -60.05, "grau": 13, "densidade": 0.747253}, "BEL": {"cidade": "Belém", "regiao": "Norte", "lat": -1.38, "lng": -48.48, "grau": 9, "densidade": 1.0}, "PVH": {"cidade": "Porto Velho", "regiao": "Norte", "lat": -8.71, "lng": -63.9, "grau": 6, "densidade": 0.952381}, "RBR": {"cidade": "Rio Branco", "regiao": "Norte", "lat": -9.87, "lng": -67.9, "grau": 5, "densidade": 1.0}, "THE": {"cidade": "Teresina", "regiao": "Nordeste", "lat": -5.06, "lng": -42.82, "grau": 5, "densidade": 1.0}}, "edges": [{"source": "REC", "target": "CGH"}, {"source": "REC", "target": "NAT"}, {"source": "REC", "target": "SSA"}, {"source": "REC", "target": "BSB"}, {"source": "REC", "target": "GRU"}, {"source": "REC", "target": "CNF"}, {"source": "REC", "target": "POA"}, {"source": "REC", "target": "GIG"}, {"source": "REC", "target": "GYN"}, {"source": "REC", "target": "FOR"}, {"source": "REC", "target": "JPA"}, {"source": "REC", "target": "MAO"}, {"source": "REC", "target": "BEL"}, {"source": "REC", "target": "THE"}, {"source": "REC", "target": "VIX"}, {"source": "SSA", "target": "BSB"}, {"source": "SSA", "target": "JPA"}, {"source": "SSA", "target": "MAO"}, {"source": "SSA", "target": "GIG"}, {"source": "SSA", "target": "BEL"}, {"source": "SSA", "target": "GRU"}, {"source": "SSA", "target": "POA"}, {"source": "SSA", "target": "CNF"}, {"source": "SSA", "target": "CGH"}, {"source": "SSA", "target": "VIX"}, {"source": "SSA", "target": "FOR"}, {"source": "SSA", "target": "NAT"}, {"source": "SSA", "target": "CWB"}, {"source": "SSA", "target": "GYN"}, {"source": "FOR", "target": "CNF"}, {"source": "FOR", "target": "CGH"}, {"source": "FOR", "target": "BSB"}, {"source": "FOR", "target": "GIG"}, {"source": "FOR", "target": "GRU"}, {"source": "FOR", "target": "BEL"}, {"source": "FOR", "target": "THE"}, {"source": "FOR", "target": "NAT"}, {"source": "FOR", "target": "MAO"}, {"source": "NAT", "target": "BSB"}, {"source": "NAT", "target": "GIG"}, {"source": "NAT", "target": "GRU"}, {"source": "NAT", "target": "CNF"}, {"source": "NAT", "target": "CGH"}, {"source": "NAT", "target": "BEL"}, {"source": "NAT", "target": "MAO"}, {"source": "NAT", "target": "JPA"}, {"source": "JPA", "target": "BSB"}, {"source": "JPA", "target": "CGH"}, {"source": "JPA", "target": "GRU"}, {"source": "JPA", "target": "GIG"}, {"source": "JPA", "target": "CNF"}, {"source": "GRU", "target": "BSB"}, {"source": "GRU", "target": "VIX"}, {"source": "GRU", "target": "CNF"}, {"source": "GRU", "target": "POA"}, {"source": "GRU", "target": "CWB"}, {"source": "GRU", "target": "GIG"}, {"source": "GRU", "target": "MAO"}, {"source": "GRU", "target": "GYN"}, {"source": "GRU", "target": "THE"}, {"source": "GRU", "target": "BEL"}, {"source": "GRU", "target": "FLN"}, {"source": "GRU", "target": "PVH"}, {"source": "GRU", "target": "RBR"}, {"source": "GRU", "target": "CGH"}, {"source": "CGH", "target": "CNF"}, {"source": "CGH", "target": "VIX"}, {"source": "CGH", "target": "FLN"}, {"source": "CGH", "target": "BSB"}, {"source": "CGH", "target": "GYN"}, {"source": "CGH", "target": "POA"}, {"source": "CGH", "target": "GIG"}, {"source": "CGH", "target": "CWB"}, {"source": "GIG", "target": "MAO"}, {"source": "GIG", "target": "POA"}, {"source": "GIG", "target": "VIX"}, {"source": "GIG", "target": "BSB"}, {"source": "GIG", "target": "CWB"}, {"source": "GIG", "target": "FLN"}, {"source": "GIG", "target": "CNF"}, {"source": "GIG", "target": "GYN"}, {"source": "GIG", "target": "BEL"}, {"source": "GIG", "target": "PVH"}, {"source": "CNF", "target": "BSB"}, {"source": "CNF", "target": "VIX"}, {"source": "CNF", "target": "MAO"}, {"source": "CNF", "target": "GYN"}, {"source": "CNF", "target": "POA"}, {"source": "CNF", "target": "FLN"}, {"source": "CNF", "target": "CWB"}, {"source": "CNF", "target": "PVH"}, {"source": "CNF", "target": "RBR"}, {"source": "CNF", "target": "BEL"}, {"source": "CNF", "target": "THE"}, {"source": "VIX", "target": "BSB"}, {"source": "VIX", "target": "FLN"}, {"source": "BSB", "target": "MAO"}, {"source": "BSB", "target": "POA"}, {"source": "BSB", "target": "GYN"}, {"source": "BSB", "target": "BEL"}, {"source": "BSB", "target": "FLN"}, {"source": "BSB", "target": "CWB"}, {"source": "BSB", "target": "PVH"}, {"source": "BSB", "target": "THE"}, {"source": "BSB", "target": "RBR"}, {"source": "GYN", "target": "CWB"}, {"source": "CWB", "target": "FLN"}, {"source": "CWB", "target": "POA"}, {"source": "FLN", "target": "MAO"}, {"source": "FLN", "target": "POA"}, {"source": "POA", "target": "MAO"}, {"source": "MAO", "target": "PVH"}, {"source": "MAO", "target": "BEL"}, {"source": "MAO", "target": "RBR"}, {"source": "PVH", "target": "RBR"}], "routes": [{"id": "rec-poa", "label": "⭐ REC → POA", "path": ["REC", "POA"], "color": "#A855F7"}, {"id": "mao-gru", "label": "⭐ MAO → GRU", "path": ["MAO", "GRU"], "color": "#F472B6"}, {"id": "for-cgh", "label": "FOR → CGH", "path": ["FOR", "CGH"], "color": "#34D399"}, {"id": "bsb-bel", "label": "BSB → BEL", "path": ["BSB", "BEL"], "color": "#60A5FA"}, {"id": "cwb-nat", "label": "CWB → NAT", "path": ["CWB", "GRU", "NAT"], "color": "#FBBF24"}, {"id": "vix-mao", "label": "VIX → MAO", "path": ["VIX", "CNF", "MAO"], "color": "#F87171"}, {"id": "ssa-fln", "label": "SSA → FLN", "path": ["SSA", "GIG", "FLN"], "color": "#67E8F9"}]};
+    const REGION_COLORS = { "Norte": "#34D399", "Nordeste": "#FBBF24", "Sudeste": "#60A5FA", "Sul": "#F472B6", "Centro-Oeste": "#A855F7" };
+    
+    const map = L.map('map', {zoomControl: true}).setView([-15, -50], 4);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap', subdomains: 'abcd', maxZoom: 19
+    }).addTo(map);
+
+    let nodeLayers = [];
+    let edgeLayers = [];
+    let currentRegion = 'Todas';
+    let activeRoutes = new Set();
+    
+    const routesGroup = L.layerGroup().addTo(map);
+
+    const routesContainer = document.getElementById('routes-container');
+    data.routes.forEach(route => {
+      const btn = document.createElement('button');
+      btn.className = 'route-btn';
+      btn.innerHTML = `<span>${route.label}</span> <span style="color:${route.color}">■</span>`;
+      btn.onclick = () => toggleRoute(route, btn);
+      routesContainer.appendChild(btn);
+    });
+
+    function arc(la1, ln1, la2, ln2, n=50) {
+      const mla=(la1+la2)/2, mln=(ln1+ln2)/2, dla=la2-la1, dln=ln2-ln1;
+      const dist=Math.hypot(dla,dln)||1e-9, k=dist*0.2;
+      const cla=mla+(-dln/dist)*k, cln=mln+(dla/dist)*k;
+      return Array.from({length:n+1}, (_,i) => {
+        const t=i/n, u=1-t;
+        return [u*u*la1 + 2*u*t*cla + t*t*la2, u*u*ln1 + 2*u*t*cln + t*t*ln2];
+      });
+    }
+
+    // Arestas Base (Fundo)
+    data.edges.forEach(edge => {
+      const p1 = [data.nodes[edge.source].lat, data.nodes[edge.source].lng];
+      const p2 = [data.nodes[edge.target].lat, data.nodes[edge.target].lng];
+      const line = L.polyline([p1, p2], { color: '#475569', weight: 1, opacity: 0.3 }).addTo(map);
+      edgeLayers.push({ source: edge.source, target: edge.target, layer: line });
+    });
+
+    // Nós Customizados (Aeroportos) com Glow
+    Object.keys(data.nodes).forEach(iata => {
+      const n = data.nodes[iata];
+      const color = REGION_COLORS[n.regiao] || '#FFF';
+      const size = 10 + (n.grau * 1.5); // Tamanho dinâmico pelo grau
+      
+      const iconHTML = `<div class="airport-node" style="
+        width: 100%; height: 100%; 
+        background: ${color}; 
+        box-shadow: 0 0 ${size/1.5}px ${color};
+      "></div>`;
+
+      const customIcon = L.divIcon({
+        className: '', // Limpa a classe padrão do leaflet
+        html: iconHTML,
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2]
+      });
+
+      const marker = L.marker([n.lat, n.lng], { icon: customIcon }).addTo(map);
+
+      const tooltipHTML = `
+        <div class="tt-title">${iata} - ${n.cidade}</div>
+        <div class="tt-stat">Região: <span>${n.regiao}</span></div>
+        <div class="tt-stat">Grau: <span>${n.grau} conexões</span></div>
+        <div class="tt-stat">Densidade Ego: <span>${n.densidade.toFixed(4)}</span></div>
+      `;
+      marker.bindTooltip(tooltipHTML, { direction: 'top', offset: [0, -(size/2)] });
+      nodeLayers.push({ iata: iata, data: n, layer: marker });
+    });
+
+    function applyFilters() {
+      const term = document.getElementById('searchInput').value.toLowerCase();
+      nodeLayers.forEach(node => {
+        const matchSearch = node.iata.toLowerCase().includes(term) || node.data.cidade.toLowerCase().includes(term);
+        const matchRegion = currentRegion === 'Todas' || node.data.regiao === currentRegion;
+        if (matchSearch && matchRegion) { map.addLayer(node.layer); } 
+        else { map.removeLayer(node.layer); }
+      });
+      updateEdgesVisibility();
+    }
+
+    function updateEdgesVisibility() {
+      edgeLayers.forEach(edge => {
+        const sourceVisible = map.hasLayer(nodeLayers.find(n => n.iata === edge.source).layer);
+        const targetVisible = map.hasLayer(nodeLayers.find(n => n.iata === edge.target).layer);
+        if (sourceVisible && targetVisible) { map.addLayer(edge.layer); } 
+        else { map.removeLayer(edge.layer); }
+      });
+    }
+
+    window.toggleRegion = function(btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentRegion = btn.getAttribute('data-region');
+      applyFilters();
+    };
+
+    window.toggleRoute = function(route, btn) {
+      if (activeRoutes.has(route.id)) {
+        activeRoutes.delete(route.id);
+        btn.style.backgroundColor = '#0F172A';
+        btn.style.borderColor = '#334155';
+      } else {
+        activeRoutes.add(route.id);
+        btn.style.backgroundColor = 'rgba(255,255,255,0.1)';
+        btn.style.borderColor = route.color;
+      }
+      renderActiveRoutes();
+    };
+
+    function renderActiveRoutes() {
+      routesGroup.clearLayers();
+      activeRoutes.forEach(routeId => {
+        const route = data.routes.find(r => r.id === routeId);
+        for(let i = 0; i < route.path.length - 1; i++) {
+          const a = data.nodes[route.path[i]], b = data.nodes[route.path[i+1]];
+          const pts = arc(a.lat, a.lng, b.lat, b.lng);
+          L.polyline(pts, {color: route.color, weight: 8, opacity: 0.3, smoothFactor: 1}).addTo(routesGroup);
+          L.polyline(pts, {color: route.color, weight: 3, opacity: 0.9, className: 'flow'}).addTo(routesGroup);
+        }
+      });
+    }
+  </script>
 </body>
 </html>
