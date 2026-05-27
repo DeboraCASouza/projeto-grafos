@@ -1,36 +1,28 @@
-from src.graphs.graph import GrafoAeroportos
+from src.graphs.io import carregar_grafo
 from src.graphs.algorithms import dfs
 
 def test_dfs_grafo_conexo():
-    g = GrafoAeroportos()
-
-    for no in ["A", "B", "C", "D"]:
-        g.adicionar_aeroporto(no, f"Cidade {no}", "Regiao")
-
-    g.adicionar_conexao("A", "B", 1.0, "t", "j")
-    g.adicionar_conexao("A", "C", 1.0, "t", "j")
-    g.adicionar_conexao("B", "D", 1.0, "t", "j")
+    g = carregar_grafo('data/aeroportos_data.csv', 'data/adjacencias_aeroportos.csv')
     
-    visitados = dfs(g, "A")
+    visitados = dfs(g, "PVH")
     
-    assert len(visitados) == 4
-    assert set(visitados) == {"A", "B", "C", "D"}
-    assert visitados[0] == "A"
+    assert len(visitados) == 20
+    assert visitados[0] == "PVH"
+    
+    codigos_esperados = {
+        "REC", "SSA", "FOR", "NAT", "JPA", "GRU", "CGH", "GIG", "CNF", "VIX",
+        "BSB", "GYN", "CWB", "FLN", "POA", "MAO", "BEL", "PVH", "RBR", "THE"
+    }
+    assert set(visitados) == codigos_esperados
 
 def test_dfs_ciclo():
-    g = GrafoAeroportos()
-
-    for no in ["A", "B", "C"]:
-        g.adicionar_aeroporto(no, f"Cidade {no}", "Regiao")
-
-    g.adicionar_conexao("A", "B", 1.0, "t", "j")
-    g.adicionar_conexao("B", "C", 1.0, "t", "j")
-    g.adicionar_conexao("C", "A", 1.0, "t", "j")
+    g = carregar_grafo('data/aeroportos_data.csv', 'data/adjacencias_aeroportos.csv')
     
-    visitados = dfs(g, "A")
-    assert len(visitados) == 3
-    assert set(visitados) == {"A", "B", "C"}
+    visitados = dfs(g, "PVH")
+    
+    assert len(visitados) == 20
+    assert len(set(visitados)) == 20
 
 def test_dfs_no_inexistente():
-    g = GrafoAeroportos()
-    assert dfs(g, "X") == []
+    g = carregar_grafo('data/aeroportos_data.csv', 'data/adjacencias_aeroportos.csv')
+    assert dfs(g, "XYZ") == []

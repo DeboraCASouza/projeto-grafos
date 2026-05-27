@@ -1,50 +1,39 @@
-from src.graphs.graph import GrafoAeroportos
+from src.graphs.io import carregar_grafo
 from src.graphs.algorithms import dijkstra
 
 def build_graph():
-    g = GrafoAeroportos()
-    for no in ["A", "B", "C", "D", "E"]:
-        g.adicionar_aeroporto(no, f"Cidade {no}", "Regiao")
-        
-    g.adicionar_conexao("A", "B", 4.0, "t", "j")
-    g.adicionar_conexao("A", "C", 2.0, "t", "j")
-    g.adicionar_conexao("B", "C", 1.0, "t", "j")
-    g.adicionar_conexao("B", "D", 5.0, "t", "j")
-    g.adicionar_conexao("C", "D", 8.0, "t", "j")
-    g.adicionar_conexao("C", "E", 10.0, "t", "j")
-    g.adicionar_conexao("D", "E", 2.0, "t", "j")
-    return g
+    return carregar_grafo('data/aeroportos_data.csv', 'data/adjacencias_aeroportos.csv')
 
-def test_dijkstra_caminho_simples():
+def test_dijkstra_caminho_direto():
     g = build_graph()
-    custo, caminho = dijkstra(g, "A", "D")
+    custo, caminho = dijkstra(g, "PVH", "RBR")
     
-    assert custo == 8.0
-    assert caminho == ["A", "C", "B", "D"]
+    assert round(custo, 2) == 0.88
+    assert caminho == ["PVH", "RBR"]
 
 def test_dijkstra_caminho_indireto():
     g = build_graph()
-    custo, caminho = dijkstra(g, "A", "E")
+    custo, caminho = dijkstra(g, "PVH", "REC")
     
-    assert custo == 10.0
-    assert caminho == ["A", "C", "B", "D", "E"]
+    assert round(custo, 2) == 4.73
+    assert caminho == ["PVH", "MAO", "REC"]
 
 def test_dijkstra_caminho_inexistente():
     g = build_graph()
-    g.adicionar_aeroporto("F", "Cidade F", "Regiao")
+    g.adicionar_aeroporto("XYZ", "Cidade XYZ", "Regiao")
     
-    custo, caminho = dijkstra(g, "A", "F")
+    custo, caminho = dijkstra(g, "PVH", "XYZ")
     assert custo == float('inf')
     assert caminho == []
 
 def test_dijkstra_mesmo_no():
     g = build_graph()
-    custo, caminho = dijkstra(g, "A", "A")
+    custo, caminho = dijkstra(g, "PVH", "PVH")
     assert custo == 0.0
-    assert caminho == ["A"]
+    assert caminho == ["PVH"]
 
 def test_dijkstra_nos_invalidos():
     g = build_graph()
-    custo, caminho = dijkstra(g, "X", "Y")
+    custo, caminho = dijkstra(g, "XYZ", "WYK")
     assert custo == float('inf')
     assert caminho == []

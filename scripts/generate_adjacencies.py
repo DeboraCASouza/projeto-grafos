@@ -16,7 +16,6 @@ def carregar_dados():
     df_aeroportos = pd.read_csv('data/aeroportos_data.csv')
     mapa_regioes = dict(zip(df_aeroportos['iata'], df_aeroportos['regiao']))
     
-
     try:
         df_vra = pd.read_csv('scripts/VRA_20255.csv', sep=';', quotechar='"', encoding='utf-8', low_memory=False)
     except:
