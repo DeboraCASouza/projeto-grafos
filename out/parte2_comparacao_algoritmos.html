@@ -22,25 +22,91 @@
   </style>
 </head>
 <body>
-<script src="navbar.js"></script>
 
+<style id="topbar-style">
+*,*::before,*::after{box-sizing:border-box}
+#topbar{
+  position:fixed;top:0;left:0;right:0;height:52px;
+  background:#1e1e2e;border-bottom:1px solid #313244;
+  display:flex;align-items:center;padding:0 22px;gap:18px;
+  z-index:9999;box-shadow:0 2px 16px #0006;
+  font-family:'Segoe UI',Arial,sans-serif;
+}
+.nav-brand{
+  color:#cba6f7;font-weight:700;font-size:15px;
+  text-decoration:none;white-space:nowrap;letter-spacing:-.3px;
+  display:flex;align-items:center;gap:7px;
+}
+.nav-brand:hover{color:#f5c2e7}
+.nav-sep{width:1px;height:28px;background:#313244;flex-shrink:0}
+.nav-links{display:flex;gap:6px;align-items:center}
+.dropdown{position:relative}
+.dropbtn{
+  background:transparent;border:1px solid #313244;color:#cdd6f4;
+  padding:7px 14px;border-radius:7px;cursor:pointer;font-size:13px;
+  transition:background .15s,color .15s;white-space:nowrap;
+}
+.dropbtn:hover,.dropbtn.active{background:#313244;color:#cba6f7;border-color:#45475a}
+.dropdown-content{
+  display:none;position:absolute;top:46px;left:0;
+  background:#181825;border:1px solid #313244;border-radius:10px;
+  min-width:230px;box-shadow:0 12px 32px #0008;
+  z-index:10000;overflow:hidden;
+}
+.dropdown:hover .dropdown-content{display:block}
+.dropdown-content a{
+  display:flex;align-items:center;gap:10px;
+  color:#a6adc8;padding:10px 16px;text-decoration:none;
+  font-size:13px;transition:background .1s,color .1s;border-bottom:1px solid #31324430;
+}
+.dropdown-content a:last-child{border-bottom:none}
+.dropdown-content a:hover{background:#31324470;color:#cba6f7}
+.dropdown-content a.current{color:#cba6f7;background:#31324450;font-weight:600}
+.nav-tag{
+  margin-left:auto;background:#31324460;color:#a6adc8;
+  font-size:11px;padding:2px 8px;border-radius:99px;
+}
+</style>
+
+<nav id="topbar">
+  <a class="nav-brand" href="index.html">✈ Projeto Grafos</a>
+  <div class="nav-sep"></div>
+  <div class="nav-links">
+    <div class="dropdown">
+      <button class="dropbtn">Parte 1 — Aeroportos ▾</button>
+      <div class="dropdown-content">
+        <a href="grafo_interativo.html">🗺 Grafo Interativo</a>
+        <a href="arvore_percurso.html">🌳 Árvore de Percurso</a>
+        <a href="parte1_galeria.html">📊 Galeria de Visualizações</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropbtn  active">Parte 2 — Netflix ▾</button>
+      <div class="dropdown-content">
+        <a href="parte2_grafo_amostra.html">🎬 Dashboard Interativo</a>
+        <a href="parte2_distribuicao_graus.html">📈 Distribuição de Graus</a>
+        <a href="parte2_comparacao_algoritmos.html" class="current">⚡ Comparação de Algoritmos</a>
+      </div>
+    </div>
+  </div>
+</nav>
 <div class="page-wrap">
   <h1>Comparação de Algoritmos — Parte 2</h1>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px"><div class="card" style="padding:18px;text-align:center;border-top:3px solid #cba6f7">
           <div style="font-size:11px;color:#6c7086;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">BFS</div>
-          <div style="font-size:28px;font-weight:700;color:#cba6f7">0.1114<span style="font-size:13px;color:#6c7086">ms</span></div>
+          <div style="font-size:28px;font-weight:700;color:#cba6f7">0.1146<span style="font-size:13px;color:#6c7086">ms</span></div>
           <div style="font-size:11px;color:#6c7086;margin-top:4px">O(V+E)</div>
         </div><div class="card" style="padding:18px;text-align:center;border-top:3px solid #89b4fa">
           <div style="font-size:11px;color:#6c7086;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">DFS</div>
-          <div style="font-size:28px;font-weight:700;color:#89b4fa">0.5127<span style="font-size:13px;color:#6c7086">ms</span></div>
+          <div style="font-size:28px;font-weight:700;color:#89b4fa">0.7159<span style="font-size:13px;color:#6c7086">ms</span></div>
           <div style="font-size:11px;color:#6c7086;margin-top:4px">O(V+E)</div>
         </div><div class="card" style="padding:18px;text-align:center;border-top:3px solid #f38ba8">
           <div style="font-size:11px;color:#6c7086;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Dijkstra</div>
-          <div style="font-size:28px;font-weight:700;color:#f38ba8">0.2834<span style="font-size:13px;color:#6c7086">ms</span></div>
+          <div style="font-size:28px;font-weight:700;color:#f38ba8">0.5881<span style="font-size:13px;color:#6c7086">ms</span></div>
           <div style="font-size:11px;color:#6c7086;margin-top:4px">O(V²)</div>
         </div><div class="card" style="padding:18px;text-align:center;border-top:3px solid #f9e2af">
           <div style="font-size:11px;color:#6c7086;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Bellman-Ford</div>
-          <div style="font-size:28px;font-weight:700;color:#f9e2af">3.0202<span style="font-size:13px;color:#6c7086">ms</span></div>
+          <div style="font-size:28px;font-weight:700;color:#f9e2af">4.3236<span style="font-size:13px;color:#6c7086">ms</span></div>
           <div style="font-size:11px;color:#6c7086;margin-top:4px">O(V·E)</div>
         </div></div>
     <div class="card" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:28px">
@@ -48,10 +114,10 @@
         <th style="padding:11px 14px;font-weight:600">Algoritmo</th><th style="padding:11px 14px;font-weight:600">Complexidade</th><th style="padding:11px 14px;font-weight:600">Média (ms)</th><th style="padding:11px 14px;font-weight:600">Mín (ms)</th><th style="padding:11px 14px;font-weight:600">Máx (ms)</th><th style="padding:11px 14px;font-weight:600">Desvio (ms)</th><th style="padding:11px 14px;font-weight:600">Pico Mem (KB)</th>
       </tr></thead>
       <tbody style="color:#cdd6f4">
-        <tr style="border-bottom:1px solid #31324450"><tr><td><b style="color:#cba6f7">BFS</b></td><td style="font-family:monospace;color:#89b4fa">O(V+E)</td><td><b>0.1114</b></td><td>0.1075</td><td>0.14</td><td>0.0073</td><td>5.78</td></tr><tr style="border-bottom:1px solid #31324450"><tr><td><b style="color:#89b4fa">DFS</b></td><td style="font-family:monospace;color:#89b4fa">O(V+E)</td><td><b>0.5127</b></td><td>0.21</td><td>2.0933</td><td>0.4231</td><td>45.0</td></tr><tr style="border-bottom:1px solid #31324450"><tr><td><b style="color:#f38ba8">Dijkstra</b></td><td style="font-family:monospace;color:#89b4fa">O(V²)</td><td><b>0.2834</b></td><td>0.2804</td><td>0.3068</td><td>0.0059</td><td>26.45</td></tr><tr style="border-bottom:1px solid #31324450"><tr><td><b style="color:#f9e2af">Bellman-Ford</b></td><td style="font-family:monospace;color:#89b4fa">O(V·E)</td><td><b>3.0202</b></td><td>2.9265</td><td>4.44</td><td>0.3351</td><td>28.64</td></tr>
+        <tr style="border-bottom:1px solid #31324450"><tr><td><b style="color:#cba6f7">BFS</b></td><td style="font-family:monospace;color:#89b4fa">O(V+E)</td><td><b>0.1146</b></td><td>0.1058</td><td>0.1575</td><td>0.0127</td><td>5.91</td></tr><tr style="border-bottom:1px solid #31324450"><tr><td><b style="color:#89b4fa">DFS</b></td><td style="font-family:monospace;color:#89b4fa">O(V+E)</td><td><b>0.7159</b></td><td>0.6816</td><td>0.766</td><td>0.022</td><td>44.99</td></tr><tr style="border-bottom:1px solid #31324450"><tr><td><b style="color:#f38ba8">Dijkstra</b></td><td style="font-family:monospace;color:#89b4fa">O(V²)</td><td><b>0.5881</b></td><td>0.5484</td><td>0.7169</td><td>0.051</td><td>26.45</td></tr><tr style="border-bottom:1px solid #31324450"><tr><td><b style="color:#f9e2af">Bellman-Ford</b></td><td style="font-family:monospace;color:#89b4fa">O(V·E)</td><td><b>4.3236</b></td><td>3.5981</td><td>5.9505</td><td>0.6403</td><td>28.64</td></tr>
       </tbody>
     </table><div style="display:flex;gap:20px;flex-wrap:wrap"><svg width="480" height="340" xmlns="http://www.w3.org/2000/svg" style="font-family:'Segoe UI',Arial,sans-serif;background:#1e1e2e;border-radius:12px">
-<defs><linearGradient id="g7567" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f5c2e7"/><stop offset="100%" stop-color="#db2777"/></linearGradient></defs>
+<defs><linearGradient id="g148" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f5c2e7"/><stop offset="100%" stop-color="#db2777"/></linearGradient></defs>
 <rect x="72" y="52" width="380" height="180" fill="#11111b" rx="6"/>
 <text x="240" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="#cdd6f4">Tempo Médio de Execução (ms)</text>
 <line x1="72" y1="52" x2="72" y2="232" stroke="#45475a" stroke-width="1.5"/>
@@ -61,27 +127,28 @@
 <line x1="72" y1="232" x2="452" y2="232" stroke="#313244" stroke-dasharray="4,3"/>
 <text x="65" y="236" text-anchor="end" font-size="10" fill="#6c7086">0.00</text>
 <line x1="72" y1="196" x2="452" y2="196" stroke="#313244" stroke-dasharray="4,3"/>
-<text x="65" y="200" text-anchor="end" font-size="10" fill="#6c7086">0.60</text>
+<text x="65" y="200" text-anchor="end" font-size="10" fill="#6c7086">0.86</text>
 <line x1="72" y1="160" x2="452" y2="160" stroke="#313244" stroke-dasharray="4,3"/>
-<text x="65" y="164" text-anchor="end" font-size="10" fill="#6c7086">1.21</text>
+<text x="65" y="164" text-anchor="end" font-size="10" fill="#6c7086">1.73</text>
 <line x1="72" y1="124" x2="452" y2="124" stroke="#313244" stroke-dasharray="4,3"/>
-<text x="65" y="128" text-anchor="end" font-size="10" fill="#6c7086">1.81</text>
+<text x="65" y="128" text-anchor="end" font-size="10" fill="#6c7086">2.59</text>
 <line x1="72" y1="88" x2="452" y2="88" stroke="#313244" stroke-dasharray="4,3"/>
-<text x="65" y="92" text-anchor="end" font-size="10" fill="#6c7086">2.42</text>
+<text x="65" y="92" text-anchor="end" font-size="10" fill="#6c7086">3.46</text>
 <line x1="72" y1="52" x2="452" y2="52" stroke="#313244" stroke-dasharray="4,3"/>
-<text x="65" y="56" text-anchor="end" font-size="10" fill="#6c7086">3.02</text>
-<rect x="82" y="226" width="82" height="6" fill="url(#g7567)" rx="3" opacity=".9"><title>BFS: 0.1114</title></rect>
+<text x="65" y="56" text-anchor="end" font-size="10" fill="#6c7086">4.32</text>
+<rect x="82" y="228" width="82" height="4" fill="url(#g148)" rx="3" opacity=".9"><title>BFS: 0.1146</title></rect>
 <text transform="rotate(-38,123,242)" x="123" y="242" text-anchor="end" font-size="10" fill="#6c7086">BFS</text>
-<rect x="174" y="202" width="82" height="30" fill="url(#g7567)" rx="3" opacity=".9"><title>DFS: 0.5127</title></rect>
-<text x="215" y="198" text-anchor="middle" font-size="9" fill="#a6adc8">0.51</text>
+<rect x="174" y="203" width="82" height="29" fill="url(#g148)" rx="3" opacity=".9"><title>DFS: 0.7159</title></rect>
+<text x="215" y="199" text-anchor="middle" font-size="9" fill="#a6adc8">0.72</text>
 <text transform="rotate(-38,215,242)" x="215" y="242" text-anchor="end" font-size="10" fill="#6c7086">DFS</text>
-<rect x="266" y="216" width="82" height="16" fill="url(#g7567)" rx="3" opacity=".9"><title>Dijkstra: 0.2834</title></rect>
+<rect x="266" y="208" width="82" height="24" fill="url(#g148)" rx="3" opacity=".9"><title>Dijkstra: 0.5881</title></rect>
+<text x="307" y="204" text-anchor="middle" font-size="9" fill="#a6adc8">0.59</text>
 <text transform="rotate(-38,307,242)" x="307" y="242" text-anchor="end" font-size="10" fill="#6c7086">Dijkstra</text>
-<rect x="358" y="52" width="82" height="180" fill="url(#g7567)" rx="3" opacity=".9"><title>Bellman-Ford: 3.0202</title></rect>
-<text x="399" y="48" text-anchor="middle" font-size="9" fill="#a6adc8">3.02</text>
+<rect x="358" y="52" width="82" height="180" fill="url(#g148)" rx="3" opacity=".9"><title>Bellman-Ford: 4.3236</title></rect>
+<text x="399" y="48" text-anchor="middle" font-size="9" fill="#a6adc8">4.32</text>
 <text transform="rotate(-38,399,242)" x="399" y="242" text-anchor="end" font-size="10" fill="#6c7086">Bellman-Ford</text>
 </svg><svg width="480" height="340" xmlns="http://www.w3.org/2000/svg" style="font-family:'Segoe UI',Arial,sans-serif;background:#1e1e2e;border-radius:12px">
-<defs><linearGradient id="g2227" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#89dceb"/><stop offset="100%" stop-color="#0891b2"/></linearGradient></defs>
+<defs><linearGradient id="g3888" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#89dceb"/><stop offset="100%" stop-color="#0891b2"/></linearGradient></defs>
 <rect x="72" y="52" width="380" height="180" fill="#11111b" rx="6"/>
 <text x="240" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="#cdd6f4">Pico de Memória (KB)</text>
 <line x1="72" y1="52" x2="72" y2="232" stroke="#45475a" stroke-width="1.5"/>
@@ -100,16 +167,16 @@
 <text x="65" y="92" text-anchor="end" font-size="10" fill="#6c7086">36.0</text>
 <line x1="72" y1="52" x2="452" y2="52" stroke="#313244" stroke-dasharray="4,3"/>
 <text x="65" y="56" text-anchor="end" font-size="10" fill="#6c7086">45.0</text>
-<rect x="82" y="209" width="82" height="23" fill="url(#g2227)" rx="3" opacity=".9"><title>BFS: 5.78</title></rect>
-<text x="123" y="205" text-anchor="middle" font-size="9" fill="#a6adc8">5.8</text>
+<rect x="82" y="209" width="82" height="23" fill="url(#g3888)" rx="3" opacity=".9"><title>BFS: 5.91</title></rect>
+<text x="123" y="205" text-anchor="middle" font-size="9" fill="#a6adc8">5.9</text>
 <text transform="rotate(-38,123,242)" x="123" y="242" text-anchor="end" font-size="10" fill="#6c7086">BFS</text>
-<rect x="174" y="52" width="82" height="180" fill="url(#g2227)" rx="3" opacity=".9"><title>DFS: 45.0</title></rect>
+<rect x="174" y="52" width="82" height="180" fill="url(#g3888)" rx="3" opacity=".9"><title>DFS: 44.99</title></rect>
 <text x="215" y="48" text-anchor="middle" font-size="9" fill="#a6adc8">45.0</text>
 <text transform="rotate(-38,215,242)" x="215" y="242" text-anchor="end" font-size="10" fill="#6c7086">DFS</text>
-<rect x="266" y="127" width="82" height="105" fill="url(#g2227)" rx="3" opacity=".9"><title>Dijkstra: 26.45</title></rect>
+<rect x="266" y="127" width="82" height="105" fill="url(#g3888)" rx="3" opacity=".9"><title>Dijkstra: 26.45</title></rect>
 <text x="307" y="123" text-anchor="middle" font-size="9" fill="#a6adc8">26.4</text>
 <text transform="rotate(-38,307,242)" x="307" y="242" text-anchor="end" font-size="10" fill="#6c7086">Dijkstra</text>
-<rect x="358" y="118" width="82" height="114" fill="url(#g2227)" rx="3" opacity=".9"><title>Bellman-Ford: 28.64</title></rect>
+<rect x="358" y="118" width="82" height="114" fill="url(#g3888)" rx="3" opacity=".9"><title>Bellman-Ford: 28.64</title></rect>
 <text x="399" y="114" text-anchor="middle" font-size="9" fill="#a6adc8">28.6</text>
 <text transform="rotate(-38,399,242)" x="399" y="242" text-anchor="end" font-size="10" fill="#6c7086">Bellman-Ford</text>
 </svg></div></div>

@@ -72,7 +72,7 @@
     '<div class="nb-dd">',
     '<button class="nb-btn' + groupActive(p2) + '">Parte 2 — Netflix ▾</button>',
     '<div class="nb-menu">',
-    '<a href="parte2_grafo_amostra.html"' + cls('parte2_grafo_amostra.html') + '>🎬 Grafo de Similaridade</a>',
+    '<a href="parte2_grafo_amostra.html"' + cls('parte2_grafo_amostra.html') + '>🎬 Dashboard Interativo</a>',
     '<a href="parte2_distribuicao_graus.html"' + cls('parte2_distribuicao_graus.html') + '>📈 Distribuição de Graus</a>',
     '<a href="parte2_comparacao_algoritmos.html"' + cls('parte2_comparacao_algoritmos.html') + '>⚡ Comparação de Algoritmos</a>',
     '</div></div>',
