@@ -76,6 +76,76 @@
   </style>
 </head>
 <body>
+<style>body{padding-top:52px!important}#map{height:calc(100vh - 52px)!important}</style>
+
+<style id="topbar-style">
+*,*::before,*::after{box-sizing:border-box}
+#topbar{
+  position:fixed;top:0;left:0;right:0;height:52px;
+  background:#1e1e2e;border-bottom:1px solid #313244;
+  display:flex;align-items:center;padding:0 22px;gap:18px;
+  z-index:9999;box-shadow:0 2px 16px #0006;
+  font-family:'Segoe UI',Arial,sans-serif;
+}
+.nav-brand{
+  color:#cba6f7;font-weight:700;font-size:15px;
+  text-decoration:none;white-space:nowrap;letter-spacing:-.3px;
+  display:flex;align-items:center;gap:7px;
+}
+.nav-brand:hover{color:#f5c2e7}
+.nav-sep{width:1px;height:28px;background:#313244;flex-shrink:0}
+.nav-links{display:flex;gap:6px;align-items:center}
+.dropdown{position:relative}
+.dropbtn{
+  background:transparent;border:1px solid #313244;color:#cdd6f4;
+  padding:7px 14px;border-radius:7px;cursor:pointer;font-size:13px;
+  transition:background .15s,color .15s;white-space:nowrap;
+}
+.dropbtn:hover,.dropbtn.active{background:#313244;color:#cba6f7;border-color:#45475a}
+.dropdown-content{
+  display:none;position:absolute;top:46px;left:0;
+  background:#181825;border:1px solid #313244;border-radius:10px;
+  min-width:230px;box-shadow:0 12px 32px #0008;
+  z-index:10000;overflow:hidden;
+}
+.dropdown:hover .dropdown-content{display:block}
+.dropdown-content a{
+  display:flex;align-items:center;gap:10px;
+  color:#a6adc8;padding:10px 16px;text-decoration:none;
+  font-size:13px;transition:background .1s,color .1s;border-bottom:1px solid #31324430;
+}
+.dropdown-content a:last-child{border-bottom:none}
+.dropdown-content a:hover{background:#31324470;color:#cba6f7}
+.dropdown-content a.current{color:#cba6f7;background:#31324450;font-weight:600}
+.nav-tag{
+  margin-left:auto;background:#31324460;color:#a6adc8;
+  font-size:11px;padding:2px 8px;border-radius:99px;
+}
+</style>
+
+<nav id="topbar">
+  <a class="nav-brand" href="index.html">✈ Projeto Grafos</a>
+  <div class="nav-sep"></div>
+  <div class="nav-links">
+    <div class="dropdown">
+      <button class="dropbtn  active">Parte 1 — Aeroportos ▾</button>
+      <div class="dropdown-content">
+        <a href="grafo_interativo.html" class="current">🗺 Grafo Interativo</a>
+        <a href="arvore_percurso.html">🌳 Árvore de Percurso</a>
+        <a href="parte1_galeria.html">📊 Galeria de Visualizações</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropbtn">Parte 2 — Netflix ▾</button>
+      <div class="dropdown-content">
+        <a href="parte2_grafo_amostra.html">🎬 Dashboard Interativo</a>
+        <a href="parte2_distribuicao_graus.html">📈 Distribuição de Graus</a>
+        <a href="parte2_comparacao_algoritmos.html">⚡ Comparação de Algoritmos</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
 
   <div id="sidebar">
     <h1>Rede Aeroportuária</h1>
