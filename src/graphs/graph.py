@@ -1,54 +1,62 @@
-from dataclasses import dataclass, field
-from typing import Dict, List, Set
+from dataclasses import dataclass
+from typing import Dict, List
+
 
 @dataclass
 class Aresta:
     destino: str
     peso: float
-    tipo: str
-    justificativa: str
+    tipo: str = ""
+    justificativa: str = ""
 
-class GrafoAeroportos:
-    def __init__(self):
-        # A lista de adjacência mapeia o código IATA para uma lista de objetos Aresta
+
+class Grafo:
+    def __init__(self, dirigido: bool = False):
+        self.dirigido = dirigido
         self.adjacencias: Dict[str, List[Aresta]] = {}
-        # Dicionário opcional para guardar metadados do nó (cidade, região)
         self.nos: Dict[str, dict] = {}
 
-    def adicionar_aeroporto(self, iata: str, cidade: str, regiao: str):
-        if iata not in self.adjacencias:
-            self.adjacencias[iata] = []
-            self.nos[iata] = {"cidade": cidade, "regiao": regiao}
+    def adicionar_no(self, id: str, **metadados):
+        if id not in self.adjacencias:
+            self.adjacencias[id] = []
+            self.nos[id] = metadados
 
-    def adicionar_conexao(self, origem: str, destino: str, peso: float, tipo: str, justificativa: str):
-        nova_aresta_ida = Aresta(destino, peso, tipo, justificativa)
-        nova_aresta_volta = Aresta(origem, peso, tipo, justificativa)
-        
-        self.adjacencias[origem].append(nova_aresta_ida)
-        self.adjacencias[destino].append(nova_aresta_volta)
+    def adicionar_aresta(self, origem: str, destino: str, peso: float,
+                         tipo: str = "", justificativa: str = ""):
+        if origem not in self.adjacencias:
+            self.adicionar_no(origem)
+        if destino not in self.adjacencias:
+            self.adicionar_no(destino)
 
-    def obter_vizinhos(self, iata: str) -> List[Aresta]:
-        return self.adjacencias.get(iata, [])
-    
+        self.adjacencias[origem].append(Aresta(destino, peso, tipo, justificativa))
+        if not self.dirigido:
+            self.adjacencias[destino].append(Aresta(origem, peso, tipo, justificativa))
+
+    def obter_vizinhos(self, id: str) -> List[Aresta]:
+        return self.adjacencias.get(id, [])
+
     def obter_ordem(self) -> int:
-        """Retorna o número de nós |V|."""
         return len(self.adjacencias)
 
     def obter_tamanho(self) -> int:
-        """Retorna o número de arestas |E|."""
-        total_arestas = sum(len(v) for v in self.adjacencias.values())
-        return total_arestas // 2
+        total = sum(len(v) for v in self.adjacencias.values())
+        return total if self.dirigido else total // 2
 
     def calcular_densidade(self) -> float:
-        """Calcula a densidade do grafo (não-direcionado)."""
         v = self.obter_ordem()
         e = self.obter_tamanho()
-        
         if v < 2:
             return 0.0
-        
-        return (2 * e) / (v * (v - 1)) 
+        if self.dirigido:
+            return e / (v * (v - 1))
+        return (2 * e) / (v * (v - 1))
 
-    def obter_grau(self, iata: str) -> int:
-        """Retorna o grau de um aeroporto específico (número de conexões)."""
-        return len(self.adjacencias.get(iata, []))
+    def obter_grau(self, id: str) -> int:
+        return len(self.adjacencias.get(id, []))
+
+    def distribuicao_graus(self) -> Dict[int, int]:
+        dist: Dict[int, int] = {}
+        for no in self.adjacencias:
+            grau = self.obter_grau(no)
+            dist[grau] = dist.get(grau, 0) + 1
+        return dict(sorted(dist.items()))

@@ -70,18 +70,13 @@ def cmd_alg(args):
 
 def cmd_solve(args):
     from src.solve import processar_parte1, processar_rotas
-    adj_path = args.adjacencias or _adjacencias_path(args.dataset)
-    grafo = _load_graph(args.dataset, adj_path)
-    
     _ensure_out(args.out)
-    
     print("Executando solver (parte 1)…")
-    processar_parte1(grafo)
-    
+    processar_parte1()
     print("Computando rotas (Dijkstra)…")
-    processar_rotas() 
-    
+    processar_rotas()
     print("Concluído. Saídas em out/")
+
 
 def cmd_viz(args):
     from src.graphs.io import carregar_grafo
