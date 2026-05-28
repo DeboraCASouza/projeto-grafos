@@ -1,23 +1,25 @@
 import pandas as pd
-from .graph import GrafoAeroportos
+from .graph import Grafo
 
 def carregar_grafo(caminho_nos, caminho_arestas):
 
-    grafo = GrafoAeroportos()
+    # Instanciando a nova classe (dirigido=True faz sentido para rotas aéreas)
+    grafo = Grafo(dirigido=True)
 
     df_nos = pd.read_csv(caminho_nos)
     for _, linha in df_nos.iterrows():
-        grafo.adicionar_aeroporto(
-            iata=linha['iata'], 
+        # Usando a nova interface da classe Grafo
+        grafo.adicionar_no(
+            id=linha['iata'], 
             cidade=linha['cidade'], 
             regiao=linha['regiao']
         )
 
-
     try:
         df_arestas = pd.read_csv(caminho_arestas)
         for _, linha in df_arestas.iterrows():
-            grafo.adicionar_conexao(
+            # Usando a nova interface da classe Grafo
+            grafo.adicionar_aresta(
                 origem=linha['origem'],
                 destino=linha['destino'],
                 peso=float(linha['peso']),
