@@ -95,7 +95,7 @@ def _navbar(atual: str = "") -> str:
     <div class="dropdown">
       <button class="dropbtn{"  active" if atual.startswith("parte2") else ""}">Parte 2 — Netflix ▾</button>
       <div class="dropdown-content">
-        {_link("parte2_grafo_amostra.html",         "🎬",  "Grafo de Similaridade")}
+        {_link("parte2_grafo_amostra.html",         "🎬",  "Dashboard Interativo")}
         {_link("parte2_distribuicao_graus.html",     "📈",  "Distribuição de Graus")}
         {_link("parte2_comparacao_algoritmos.html",  "⚡",  "Comparação de Algoritmos")}
       </div>
@@ -338,7 +338,7 @@ def gerar_comparacao_algoritmos_html(metricas: dict, caminho_saida: str) -> None
 # Item 4 — Grafo interativo Netflix (vis.js CDN)
 # ---------------------------------------------------------------------------
 
-def gerar_grafo_amostra_html(grafo, caminho_saida: str, top_n: int = 45) -> None:
+def gerar_grafo_amostra_html(grafo, caminho_saida: str, top_n: int = 9999) -> None:
     por_grau  = sorted(grafo.adjacencias, key=lambda n: grafo.obter_grau(n), reverse=True)
     nos_top   = set(por_grau[:top_n])
     V         = grafo.obter_ordem()
@@ -349,9 +349,15 @@ def gerar_grafo_amostra_html(grafo, caminho_saida: str, top_n: int = 45) -> None
     for no in nos_top:
         grau = grafo.obter_grau(no)
         meta = grafo.nos.get(no, {})
-        nodes.append({"id": no, "label": no,
-                      "title": f"<b>{no}</b><br>Grau: {grau}<br>IMDb: {meta.get('imdb','?')}<br>País: {meta.get('pais','?')}",
-                      "value": grau, "size": 10 + grau * 0.85})
+        nodes.append({
+            "id": no,
+            "label": no,
+            "value": grau,
+            "size": 10 + grau * 0.85,
+            "ano": meta.get('ano', ''),
+            "imdb": meta.get('imdb', ''),
+            "pais": meta.get('pais', '')
+        })
     for u in nos_top:
         for a in grafo.obter_vizinhos(u):
             v = a.destino
@@ -359,9 +365,12 @@ def gerar_grafo_amostra_html(grafo, caminho_saida: str, top_n: int = 45) -> None
                 k = tuple(sorted([u, v]))
                 if k not in vistos:
                     vistos.add(k)
-                    edges.append({"from": u, "to": v,
-                                  "title": a.justificativa[:80],
-                                  "width": max(1, round(2.5 / a.peso))})
+                    edges.append({
+                        "from": u,
+                        "to": v,
+                        "title": a.justificativa,
+                        "width": max(1, round(2.5 / a.peso))
+                    })
 
     nodes_j = json.dumps(nodes, ensure_ascii=False)
     edges_j = json.dumps(edges, ensure_ascii=False)
@@ -370,63 +379,759 @@ def gerar_grafo_amostra_html(grafo, caminho_saida: str, top_n: int = 45) -> None
 <html lang="pt-br">
 <head>
   <meta charset="utf-8">
-  <title>Grafo de Similaridade Netflix — Projeto Grafos</title>
+  <title>Dashboard Interativo Netflix — Projeto Grafos</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" crossorigin="anonymous"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <style>
-    *{{box-sizing:border-box;margin:0;padding:0}}
-    body{{background:#11111b;color:#cdd6f4;font-family:'Segoe UI',Arial,sans-serif;overflow:hidden}}
-    #net{{width:100vw;height:100vh;background:#11111b}}
-    /* ── topbar ── */
-    {_NAVBAR_CSS.replace('<style id="topbar-style">','').replace('</style>','')}
-    body{{padding-top:52px}}
-    #net{{height:calc(100vh - 52px)}}
-    /* ── legenda ── */
-    #legend{{
-      position:fixed;bottom:20px;right:20px;
-      background:#1e1e2e;border:1px solid #313244;border-radius:10px;
-      padding:14px 18px;font-size:12px;color:#a6adc8;
-      z-index:100;line-height:1.9;
+    *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{ font-family: 'Segoe UI', system-ui, sans-serif; background: #0F172A; color: #E2E8F0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }}
+    
+    #app {{ display: flex; flex: 1; height: calc(100vh - 52px); overflow: hidden; }}
+    
+    /* ── Sidebar ── */
+    #sidebar {{
+      width: 320px; flex-shrink: 0; background: #1E293B; border-right: 1px solid #334155;
+      display: flex; flex-direction: column; overflow-y: auto;
     }}
-    #legend b{{color:#cdd6f4}}
-    /* ── stats ── */
-    #stats{{
-      position:fixed;top:66px;left:16px;
-      background:#1e1e2eb0;backdrop-filter:blur(8px);
-      border:1px solid #313244;border-radius:8px;
-      padding:10px 16px;font-size:12px;color:#6c7086;
-      z-index:100;line-height:1.8;
+    #sidebar::-webkit-scrollbar {{ width: 4px; }}
+    #sidebar::-webkit-scrollbar-thumb {{ background: #334155; border-radius: 2px; }}
+    
+    .sb-hdr {{ padding: 16px; border-bottom: 1px solid #334155; }}
+    .sb-hdr h1 {{ font-size: 15px; font-weight: 700; color: #F1F5F9; margin-bottom: 2px; }}
+    .sb-hdr p {{ font-size: 11px; color: #94A3B8; }}
+    
+    .sb-sec {{ padding: 12px 16px; border-bottom: 1px solid #2D3F55; }}
+    .sb-lbl {{ font-size: 9.5px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }}
+    
+    /* Search input */
+    .search-wrap input {{
+      width: 100%; padding: 8px 12px; background: #0F172A; border: 1px solid #334155;
+      color: #E2E8F0; border-radius: 6px; outline: none; font-size: 12px; transition: border-color 0.15s;
     }}
-    #stats b{{color:#cba6f7}}
+    .search-wrap input:focus {{ border-color: #A855F7; }}
+    #search-result {{ margin-top: 5px; font-size: 11px; color: #94A3B8; min-height: 20px; }}
+    
+    /* Country buttons */
+    .reg-btns {{ display: flex; flex-direction: column; gap: 4px; }}
+    .reg-btn {{
+      display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px;
+      border: 1px solid transparent; cursor: pointer; background: transparent; color: #94A3B8;
+      font-size: 11.5px; font-weight: 600; text-align: left; transition: all 0.15s;
+    }}
+    .reg-btn .dot {{ width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }}
+    .reg-btn.active {{ color: #E2E8F0; }}
+    .reg-btn:hover {{ background: #0F1E30; }}
+    
+    /* Sliders */
+    .slider-row {{ display: flex; justify-content: space-between; font-size: 11px; color: #94A3B8; margin-bottom: 5px; }}
+    .slider-val {{ color: #A855F7; font-weight: 700; font-family: monospace; }}
+    input[type="range"] {{ width: 100%; accent-color: #A855F7; cursor: pointer; }}
+    
+    /* Selected info */
+    #sel-info {{ background: #0F172A; border: 1px solid #334155; border-radius: 6px; padding: 10px; min-height: 50px; }}
+    .si-empty {{ font-size: 11px; color: #475569; font-style: italic; }}
+    .si-title {{ font-size: 14px; font-weight: 700; color: #A855F7; margin-bottom: 4px; }}
+    .si-row {{ display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px; }}
+    .si-row span:first-child {{ color: #64748B; }}
+    .si-row span:last-child {{ color: #E2E8F0; font-weight: 600; }}
+    
+    /* Global metrics */
+    .metric-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }}
+    .mc {{ background: #0F172A; border: 1px solid #2D3F55; border-radius: 6px; padding: 8px; }}
+    .mc-val {{ font-size: 16px; font-weight: 700; color: #A855F7; font-family: monospace; }}
+    .mc-lbl {{ font-size: 9px; color: #64748B; margin-top: 2px; }}
+    
+    .sb-foot {{ padding: 12px 16px; margin-top: auto; font-size: 9px; color: #475569; border-top: 1px solid #334155; }}
+    
+    /* ── Main Area ── */
+    #main {{ flex: 1; display: flex; flex-direction: column; min-width: 0; }}
+    #net-wrap {{ flex: 1; min-height: 0; background: #0F172A; position: relative; }}
+    #net {{ width: 100%; height: 100%; }}
+    
+    /* Controls at the top right of network map */
+    .net-control {{
+      position: absolute; top: 16px; right: 16px; z-index: 100;
+      background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(8px);
+      border: 1px solid #334155; border-radius: 8px; padding: 8px 12px;
+      font-size: 11px; color: #94A3B8; display: flex; align-items: center; gap: 8px;
+    }}
+    .net-control input {{ cursor: pointer; }}
+    
+    /* ── Chart Strip ── */
+    #chart-strip {{
+      height: 240px; flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr 1fr;
+      border-top: 1px solid #334155; background: #080F1A;
+    }}
+    .cp {{ display: flex; flex-direction: column; padding: 8px 12px 6px; border-right: 1px solid #1a2540; overflow: hidden; }}
+    .cp:last-child {{ border-right: none; }}
+    .cp-title {{ font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }}
+    .chart-box {{ flex: 1; min-height: 0; position: relative; }}
+    .chart-box canvas {{ display: block; position: absolute; inset: 0; width: 100%; height: 100%; }}
+    .cp-note {{ font-size: 8.5px; color: #475569; margin-top: 4px; }}
+    
+    /* ── Custom Tooltip ── */
+    #tooltip {{
+      position: fixed; display: none; pointer-events: none;
+      background: #1E293B; border: 1px solid #334155; border-radius: 8px;
+      padding: 10px 12px; font-size: 11px; color: #E2E8F0;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 99999;
+      min-width: 180px; max-width: 240px;
+    }}
+    .tt-name {{ font-size: 12.5px; font-weight: 700; color: #A855F7; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #334155; }}
+    .tt-row {{ display: flex; justify-content: space-between; gap: 8px; margin-bottom: 3px; }}
+    .tt-lbl {{ color: #64748B; font-size: 10.5px; }}
+    .tt-val {{ color: #E2E8F0; font-weight: 600; font-size: 10.5px; text-align: right; }}
+    .tt-edge {{ margin-top: 6px; padding-top: 6px; border-top: 1px solid #334155; font-size: 10px; color: #94A3B8; line-height: 1.4; }}
+    .tt-tag {{ display: inline-block; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 4px; padding: 1px 4px; margin: 1px 1px 0 0; font-size: 9px; color: #c084fc; }}
+    
+    /* Override vis.js navigation buttons */
+    .vis-navigation {{ display: flex !important; flex-direction: column !important; gap: 4px !important; position: absolute !important; bottom: 16px !important; right: 16px !important; }}
+    .vis-button {{
+      background-color: #1E293B !important; border: 1px solid #334155 !important; border-radius: 6px !important;
+      color: #CBD5E1 !important; width: 28px !important; height: 28px !important; display: flex !important;
+      align-items: center; justify-content: center; cursor: pointer !important; background-image: none !important;
+      position: static !important; outline: none !important; box-shadow: 0 2px 8px rgba(0,0,0,0.4) !important;
+    }}
+    .vis-button:hover {{ background-color: #334155 !important; color: #FFF !important; }}
+    .vis-button::after {{ font-size: 14px; font-weight: bold; }}
+    .vis-button.vis-up::after {{ content: "↑"; }}
+    .vis-button.vis-down::after {{ content: "↓"; }}
+    .vis-button.vis-left::after {{ content: "←"; }}
+    .vis-button.vis-right::after {{ content: "→"; }}
+    .vis-button.vis-zoomIn::after {{ content: "+"; }}
+    .vis-button.vis-zoomOut::after {{ content: "-"; }}
+    .vis-button.vis-zoomExtents::after {{ content: "⛶"; }}
   </style>
 </head>
 <body>
 {_navbar("parte2_grafo_amostra.html")}
-<div id="stats">
-  <b>{top_n}</b> títulos · <b>{len(edges)}</b> arestas visíveis<br>
-  Grafo completo: <b>{V}</b> nós · <b>{E}</b> arestas · densidade <b>{densidade}</b>
+
+<div id="app">
+  <div id="sidebar">
+    <div class="sb-hdr">
+      <h1>Dashboard Interativo</h1>
+      <p>Netflix Top Shows · Parte 2</p>
+    </div>
+    
+    <div class="sb-sec">
+      <div class="sb-lbl">Busca por Título</div>
+      <div class="search-wrap">
+        <input type="text" id="search-input" placeholder="Digite o título do show...">
+      </div>
+      <div id="search-result"></div>
+    </div>
+    
+    <div class="sb-sec">
+      <div class="sb-lbl">Filtrar por País</div>
+      <div class="reg-btns" id="country-btns"></div>
+    </div>
+    
+    <div class="sb-sec">
+      <div class="sb-lbl">Filtrar por Grau Mínimo</div>
+      <div class="slider-row">
+        <span>Grau ≥</span>
+        <span class="slider-val" id="deg-val">0</span>
+      </div>
+      <input type="range" id="deg-slider" min="0" max="30" value="0" step="1">
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-lbl">Filtrar por Força de Conexão</div>
+      <div class="slider-row">
+        <span>Atributos comuns</span>
+        <span class="slider-val" id="strength-val">1+ (Tudo)</span>
+      </div>
+      <input type="range" id="strength-slider" min="1" max="4" value="1" step="1">
+    </div>
+    
+    <div class="sb-sec">
+      <div class="sb-lbl">Título Selecionado</div>
+      <div id="sel-info">
+        <span class="si-empty">Clique em um título no grafo</span>
+      </div>
+    </div>
+    
+    <div class="sb-sec">
+      <div class="sb-lbl">Métricas Globais</div>
+      <div class="metric-grid">
+        <div class="mc"><div class="mc-val">{V}</div><div class="mc-lbl">Títulos (|V|)</div></div>
+        <div class="mc"><div class="mc-val">{E}</div><div class="mc-lbl">Conexões (|E|)</div></div>
+        <div class="mc"><div class="mc-val">{densidade}</div><div class="mc-lbl">Densidade global</div></div>
+        <div class="mc"><div class="mc-val" id="m-vis">{V}</div><div class="mc-lbl">Visíveis (filtro)</div></div>
+      </div>
+    </div>
+    
+    <div class="sb-foot">
+      Grafo de Similaridade Netflix<br>
+      {V} títulos · {E} conexões
+    </div>
+  </div>
+  
+  <div id="main">
+    <div id="net-wrap">
+      <div id="net"></div>
+      <div class="net-control">
+        <input type="checkbox" id="physics-toggle" checked>
+        <label for="physics-toggle">Ativar Física</label>
+      </div>
+    </div>
+    
+    <div id="chart-strip">
+      <div class="cp">
+        <div class="cp-title">Distribuição de Graus</div>
+        <div class="chart-box"><canvas id="cvs-graus"></canvas></div>
+        <div class="cp-note" id="note-graus">Grau dos títulos visíveis com base no filtro atual.</div>
+      </div>
+      
+      <div class="cp">
+        <div class="cp-title">IMDb × Grau (Conexões)</div>
+        <div class="chart-box"><canvas id="cvs-scatter"></canvas></div>
+        <div class="cp-note">Dispersão: relação entre a nota IMDb e o grau do show.</div>
+      </div>
+      
+      <div class="cp">
+        <div class="cp-title">Distribuição por País</div>
+        <div class="chart-box"><canvas id="cvs-countries"></canvas></div>
+        <div class="cp-note">Principais países representados no subgrafo filtrado.</div>
+      </div>
+    </div>
+  </div>
 </div>
-<div id="net"></div>
-<div id="legend">
-  <b>Tamanho do nó</b> = grau (nº de similares)<br>
-  <b>Espessura da aresta</b> = similaridade<br>
-  <span style="color:#6c7086">Passe o mouse para detalhes</span>
+
+<div id="tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-row"><span class="tt-lbl">Grau</span><span class="tt-val" id="tt-grau"></span></div>
+  <div class="tt-row"><span class="tt-lbl">IMDb</span><span class="tt-val" id="tt-imdb"></span></div>
+  <div class="tt-row"><span class="tt-lbl">País</span><span class="tt-val" id="tt-pais"></span></div>
+  <div class="tt-edge" id="tt-edge" style="display:none"></div>
 </div>
+
 <script>
-var nodes = new vis.DataSet({nodes_j});
-var edges = new vis.DataSet({edges_j});
-var opts  = {{
-  nodes:{{shape:"dot",font:{{color:"#cdd6f4",size:11}},borderWidth:1.5,
-          color:{{background:"#7c3aed",border:"#cba6f7",
-                 highlight:{{background:"#f38ba8",border:"#f5c2e7"}},
-                 hover:{{background:"#a78bfa",border:"#cba6f7"}}}}}},
-  edges:{{color:{{color:"#31324490",highlight:"#cba6f7",hover:"#89b4fa"}},
-          smooth:{{type:"continuous"}}}},
-  physics:{{stabilization:{{iterations:220}},
-            barnesHut:{{gravitationalConstant:-9000,springLength:130,damping:.12}}}},
-  interaction:{{hover:true,tooltipDelay:80,navigationButtons:true}},
+// ── Dados brutos ──
+var ALL_NODES = {nodes_j};
+var ALL_EDGES = {edges_j};
+
+// ── Pré-processamento e extração de países ──
+var NODE_META = {{}};
+var COUNTRY_COUNTS = {{}};
+ALL_NODES.forEach(function(n) {{
+  NODE_META[n.id] = {{
+    grau: n.value,
+    imdb: n.imdb || '-',
+    pais: n.pais || '-',
+    ano: n.ano || ''
+  }};
+  
+  if (n.pais && n.pais !== '-') {{
+    var parts = n.pais.split(/[\\/,]/);
+    parts.forEach(function(p) {{
+      p = p.trim();
+      if (p) {{
+        COUNTRY_COUNTS[p] = (COUNTRY_COUNTS[p] || 0) + 1;
+      }}
+    }});
+  }}
+}});
+
+// Mapeamento de cores para países
+var COUNTRY_COLORS = {{
+  "USA": "#60A5FA",          // Blue
+  "UK": "#F472B6",           // Pink
+  "South Korea": "#34D399",   // Green
+  "Brazil": "#FBBF24",       // Yellow
+  "Germany": "#A855F7",      // Purple
+  "Canada": "#FB7185",       // Rose
+  "France": "#22D3EE",       // Cyan
+  "Japan": "#F87171"         // Red
 }};
-new vis.Network(document.getElementById("net"),{{nodes,edges}},opts);
+
+function getCountryColor(paisStr) {{
+  if (!paisStr || paisStr === '-') return '#94A3B8';
+  var parts = paisStr.split(/[\\/,]/);
+  for (var i = 0; i < parts.length; i++) {{
+    var p = parts[i].trim();
+    if (COUNTRY_COLORS[p]) return COUNTRY_COLORS[p];
+  }}
+  return '#94A3B8'; // Outros
+}}
+
+// Colore nós do grafo
+ALL_NODES.forEach(function(n) {{
+  var col = getCountryColor(n.pais);
+  n.color = {{
+    background: col,
+    border: col,
+    highlight: {{ background: '#f38ba8', border: '#FFF' }},
+    hover: {{ background: col, border: '#FFF' }}
+  }};
+}});
+
+// Colore arestas
+var STRENGTH_WIDTH = [1, 2.5, 5, 8];
+var STRENGTH_LABEL = ['1+ (Tudo)', '2+ (Média)', '3+ (Forte)', '4+ (Muito forte)'];
+
+ALL_EDGES.forEach(function(e) {{
+  var w = e.width || 2;
+  var colVal = '#31324490';
+  if (w >= 8) colVal = '#cba6f780';
+  else if (w >= 4) colVal = '#45475a80';
+  e.color = {{ color: colVal, highlight: '#cba6f7', hover: '#89b4fa' }};
+}});
+
+// ── Inicializa vis.js DataSets ──
+var nodes = new vis.DataSet(ALL_NODES);
+var edges = new vis.DataSet(ALL_EDGES);
+
+// ── Estado dos filtros ──
+var activeCountry = 'Todos';
+var minDeg = 0;
+var minStrength = 1;
+var searchTerm = '';
+var selectedNodeId = null;
+
+var sortedCountries = Object.keys(COUNTRY_COUNTS).sort(function(a, b) {{
+  return COUNTRY_COUNTS[b] - COUNTRY_COUNTS[a];
+}});
+var topCountries = sortedCountries.slice(0, 6);
+
+// ── Popula botões de país ──
+var countryContainer = document.getElementById('country-btns');
+
+var btnAll = document.createElement('button');
+btnAll.className = 'reg-btn active';
+btnAll.innerHTML = '<span class="dot" style="background:#A855F7"></span>Todos os Países';
+btnAll.onclick = function() {{ selectCountry('Todos', btnAll); }};
+countryContainer.appendChild(btnAll);
+
+topCountries.forEach(function(c) {{
+  var col = COUNTRY_COLORS[c] || '#94A3B8';
+  var btn = document.createElement('button');
+  btn.className = 'reg-btn';
+  btn.innerHTML = '<span class="dot" style="background:' + col + '"></span>' + c + ' (' + COUNTRY_COUNTS[c] + ')';
+  btn.onclick = function() {{ selectCountry(c, btn); }};
+  countryContainer.appendChild(btn);
+}});
+
+var btnOthers = document.createElement('button');
+btnOthers.className = 'reg-btn';
+btnOthers.innerHTML = '<span class="dot" style="background:#94A3B8"></span>Outros países';
+btnOthers.onclick = function() {{ selectCountry('Outros', btnOthers); }};
+countryContainer.appendChild(btnOthers);
+
+function selectCountry(c, btn) {{
+  document.querySelectorAll('.reg-btn').forEach(function(b) {{ b.classList.remove('active'); }});
+  btn.classList.add('active');
+  activeCountry = c;
+  applyFilters();
+}}
+
+// ── Lógica de visibilidade ──
+function isNodeVisible(id) {{
+  var n = ALL_NODES.find(function(x) {{ return x.id === id; }});
+  if (!n) return false;
+  
+  if (searchTerm && !n.id.toLowerCase().includes(searchTerm)) return false;
+  if (n.value < minDeg) return false;
+  
+  if (activeCountry !== 'Todos') {{
+    if (activeCountry === 'Outros') {{
+      var matchTop = false;
+      topCountries.forEach(function(tc) {{
+        if (n.pais && n.pais.includes(tc)) matchTop = true;
+      }});
+      if (matchTop) return false;
+    }} else {{
+      if (!n.pais || !n.pais.includes(activeCountry)) return false;
+    }}
+  }}
+  return true;
+}}
+
+function isEdgeVisible(from, to, width) {{
+  if (!isNodeVisible(from) || !isNodeVisible(to)) return false;
+  var minW = STRENGTH_WIDTH[minStrength - 1];
+  if ((width || 2) < minW) return false;
+  return true;
+}}
+
+// ── vis.js DataViews para filtragem ──
+var nodesView = new vis.DataView(nodes, {{
+  filter: function (node) {{ return isNodeVisible(node.id); }}
+}});
+
+var edgesView = new vis.DataView(edges, {{
+  filter: function (edge) {{ return isEdgeVisible(edge.from, edge.to, edge.width); }}
+}});
+
+// ── Sliders ──
+document.getElementById('deg-slider').addEventListener('input', function() {{
+  minDeg = parseInt(this.value);
+  document.getElementById('deg-val').textContent = minDeg;
+  applyFilters();
+}});
+
+document.getElementById('strength-slider').addEventListener('input', function() {{
+  minStrength = parseInt(this.value);
+  document.getElementById('strength-val').textContent = STRENGTH_LABEL[minStrength - 1];
+  applyFilters();
+}});
+
+document.getElementById('search-input').addEventListener('input', function() {{
+  searchTerm = this.value.trim().toLowerCase();
+  var res = document.getElementById('search-result');
+  if (!searchTerm) {{
+    res.textContent = '';
+  }} else {{
+    var visibleCount = ALL_NODES.filter(function(n) {{ return isNodeVisible(n.id); }}).length;
+    res.textContent = visibleCount + ' títulos encontrados';
+  }}
+  applyFilters();
+}});
+
+function applyFilters() {{
+  if (selectedNodeId && !isNodeVisible(selectedNodeId)) {{
+    selectNode(null);
+  }}
+  nodesView.refresh();
+  edgesView.refresh();
+  
+  var visCount = ALL_NODES.filter(function(n) {{ return isNodeVisible(n.id); }}).length;
+  document.getElementById('m-vis').textContent = visCount;
+  
+  drawCharts();
+}}
+
+// ── Painel de Detalhes ──
+function selectNode(id) {{
+  selectedNodeId = id;
+  var el = document.getElementById('sel-info');
+  if (!id) {{
+    el.innerHTML = '<span class="si-empty">Clique em um título no grafo</span>';
+    resetHighlightedEdges();
+    return;
+  }}
+  
+  var n = ALL_NODES.find(function(x) {{ return x.id === id; }});
+  var col = getCountryColor(n.pais);
+  el.innerHTML = `
+    <div class="si-title" style="color:${{col}};">${{n.id}}</div>
+    <div class="si-row"><span>Grau (Conexões)</span><span>${{n.value}}</span></div>
+    <div class="si-row"><span>IMDb</span><span>★ ${{n.imdb || '-'}}</span></div>
+    <div class="si-row"><span>País</span><span>${{n.pais || '-'}}</span></div>
+    <div class="si-row"><span>Ano</span><span>${{n.ano || '-'}}</span></div>
+  `;
+  
+  highlightEdgesOfNode(id);
+  drawCharts();
+}}
+
+function highlightEdgesOfNode(nodeId) {{
+  var allEdges = edges.get();
+  var updatedEdges = allEdges.map(function(e) {{
+    var isConnected = (e.from === nodeId || e.to === nodeId);
+    if (isConnected) {{
+      return {{ id: e.id, color: {{ color: '#A855F7', highlight: '#A855F7', hover: '#A855F7' }}, width: (e.width || 2) + 2 }};
+    }} else {{
+      return {{ id: e.id, color: {{ color: '#1E293B30' }} }};
+    }}
+  }});
+  edges.update(updatedEdges);
+}}
+
+function resetHighlightedEdges() {{
+  var allEdges = edges.get();
+  var updatedEdges = allEdges.map(function(e) {{
+    var w = e.width || 2;
+    var colVal = '#31324490';
+    if (w >= 8) colVal = '#cba6f780';
+    else if (w >= 4) colVal = '#45475a80';
+    return {{
+      id: e.id,
+      color: {{ color: colVal, highlight: '#cba6f7', hover: '#89b4fa' }}
+    }};
+  }});
+  edges.update(updatedEdges);
+}}
+
+// ── Inicializa vis.js Network ──
+var opts  = {{
+  nodes:{{shape:"dot",font:{{color:"#cdd6f4",size:10,face:"'Segoe UI',sans-serif"}},borderWidth:1.5}},
+  edges:{{smooth:{{type:"continuous"}}, selectionWidth: 3, hoverWidth: 2}},
+  physics:{{
+    stabilization:{{iterations:150, fit:true}},
+    barnesHut:{{
+      gravitationalConstant:-3500,
+      centralGravity:0.18,
+      springLength:105,
+      springConstant:0.02,
+      damping:.12,
+      avoidOverlap:0.45
+    }}
+  }},
+  interaction:{{hover:true,tooltipDelay:9999999,navigationButtons:true}},
+}};
+
+var container = document.getElementById("net");
+var network = new vis.Network(container, {{nodes: nodesView, edges: edgesView}}, opts);
+
+network.on('click', function(p) {{
+  if (p.nodes.length) {{
+    selectNode(p.nodes[0]);
+  }} else {{
+    selectNode(null);
+  }}
+}});
+
+document.getElementById('physics-toggle').addEventListener('change', function() {{
+  network.setOptions({{ physics: this.checked }});
+}});
+
+network.on("stabilized", function () {{
+  network.setOptions({{ physics: false }});
+  document.getElementById('physics-toggle').checked = false;
+}});
+
+// ── Tooltip Customizado ──
+var tooltip = document.getElementById('tooltip');
+var mouseX = 0, mouseY = 0;
+
+document.getElementById('net').addEventListener('mousemove', function(e) {{
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  if (tooltip.style.display === 'block') positionTooltip();
+}});
+
+function positionTooltip() {{
+  var tx = mouseX + 16;
+  var ty = mouseY + 16;
+  var tw = tooltip.offsetWidth;
+  var th = tooltip.offsetHeight;
+  if (tx + tw > window.innerWidth  - 8) tx = mouseX - tw - 16;
+  if (ty + th > window.innerHeight - 8) ty = mouseY - th - 16;
+  tooltip.style.left = tx + 'px';
+  tooltip.style.top  = ty + 'px';
+}}
+
+network.on('hoverNode', function(p) {{
+  var id   = p.node;
+  var n = ALL_NODES.find(function(x) {{ return x.id === id; }});
+  document.getElementById('tt-name').textContent = id;
+  document.getElementById('tt-grau').textContent = n.value + ' conexões';
+  document.getElementById('tt-imdb').textContent = '★ ' + (n.imdb || '?');
+  document.getElementById('tt-pais').textContent = n.pais || '?';
+  document.getElementById('tt-edge').style.display = 'none';
+  tooltip.style.display = 'block';
+  positionTooltip();
+}});
+
+network.on('blurNode', function() {{
+  tooltip.style.display = 'none';
+}});
+
+network.on('hoverEdge', function(p) {{
+  var edgeObj = edgesView.get(p.edge);
+  if (!edgeObj) return;
+  
+  document.getElementById('tt-name').textContent = edgeObj.from + ' ↔ ' + edgeObj.to;
+  document.getElementById('tt-grau').textContent = '';
+  document.getElementById('tt-imdb').textContent = '';
+  document.getElementById('tt-pais').textContent = '';
+  
+  var parts = edgeObj.title ? edgeObj.title.split(';') : [];
+  var html = parts.map(function(item) {{
+    item = item.trim();
+    var colon = item.indexOf(':');
+    var tipo  = colon >= 0 ? item.slice(0, colon).trim() : 'conexão';
+    var vals  = colon >= 0 ? item.slice(colon+1).trim() : item;
+    var tags  = vals.split(',').map(function(v) {{ return '<span class="tt-tag">' + v.trim() + '</span>'; }}).join('');
+    return '<div style="margin-bottom:4px"><span style="color:#64748B;font-size:10px">' + tipo + '</span><br>' + tags + '</div>';
+  }}).join('');
+  
+  var ed = document.getElementById('tt-edge');
+  ed.innerHTML = html || edgeObj.title || '';
+  ed.style.display = html ? 'block' : 'none';
+  
+  tooltip.style.display = 'block';
+  positionTooltip();
+}});
+
+network.on('blurEdge', function() {{
+  tooltip.style.display = 'none';
+}});
+
+// ── Chart.js Setup ──
+Chart.defaults.color          = '#64748B';
+Chart.defaults.borderColor    = '#1E293B';
+Chart.defaults.font.family    = "'Segoe UI', system-ui, sans-serif";
+Chart.defaults.font.size      = 8;
+
+// Chart 1: Distribuição de Graus
+var chartGraus = null;
+function drawDegreesChart(visNodes) {{
+  var freq = {{}};
+  visNodes.forEach(function(n) {{ freq[n.value] = (freq[n.value] || 0) + 1; }});
+  var degs = Object.keys(freq).map(Number).sort(function(a,b){{return a-b;}});
+  var counts = degs.map(function(d){{return freq[d];}});
+  
+  var selDeg = selectedNodeId ? ALL_NODES.find(function(x){{return x.id === selectedNodeId;}}).value : null;
+  
+  var bgColors = degs.map(function(d) {{
+    if (d === selDeg) return '#FFFFFF';
+    return 'rgba(168, 85, 247, 0.7)';
+  }});
+  
+  if (chartGraus) {{
+    chartGraus.data.labels = degs.map(String);
+    chartGraus.data.datasets[0].data = counts;
+    chartGraus.data.datasets[0].backgroundColor = bgColors;
+    chartGraus.update();
+    return;
+  }}
+  
+  chartGraus = new Chart(document.getElementById('cvs-graus'), {{
+    type: 'bar',
+    data: {{
+      labels: degs.map(String),
+      datasets: [{{
+        data: counts,
+        backgroundColor: bgColors,
+        borderRadius: 3
+      }}]
+    }},
+    options: {{
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {{ legend: {{ display: false }} }},
+      scales: {{
+        x: {{ grid: {{ color: '#1E293B' }}, ticks: {{ color: '#64748B', font: {{ size: 8 }} }} }},
+        y: {{ grid: {{ color: '#1E293B' }}, ticks: {{ color: '#64748B', font: {{ size: 8 }} }}, min: 0 }}
+      }}
+    }}
+  }});
+}}
+
+// Chart 2: IMDb x Grau (Scatter)
+var chartScatter = null;
+function drawScatterChart(visNodes) {{
+  var pts = [];
+  visNodes.forEach(function(n) {{
+    var rating = parseFloat(n.imdb);
+    if (!isNaN(rating)) {{
+      pts.push({{ x: n.value, y: rating, label: n.id }});
+    }}
+  }});
+  
+  var pointColors = pts.map(function(pt) {{
+    if (pt.label === selectedNodeId) return '#FFFFFF';
+    return getCountryColor(ALL_NODES.find(function(x){{return x.id === pt.label;}}).pais);
+  }});
+  
+  var pointRadii = pts.map(function(pt) {{
+    return pt.label === selectedNodeId ? 7 : 4;
+  }});
+  
+  if (chartScatter) {{
+    chartScatter.data.datasets[0].data = pts;
+    chartScatter.data.datasets[0].pointBackgroundColor = pointColors;
+    chartScatter.data.datasets[0].pointRadius = pointRadii;
+    chartScatter.update();
+    return;
+  }}
+  
+  chartScatter = new Chart(document.getElementById('cvs-scatter'), {{
+    type: 'scatter',
+    data: {{
+      datasets: [{{
+        data: pts,
+        pointBackgroundColor: pointColors,
+        pointBorderColor: 'transparent',
+        pointRadius: pointRadii
+      }}]
+    }},
+    options: {{
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {{
+        legend: {{ display: false }},
+        tooltip: {{
+          callbacks: {{
+            label: function(ctx) {{
+              var pt = ctx.raw;
+              return pt.label + ' (Grau: ' + pt.x + ', IMDb: ★' + pt.y + ')';
+            }}
+          }}
+        }}
+      }},
+      scales: {{
+        x: {{ title: {{ display: true, text: 'Grau', color: '#64748B', font: {{ size: 8 }} }}, grid: {{ color: '#1E293B' }}, ticks: {{ color: '#64748B', font: {{ size: 8 }} }} }},
+        y: {{ title: {{ display: true, text: 'Nota IMDb', color: '#64748B', font: {{ size: 8 }} }}, grid: {{ color: '#1E293B' }}, ticks: {{ color: '#64748B', font: {{ size: 8 }} }} }}
+      }}
+    }}
+  }});
+}}
+
+// Chart 3: Distribuição por País
+var chartCountries = null;
+function drawCountriesChart(visNodes) {{
+  var counts = {{}};
+  visNodes.forEach(function(n) {{
+    if (n.pais && n.pais !== '-') {{
+      var parts = n.pais.split(/[\\\\/,]/);
+      parts.forEach(function(p) {{
+        p = p.trim();
+        if (p) counts[p] = (counts[p] || 0) + 1;
+      }});
+    }}
+  }});
+  
+  var labels = Object.keys(counts).sort(function(a,b){{return counts[b]-counts[a];}}).slice(0, 6);
+  var dataVals = labels.map(function(l){{return counts[l];}});
+  
+  var bgColors = labels.map(function(l) {{
+    return COUNTRY_COLORS[l] || '#94A3B8';
+  }});
+  
+  if (chartCountries) {{
+    chartCountries.data.labels = labels;
+    chartCountries.data.datasets[0].data = dataVals;
+    chartCountries.data.datasets[0].backgroundColor = bgColors;
+    chartCountries.update();
+    return;
+  }}
+  
+  chartCountries = new Chart(document.getElementById('cvs-countries'), {{
+    type: 'bar',
+    data: {{
+      labels: labels,
+      datasets: [{{
+        data: dataVals,
+        backgroundColor: bgColors,
+        borderRadius: 3
+      }}]
+    }},
+    options: {{
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {{ legend: {{ display: false }} }},
+      scales: {{
+        x: {{ grid: {{ color: '#1E293B' }}, ticks: {{ color: '#64748B', font: {{ size: 8 }} }}, min: 0 }},
+        y: {{ grid: {{ display: false }}, ticks: {{ color: '#E2E8F0', font: {{ size: 8 }} }} }}
+      }}
+    }}
+  }});
+}}
+
+function drawCharts() {{
+  var visNodes = ALL_NODES.filter(function(n) {{ return isNodeVisible(n.id); }});
+  drawDegreesChart(visNodes);
+  drawScatterChart(visNodes);
+  drawCountriesChart(visNodes);
+}}
+
+// ── Inicializa gráficos ──
+drawCharts();
 </script>
 </body>
 </html>"""
@@ -541,7 +1246,7 @@ def gerar_index_html(caminho_saida: str) -> None:
     <h2 style="color:#89b4fa">Parte 2 — Netflix Top Shows</h2>
     <p>182 títulos · 615 arestas · densidade 0,037<br>Algoritmos: BFS, DFS, Dijkstra, Bellman-Ford</p>
     <div class="link-list">
-      <a href="parte2_grafo_amostra.html">🎬 Grafo de Similaridade <span class="tag">vis.js</span></a>
+      <a href="parte2_grafo_amostra.html">🎬 Dashboard Interativo <span class="tag">vis.js + Chart.js</span></a>
       <a href="parte2_distribuicao_graus.html">📈 Distribuição de Graus <span class="tag">SVG</span></a>
       <a href="parte2_comparacao_algoritmos.html">⚡ Comparação de Algoritmos <span class="tag">SVG</span></a>
     </div>
