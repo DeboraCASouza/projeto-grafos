@@ -81,7 +81,7 @@ def _style_ax_dark(ax):
 
 # Visualização analítica:
 
-def plot_distribuicao_graus(df_graus, output_path="out/viz_analitica_distribuicao_graus.png"):
+def plot_distribuicao_graus(df_graus, output_path="out/visualizacoes/analitica/viz_analitica_distribuicao_graus.png"):
     fig, ax = plt.subplots(figsize=(9, 5))
     fig.patch.set_facecolor("#F8FAFC")
     _style_ax_light(ax)
@@ -112,7 +112,7 @@ def plot_distribuicao_graus(df_graus, output_path="out/viz_analitica_distribuica
     print(f"Salvo: {output_path}")
 
 
-def plot_ranking_aeroportos(df_graus, df_nos, output_path="out/viz_analitica_ranking_aeroportos.png"):
+def plot_ranking_aeroportos(df_graus, df_nos, output_path="out/visualizacoes/analitica/viz_analitica_ranking_aeroportos.png"):
     df = df_graus.merge(df_nos[["iata", "regiao"]], left_on="aeroporto", right_on="iata", how="left")
     df_sorted = df.sort_values("grau", ascending=True)
 
@@ -142,7 +142,7 @@ def plot_ranking_aeroportos(df_graus, df_nos, output_path="out/viz_analitica_ran
     print(f"Salvo: {output_path}")
 
 
-def plot_comparacao_regional(regioes_data, output_path="out/viz_analitica_comparacao_regional.png"):
+def plot_comparacao_regional(regioes_data, output_path="out/visualizacoes/analitica/viz_analitica_comparacao_regional.png"):
     df = pd.DataFrame(regioes_data)
     regioes = df["regiao"].tolist()
     colors = [REGION_COLORS.get(r, "#94A3B8") for r in regioes]
@@ -179,7 +179,7 @@ def plot_comparacao_regional(regioes_data, output_path="out/viz_analitica_compar
     print(f"Salvo: {output_path}")
 
 
-def plot_subgrafo_maior_grau(grafo, df_graus, output_path="out/viz_analitica_subgrafo_maior_grau.png", top_n=8):
+def plot_subgrafo_maior_grau(grafo, df_graus, output_path="out/visualizacoes/analitica/viz_analitica_subgrafo_maior_grau.png", top_n=8):
     top_set = set(df_graus.nlargest(top_n, "grau")["aeroporto"].tolist())
     grau_dict = dict(zip(df_graus["aeroporto"], df_graus["grau"]))
 
@@ -239,7 +239,7 @@ def plot_subgrafo_maior_grau(grafo, df_graus, output_path="out/viz_analitica_sub
 
 # Visualização exploratória:
 
-def plot_exploratorio_grau_vs_densidade(df_ego, df_nos, output_path="out/viz_exploratorio_grau_vs_densidade.png"):
+def plot_exploratorio_grau_vs_densidade(df_ego, df_nos, output_path="out/visualizacoes/exploratoria/viz_exploratorio_grau_vs_densidade.png"):
     df = df_ego.merge(df_nos[["iata", "regiao"]], left_on="aeroporto", right_on="iata", how="left")
 
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -269,7 +269,7 @@ def plot_exploratorio_grau_vs_densidade(df_ego, df_nos, output_path="out/viz_exp
     print(f"Salvo: {output_path}")
 
 
-def plot_exploratorio_ego_metricas(df_ego, df_nos, output_path="out/viz_exploratorio_ego_metricas.png"):
+def plot_exploratorio_ego_metricas(df_ego, df_nos, output_path="out/visualizacoes/exploratoria/viz_exploratorio_ego_metricas.png"):
     df = df_ego.merge(df_nos[["iata", "regiao"]], left_on="aeroporto", right_on="iata", how="left")
     colors = [REGION_COLORS.get(r, "#94A3B8") for r in df["regiao"]]
 
@@ -309,7 +309,7 @@ def plot_exploratorio_ego_metricas(df_ego, df_nos, output_path="out/viz_explorat
 # Visualização explanatória:
 
 def plot_explanatorio_rede_completa(grafo, df_nos, df_graus,
-                                    output_path="out/viz_explanatorio_rede_completa.png"):
+                                    output_path="out/visualizacoes/explanatoria/viz_explanatorio_rede_completa.png"):
     pos = _spring_layout(grafo.adjacencias, seed=11, iterations=350)
     grau_dict = dict(zip(df_graus["aeroporto"], df_graus["grau"]))
 
@@ -373,7 +373,7 @@ def plot_explanatorio_rede_completa(grafo, df_nos, df_graus,
 
 
 def plot_explanatorio_dashboard(df_graus, df_ego, regioes_data, df_nos,
-                                 output_path="out/viz_explanatorio_dashboard.png"):
+                                 output_path="out/visualizacoes/explanatoria/viz_explanatorio_dashboard.png"):
     df_reg = pd.DataFrame(regioes_data)
     df_ego_m = df_ego.merge(df_nos[["iata", "regiao"]], left_on="aeroporto", right_on="iata", how="left")
     df_ranked = df_graus.merge(df_nos[["iata", "regiao"]], left_on="aeroporto", right_on="iata", how="left")
@@ -592,8 +592,8 @@ renderBg(new Set());
 
 
 def plot_arvore_percurso(grafo, caminho_rec_poa, caminho_mao_gru,
-                         out_png="out/arvore_percurso.png",
-                         out_html="out/arvore_percurso.html",
+                         out_png="out/interativo/arvore_percurso.png",
+                         out_html="out/interativo/arvore_percurso.html",
                          rotas_df=None):
     COR_PATH1  = "#A855F7"
     COR_PATH2  = "#F472B6"
@@ -728,6 +728,230 @@ def gerar_grafo_interativo(grafo, df_graus, df_ego, caminho_rec_poa, caminho_mao
                             output_path="out/grafo_interativo.html"):
     import plotly.graph_objects as go
 
+<<<<<<< HEAD
+=======
+    h1 { font-size: 18px; color: #F1F5F9; margin-bottom: 5px; }
+    p.sub { font-size: 12px; color: #94A3B8; margin-bottom: 20px; }
+    
+    .control-group { margin-bottom: 20px; }
+    label { font-size: 11px; font-weight: bold; color: #94A3B8; text-transform: uppercase; margin-bottom: 8px; display: block; }
+    
+    input[type="text"] {
+      width: 100%; padding: 10px; background: #0F172A; border: 1px solid #334155;
+      color: #F1F5F9; border-radius: 6px; outline: none; margin-bottom: 10px;
+    }
+    input[type="text"]:focus { border-color: #3B82F6; }
+    
+    .filter-btn {
+      display: block; width: 100%; padding: 8px; margin-bottom: 6px;
+      background: #0F172A; border: 1px solid #334155; color: #CBD5E1;
+      border-radius: 6px; cursor: pointer; text-align: left; font-size: 13px;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { background: #334155; }
+    .filter-btn.active { background: #3B82F6; border-color: #2563EB; color: #FFF; font-weight: bold; }
+    
+    .route-btn {
+      display: flex; justify-content: space-between; align-items: center; width: 100%; 
+      padding: 10px; margin-bottom: 6px; background: #0F172A; border: 1px solid #334155; 
+      border-radius: 6px; color: #F1F5F9; cursor: pointer; font-size: 12px; font-weight: bold;
+      transition: all 0.2s;
+    }
+    .route-btn:hover { border-color: #94A3B8; }
+    
+    #map { flex: 1; height: 100vh; }
+    
+    /* Estilos Customizados para os Nós (Aeroportos) */
+    .airport-node {
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      transition: transform 0.2s ease-out, border-color 0.2s;
+    }
+    .airport-node:hover {
+      transform: scale(1.35);
+      border-color: #FFF;
+      z-index: 9999 !important;
+    }
+
+    /* Tooltips e Animações */
+    .leaflet-tooltip {
+      background: rgba(15, 23, 42, 0.95) !important; border: 1px solid #334155 !important;
+      color: #F1F5F9 !important; border-radius: 8px !important; padding: 10px !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+    }
+    .leaflet-tooltip::before { display: none !important; }
+    .tt-title { font-size: 14px; font-weight: bold; color: #FFF; margin-bottom: 5px; border-bottom: 1px solid #334155; padding-bottom: 3px; }
+    .tt-stat { font-size: 11px; color: #94A3B8; margin-bottom: 2px; }
+    .tt-stat span { color: #34D399; font-weight: bold; }
+    
+    .flow { stroke-dasharray: 12 8; animation: flow 1.5s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -20; } }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar">
+    <h1>Rede Aeroportuária</h1>
+    <p class="sub">Painel de Exploração Interativa</p>
+
+    <div class="control-group">
+      <label>Buscar Aeroporto</label>
+      <input type="text" id="searchInput" placeholder="Digite IATA ou Cidade..." onkeyup="applyFilters()">
+    </div>
+
+    <div class="control-group">
+      <label>Filtrar por Região</label>
+      <button class="filter-btn active" data-region="Todas" onclick="toggleRegion(this)">Todas as Regiões</button>
+      <button class="filter-btn" data-region="Norte" onclick="toggleRegion(this)">Norte</button>
+      <button class="filter-btn" data-region="Nordeste" onclick="toggleRegion(this)">Nordeste</button>
+      <button class="filter-btn" data-region="Centro-Oeste" onclick="toggleRegion(this)">Centro-Oeste</button>
+      <button class="filter-btn" data-region="Sudeste" onclick="toggleRegion(this)">Sudeste</button>
+      <button class="filter-btn" data-region="Sul" onclick="toggleRegion(this)">Sul</button>
+    </div>
+
+    <div class="control-group">
+      <label>Destacar Rotas (Animadas)</label>
+      <div id="routes-container"></div>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    const data = __DATA__;
+    const REGION_COLORS = { "Norte": "#34D399", "Nordeste": "#FBBF24", "Sudeste": "#60A5FA", "Sul": "#F472B6", "Centro-Oeste": "#A855F7" };
+    
+    const map = L.map('map', {zoomControl: true}).setView([-15, -50], 4);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap', subdomains: 'abcd', maxZoom: 19
+    }).addTo(map);
+
+    let nodeLayers = [];
+    let edgeLayers = [];
+    let currentRegion = 'Todas';
+    let activeRoutes = new Set();
+    
+    const routesGroup = L.layerGroup().addTo(map);
+
+    const routesContainer = document.getElementById('routes-container');
+    data.routes.forEach(route => {
+      const btn = document.createElement('button');
+      btn.className = 'route-btn';
+      btn.innerHTML = `<span>${route.label}</span> <span style="color:${route.color}">■</span>`;
+      btn.onclick = () => toggleRoute(route, btn);
+      routesContainer.appendChild(btn);
+    });
+
+    function arc(la1, ln1, la2, ln2, n=50) {
+      const mla=(la1+la2)/2, mln=(ln1+ln2)/2, dla=la2-la1, dln=ln2-ln1;
+      const dist=Math.hypot(dla,dln)||1e-9, k=dist*0.2;
+      const cla=mla+(-dln/dist)*k, cln=mln+(dla/dist)*k;
+      return Array.from({length:n+1}, (_,i) => {
+        const t=i/n, u=1-t;
+        return [u*u*la1 + 2*u*t*cla + t*t*la2, u*u*ln1 + 2*u*t*cln + t*t*ln2];
+      });
+    }
+
+    // Arestas Base (Fundo)
+    data.edges.forEach(edge => {
+      const p1 = [data.nodes[edge.source].lat, data.nodes[edge.source].lng];
+      const p2 = [data.nodes[edge.target].lat, data.nodes[edge.target].lng];
+      const line = L.polyline([p1, p2], { color: '#475569', weight: 1, opacity: 0.3 }).addTo(map);
+      edgeLayers.push({ source: edge.source, target: edge.target, layer: line });
+    });
+
+    // Nós Customizados (Aeroportos) com Glow
+    Object.keys(data.nodes).forEach(iata => {
+      const n = data.nodes[iata];
+      const color = REGION_COLORS[n.regiao] || '#FFF';
+      const size = 10 + (n.grau * 1.5); // Tamanho dinâmico pelo grau
+      
+      const iconHTML = `<div class="airport-node" style="
+        width: 100%; height: 100%; 
+        background: ${color}; 
+        box-shadow: 0 0 ${size/1.5}px ${color};
+      "></div>`;
+
+      const customIcon = L.divIcon({
+        className: '', // Limpa a classe padrão do leaflet
+        html: iconHTML,
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2]
+      });
+
+      const marker = L.marker([n.lat, n.lng], { icon: customIcon }).addTo(map);
+
+      const tooltipHTML = `
+        <div class="tt-title">${iata} - ${n.cidade}</div>
+        <div class="tt-stat">Região: <span>${n.regiao}</span></div>
+        <div class="tt-stat">Grau: <span>${n.grau} conexões</span></div>
+        <div class="tt-stat">Densidade Ego: <span>${n.densidade.toFixed(4)}</span></div>
+      `;
+      marker.bindTooltip(tooltipHTML, { direction: 'top', offset: [0, -(size/2)] });
+      nodeLayers.push({ iata: iata, data: n, layer: marker });
+    });
+
+    function applyFilters() {
+      const term = document.getElementById('searchInput').value.toLowerCase();
+      nodeLayers.forEach(node => {
+        const matchSearch = node.iata.toLowerCase().includes(term) || node.data.cidade.toLowerCase().includes(term);
+        const matchRegion = currentRegion === 'Todas' || node.data.regiao === currentRegion;
+        if (matchSearch && matchRegion) { map.addLayer(node.layer); } 
+        else { map.removeLayer(node.layer); }
+      });
+      updateEdgesVisibility();
+    }
+
+    function updateEdgesVisibility() {
+      edgeLayers.forEach(edge => {
+        const sourceVisible = map.hasLayer(nodeLayers.find(n => n.iata === edge.source).layer);
+        const targetVisible = map.hasLayer(nodeLayers.find(n => n.iata === edge.target).layer);
+        if (sourceVisible && targetVisible) { map.addLayer(edge.layer); } 
+        else { map.removeLayer(edge.layer); }
+      });
+    }
+
+    window.toggleRegion = function(btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentRegion = btn.getAttribute('data-region');
+      applyFilters();
+    };
+
+    window.toggleRoute = function(route, btn) {
+      if (activeRoutes.has(route.id)) {
+        activeRoutes.delete(route.id);
+        btn.style.backgroundColor = '#0F172A';
+        btn.style.borderColor = '#334155';
+      } else {
+        activeRoutes.add(route.id);
+        btn.style.backgroundColor = 'rgba(255,255,255,0.1)';
+        btn.style.borderColor = route.color;
+      }
+      renderActiveRoutes();
+    };
+
+    function renderActiveRoutes() {
+      routesGroup.clearLayers();
+      activeRoutes.forEach(routeId => {
+        const route = data.routes.find(r => r.id === routeId);
+        for(let i = 0; i < route.path.length - 1; i++) {
+          const a = data.nodes[route.path[i]], b = data.nodes[route.path[i+1]];
+          const pts = arc(a.lat, a.lng, b.lat, b.lng);
+          L.polyline(pts, {color: route.color, weight: 8, opacity: 0.3, smoothFactor: 1}).addTo(routesGroup);
+          L.polyline(pts, {color: route.color, weight: 3, opacity: 0.9, className: 'flow'}).addTo(routesGroup);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+"""
+
+def gerar_grafo_interativo(grafo, df_graus, df_ego, df_rotas=None, output_path="out/interativo/grafo_interativo.html"):
+    import json
+    
+>>>>>>> 00c1248 (feat: organização dos arquivos, aumento dos graficos|fix: navbar)
     COORDS = {
         "REC": (-8.13,  -34.92), "SSA": (-12.91, -38.32),
         "FOR": (-3.78,  -38.53), "NAT": (-5.91,  -35.25),
@@ -919,10 +1143,18 @@ def gerar_grafo_interativo(grafo, df_graus, df_ego, caminho_rec_poa, caminho_mao
 
 def gerar_todas(grafo,
                 path_nos="data/aeroportos_data.csv",
-                path_ego="out/ego_aeroportos.csv",
-                path_graus="out/graus.csv",
-                path_regioes="out/regioes.json",
-                path_rotas="out/distancias_rotas.csv"):
+                path_ego="out/metricas/ego_aeroportos.csv",
+                path_graus="out/metricas/graus.csv",
+                path_regioes="out/metricas/regioes.json",
+                path_rotas="out/metricas/distancias_rotas.csv",
+                out_dir="out"):
+    ana_dir  = os.path.join(out_dir, "visualizacoes", "analitica")
+    exp_dir  = os.path.join(out_dir, "visualizacoes", "exploratoria")
+    expl_dir = os.path.join(out_dir, "visualizacoes", "explanatoria")
+    int_dir  = os.path.join(out_dir, "interativo")
+    for d in (ana_dir, exp_dir, expl_dir, int_dir):
+        os.makedirs(d, exist_ok=True)
+
     df_nos = pd.read_csv(path_nos)
     df_ego = pd.read_csv(path_ego)
     df_graus = pd.read_csv(path_graus)
@@ -944,27 +1176,30 @@ def gerar_todas(grafo,
                 caminho_mao_gru = raw.split("→")
 
     print("Analíticas")
-    plot_distribuicao_graus(df_graus)
-    plot_ranking_aeroportos(df_graus, df_nos)
-    plot_comparacao_regional(regioes_data)
-    plot_subgrafo_maior_grau(grafo, df_graus)
+    plot_distribuicao_graus(df_graus, os.path.join(ana_dir, "viz_analitica_distribuicao_graus.png"))
+    plot_ranking_aeroportos(df_graus, df_nos, os.path.join(ana_dir, "viz_analitica_ranking_aeroportos.png"))
+    plot_comparacao_regional(regioes_data, os.path.join(ana_dir, "viz_analitica_comparacao_regional.png"))
+    plot_subgrafo_maior_grau(grafo, df_graus, os.path.join(ana_dir, "viz_analitica_subgrafo_maior_grau.png"))
 
     print("Exploratórias")
-    plot_exploratorio_grau_vs_densidade(df_ego, df_nos)
-    plot_exploratorio_ego_metricas(df_ego, df_nos)
+    plot_exploratorio_grau_vs_densidade(df_ego, df_nos, os.path.join(exp_dir, "viz_exploratorio_grau_vs_densidade.png"))
+    plot_exploratorio_ego_metricas(df_ego, df_nos, os.path.join(exp_dir, "viz_exploratorio_ego_metricas.png"))
 
     print("Explanatórias")
-    plot_explanatorio_rede_completa(grafo, df_nos, df_graus)
-    plot_explanatorio_dashboard(df_graus, df_ego, regioes_data, df_nos)
+    plot_explanatorio_rede_completa(grafo, df_nos, df_graus, os.path.join(expl_dir, "viz_explanatorio_rede_completa.png"))
+    plot_explanatorio_dashboard(df_graus, df_ego, regioes_data, df_nos, os.path.join(expl_dir, "viz_explanatorio_dashboard.png"))
 
     if caminho_rec_poa and caminho_mao_gru:
         print("Árvore de percurso")
         plot_arvore_percurso(grafo, caminho_rec_poa, caminho_mao_gru,
+                             out_png=os.path.join(int_dir, "arvore_percurso.png"),
+                             out_html=os.path.join(int_dir, "arvore_percurso.html"),
                              rotas_df=df_rotas_out)
         print("Grafo interativo")
-        gerar_grafo_interativo(grafo, df_graus, df_ego, caminho_rec_poa, caminho_mao_gru)
+        gerar_grafo_interativo(grafo, df_graus, df_ego, df_rotas_out,
+                               output_path=os.path.join(int_dir, "grafo_interativo.html"))
     else:
         print("Aviso: caminhos obrigatórios não encontrados em distancias_rotas.csv; "
               "pulando árvore de percurso e grafointerativo.")
 
-    print("Todas as visualizações geradas em out/")
+    print(f"Todas as visualizações geradas em {out_dir}/")
