@@ -1208,25 +1208,162 @@ _PARTE1_IMGS = [
 
 def gerar_galeria_parte1_html(caminho_saida: str) -> None:
     cards = ""
-    for img, titulo, descricao in _PARTE1_IMGS:
+    for idx, (img, titulo, descricao) in enumerate(_PARTE1_IMGS):
         cards += f"""
-        <div class="card">
-          <img src="{img}" alt="{titulo}"
-               style="width:100%;border-radius:8px;display:block;margin-bottom:14px;
-                      border:1px solid #313244;cursor:zoom-in"
-               onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width=='100%'?'auto':'100%'"/>
-          <h3 style="font-size:14px;color:#cba6f7;margin:0 0 6px">{titulo}</h3>
-          <p style="font-size:12.5px;color:#6c7086;margin:0;line-height:1.6">{descricao}</p>
+        <div class="card" onclick="openModal({idx})" title="Clique para ampliar">
+          <div class="thumb-wrap">
+            <img src="{img}" alt="{titulo}" loading="lazy"/>
+            <div class="zoom-hint">🔍</div>
+          </div>
+          <h3>{titulo}</h3>
+          <p>{descricao}</p>
         </div>"""
 
-    corpo = f"""
-    <p class="subtitle">Clique em qualquer imagem para ampliar. Gerado com matplotlib.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px">
-      {cards}
-    </div>"""
+    js_imgs = ",\n    ".join(
+        f'{{src:"{img}",title:"{titulo}"}}'
+        for img, titulo, _ in _PARTE1_IMGS
+    )
 
-    html = _page("Galeria de Visualizações — Parte 1", corpo,
-                 pagina_atual="parte1_galeria.html")
+    modal_css = """
+<style>
+.page-wrap{max-width:1200px;margin:0 auto;padding:32px 24px 56px}
+h1{font-size:22px;font-weight:700;color:#cdd6f4;margin:0 0 6px}
+.subtitle{color:#6c7086;font-size:13px;margin:0 0 28px}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+.card{
+  background:#1e1e2e;border:1px solid #313244;border-radius:12px;
+  padding:20px;cursor:pointer;transition:border-color .15s,transform .15s;
+}
+.card:hover{border-color:#cba6f7;transform:translateY(-2px)}
+.thumb-wrap{position:relative;border-radius:8px;overflow:hidden;margin-bottom:14px;background:#11111b}
+.thumb-wrap img{width:100%;display:block;border-radius:8px;transition:opacity .15s}
+.card:hover .thumb-wrap img{opacity:.85}
+.zoom-hint{
+  position:absolute;top:8px;right:8px;background:#0008;color:#fff;
+  border-radius:50%;width:28px;height:28px;display:flex;align-items:center;
+  justify-content:center;font-size:13px;opacity:0;transition:opacity .15s;
+}
+.card:hover .zoom-hint{opacity:1}
+.card h3{font-size:14px;color:#cba6f7;margin:0 0 6px}
+.card p{font-size:12.5px;color:#6c7086;margin:0;line-height:1.6}
+
+/* ── Modal ── */
+#modal-overlay{
+  display:none;position:fixed;inset:0;z-index:99999;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;cursor:zoom-out;
+}
+#modal-overlay.open{display:flex}
+#modal-box{
+  position:relative;max-width:92vw;max-height:92vh;
+  display:flex;flex-direction:column;align-items:center;
+  cursor:default;
+}
+#modal-img{
+  max-width:88vw;max-height:80vh;border-radius:10px;
+  box-shadow:0 12px 60px #000c;display:block;
+  object-fit:contain;
+}
+#modal-caption{
+  margin-top:14px;color:#cdd6f4;font-size:14px;font-weight:600;
+  text-align:center;letter-spacing:.02em;
+}
+#modal-counter{color:#6c7086;font-size:12px;margin-top:4px}
+.modal-close{
+  position:fixed;top:18px;right:22px;background:#313244;border:none;
+  color:#cdd6f4;font-size:20px;width:36px;height:36px;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;z-index:100000;
+}
+.modal-close:hover{background:#45475a}
+.modal-nav{
+  position:fixed;top:50%;transform:translateY(-50%);
+  background:#1e1e2e99;border:1px solid #313244;color:#cdd6f4;
+  font-size:26px;width:44px;height:64px;border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;z-index:100000;
+}
+.modal-nav:hover{background:#313244}
+#modal-prev{left:14px}
+#modal-next{right:14px}
+</style>"""
+
+    modal_html = """
+<div id="modal-overlay" onclick="closeModal()">
+  <button class="modal-close" onclick="event.stopPropagation();closeModal()" title="Fechar (Esc)">✕</button>
+  <button class="modal-nav" id="modal-prev" onclick="event.stopPropagation();navigateModal(-1)">‹</button>
+  <div id="modal-box" onclick="event.stopPropagation()">
+    <img id="modal-img" src="" alt=""/>
+    <div id="modal-caption"></div>
+    <div id="modal-counter"></div>
+  </div>
+  <button class="modal-nav" id="modal-next" onclick="event.stopPropagation();navigateModal(1)">›</button>
+</div>"""
+
+    modal_js = f"""
+<script>
+var GALLERY = [
+    {js_imgs}
+];
+var currentIdx = -1;
+
+function openModal(idx) {{
+  currentIdx = idx;
+  var g = GALLERY[idx];
+  document.getElementById('modal-img').src = g.src;
+  document.getElementById('modal-caption').textContent = g.title;
+  document.getElementById('modal-counter').textContent = (idx + 1) + ' / ' + GALLERY.length;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}}
+
+function closeModal() {{
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  currentIdx = -1;
+}}
+
+function navigateModal(dir) {{
+  if (currentIdx === -1) return;
+  openModal((currentIdx + dir + GALLERY.length) % GALLERY.length);
+}}
+
+document.addEventListener('keydown', function(e) {{
+  if (currentIdx === -1) return;
+  if (e.key === 'Escape')      closeModal();
+  if (e.key === 'ArrowLeft')   navigateModal(-1);
+  if (e.key === 'ArrowRight')  navigateModal(1);
+}});
+</script>"""
+
+    html = f"""<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Galeria de Visualizações — Parte 1 — Projeto Grafos</title>
+  <style>
+    body{{margin:0;padding:52px 0 0;background:#11111b;color:#cdd6f4;
+         font-family:'Segoe UI',Arial,sans-serif;min-height:100vh}}
+  </style>
+</head>
+<body>
+{modal_html}
+"""
+    # injeta navbar
+    html += _navbar("parte1_galeria.html")
+    html += f"""
+<div class="page-wrap">
+  <h1>Galeria de Visualizações — Parte 1</h1>
+  <p class="subtitle">Clique em qualquer imagem para ampliar. Use ← → para navegar. Gerado com matplotlib.</p>
+  <div class="gallery-grid">
+    {cards}
+  </div>
+</div>
+{modal_css}
+{modal_js}
+</body>
+</html>"""
 
     os.makedirs(os.path.dirname(caminho_saida), exist_ok=True)
     with open(caminho_saida, "w", encoding="utf-8") as f:
