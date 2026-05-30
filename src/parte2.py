@@ -303,7 +303,7 @@ def _discussao_critica() -> dict:
 # ---------------------------------------------------------------------------
 
 def gerar_relatorio(caminho_csv: str, caminho_saida: str,
-                    pasta_viz: str = "out") -> tuple:
+                    pasta_viz: str = "out/interativo") -> tuple:
     grafo = construir_grafo_netflix(caminho_csv)
 
     print("  [1/4] Descrevendo dataset...")

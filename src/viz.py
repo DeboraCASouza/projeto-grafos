@@ -81,7 +81,7 @@ def _style_ax_dark(ax):
 
 # Visualização analítica:
 
-def plot_distribuicao_graus(df_graus, output_path="out/viz_analitica_distribuicao_graus.png"):
+def plot_distribuicao_graus(df_graus, output_path="out/visualizacoes/analitica/viz_analitica_distribuicao_graus.png"):
     fig, ax = plt.subplots(figsize=(9, 5))
     fig.patch.set_facecolor("#F8FAFC")
     _style_ax_light(ax)
@@ -112,7 +112,7 @@ def plot_distribuicao_graus(df_graus, output_path="out/viz_analitica_distribuica
     print(f"Salvo: {output_path}")
 
 
-def plot_ranking_aeroportos(df_graus, df_nos, output_path="out/viz_analitica_ranking_aeroportos.png"):
+def plot_ranking_aeroportos(df_graus, df_nos, output_path="out/visualizacoes/analitica/viz_analitica_ranking_aeroportos.png"):
     df = df_graus.merge(df_nos[["iata", "regiao"]], left_on="aeroporto", right_on="iata", how="left")
     df_sorted = df.sort_values("grau", ascending=True)
 
@@ -142,7 +142,7 @@ def plot_ranking_aeroportos(df_graus, df_nos, output_path="out/viz_analitica_ran
     print(f"Salvo: {output_path}")
 
 
-def plot_comparacao_regional(regioes_data, output_path="out/viz_analitica_comparacao_regional.png"):
+def plot_comparacao_regional(regioes_data, output_path="out/visualizacoes/analitica/viz_analitica_comparacao_regional.png"):
     df = pd.DataFrame(regioes_data)
     regioes = df["regiao"].tolist()
     colors = [REGION_COLORS.get(r, "#94A3B8") for r in regioes]
@@ -179,7 +179,7 @@ def plot_comparacao_regional(regioes_data, output_path="out/viz_analitica_compar
     print(f"Salvo: {output_path}")
 
 
-def plot_subgrafo_maior_grau(grafo, df_graus, output_path="out/viz_analitica_subgrafo_maior_grau.png", top_n=8):
+def plot_subgrafo_maior_grau(grafo, df_graus, output_path="out/visualizacoes/analitica/viz_analitica_subgrafo_maior_grau.png", top_n=8):
     top_set = set(df_graus.nlargest(top_n, "grau")["aeroporto"].tolist())
     grau_dict = dict(zip(df_graus["aeroporto"], df_graus["grau"]))
 
@@ -239,7 +239,7 @@ def plot_subgrafo_maior_grau(grafo, df_graus, output_path="out/viz_analitica_sub
 
 # Visualização exploratória:
 
-def plot_exploratorio_grau_vs_densidade(df_ego, df_nos, output_path="out/viz_exploratorio_grau_vs_densidade.png"):
+def plot_exploratorio_grau_vs_densidade(df_ego, df_nos, output_path="out/visualizacoes/exploratoria/viz_exploratorio_grau_vs_densidade.png"):
     df = df_ego.merge(df_nos[["iata", "regiao"]], left_on="aeroporto", right_on="iata", how="left")
 
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -269,7 +269,7 @@ def plot_exploratorio_grau_vs_densidade(df_ego, df_nos, output_path="out/viz_exp
     print(f"Salvo: {output_path}")
 
 
-def plot_exploratorio_ego_metricas(df_ego, df_nos, output_path="out/viz_exploratorio_ego_metricas.png"):
+def plot_exploratorio_ego_metricas(df_ego, df_nos, output_path="out/visualizacoes/exploratoria/viz_exploratorio_ego_metricas.png"):
     df = df_ego.merge(df_nos[["iata", "regiao"]], left_on="aeroporto", right_on="iata", how="left")
     colors = [REGION_COLORS.get(r, "#94A3B8") for r in df["regiao"]]
 
@@ -309,7 +309,7 @@ def plot_exploratorio_ego_metricas(df_ego, df_nos, output_path="out/viz_explorat
 # Visualização explanatória:
 
 def plot_explanatorio_rede_completa(grafo, df_nos, df_graus,
-                                    output_path="out/viz_explanatorio_rede_completa.png"):
+                                    output_path="out/visualizacoes/explanatoria/viz_explanatorio_rede_completa.png"):
     pos = _spring_layout(grafo.adjacencias, seed=11, iterations=350)
     grau_dict = dict(zip(df_graus["aeroporto"], df_graus["grau"]))
 
@@ -373,7 +373,7 @@ def plot_explanatorio_rede_completa(grafo, df_nos, df_graus,
 
 
 def plot_explanatorio_dashboard(df_graus, df_ego, regioes_data, df_nos,
-                                 output_path="out/viz_explanatorio_dashboard.png"):
+                                 output_path="out/visualizacoes/explanatoria/viz_explanatorio_dashboard.png"):
     df_reg = pd.DataFrame(regioes_data)
     df_ego_m = df_ego.merge(df_nos[["iata", "regiao"]], left_on="aeroporto", right_on="iata", how="left")
     df_ranked = df_graus.merge(df_nos[["iata", "regiao"]], left_on="aeroporto", right_on="iata", how="left")
@@ -603,8 +603,8 @@ _ARVORE_HTML_TEMPLATE = """\
 """
 
 def plot_arvore_percurso(grafo, caminho_rec_poa, caminho_mao_gru,
-                         out_png="out/arvore_percurso.png",
-                         out_html="out/arvore_percurso.html",
+                         out_png="out/interativo/arvore_percurso.png",
+                         out_html="out/interativo/arvore_percurso.html",
                          rotas_df=None):
     COR_PATH1  = "#A855F7"
     COR_PATH2  = "#F472B6"
@@ -973,7 +973,7 @@ _GRAFO_INTERATIVO_TEMPLATE = """\
 </html>
 """
 
-def gerar_grafo_interativo(grafo, df_graus, df_ego, df_rotas=None, output_path="out/grafo_interativo.html"):
+def gerar_grafo_interativo(grafo, df_graus, df_ego, df_rotas=None, output_path="out/interativo/grafo_interativo.html"):
     import json
     
     COORDS = {
@@ -1041,10 +1041,18 @@ def gerar_grafo_interativo(grafo, df_graus, df_ego, df_rotas=None, output_path="
 
 def gerar_todas(grafo,
                 path_nos="data/aeroportos_data.csv",
-                path_ego="out/ego_aeroportos.csv",
-                path_graus="out/graus.csv",
-                path_regioes="out/regioes.json",
-                path_rotas="out/distancias_rotas.csv"):
+                path_ego="out/metricas/ego_aeroportos.csv",
+                path_graus="out/metricas/graus.csv",
+                path_regioes="out/metricas/regioes.json",
+                path_rotas="out/metricas/distancias_rotas.csv",
+                out_dir="out"):
+    ana_dir  = os.path.join(out_dir, "visualizacoes", "analitica")
+    exp_dir  = os.path.join(out_dir, "visualizacoes", "exploratoria")
+    expl_dir = os.path.join(out_dir, "visualizacoes", "explanatoria")
+    int_dir  = os.path.join(out_dir, "interativo")
+    for d in (ana_dir, exp_dir, expl_dir, int_dir):
+        os.makedirs(d, exist_ok=True)
+
     df_nos = pd.read_csv(path_nos)
     df_ego = pd.read_csv(path_ego)
     df_graus = pd.read_csv(path_graus)
@@ -1066,27 +1074,30 @@ def gerar_todas(grafo,
                 caminho_mao_gru = raw.split("→")
 
     print("Analíticas")
-    plot_distribuicao_graus(df_graus)
-    plot_ranking_aeroportos(df_graus, df_nos)
-    plot_comparacao_regional(regioes_data)
-    plot_subgrafo_maior_grau(grafo, df_graus)
+    plot_distribuicao_graus(df_graus, os.path.join(ana_dir, "viz_analitica_distribuicao_graus.png"))
+    plot_ranking_aeroportos(df_graus, df_nos, os.path.join(ana_dir, "viz_analitica_ranking_aeroportos.png"))
+    plot_comparacao_regional(regioes_data, os.path.join(ana_dir, "viz_analitica_comparacao_regional.png"))
+    plot_subgrafo_maior_grau(grafo, df_graus, os.path.join(ana_dir, "viz_analitica_subgrafo_maior_grau.png"))
 
     print("Exploratórias")
-    plot_exploratorio_grau_vs_densidade(df_ego, df_nos)
-    plot_exploratorio_ego_metricas(df_ego, df_nos)
+    plot_exploratorio_grau_vs_densidade(df_ego, df_nos, os.path.join(exp_dir, "viz_exploratorio_grau_vs_densidade.png"))
+    plot_exploratorio_ego_metricas(df_ego, df_nos, os.path.join(exp_dir, "viz_exploratorio_ego_metricas.png"))
 
     print("Explanatórias")
-    plot_explanatorio_rede_completa(grafo, df_nos, df_graus)
-    plot_explanatorio_dashboard(df_graus, df_ego, regioes_data, df_nos)
+    plot_explanatorio_rede_completa(grafo, df_nos, df_graus, os.path.join(expl_dir, "viz_explanatorio_rede_completa.png"))
+    plot_explanatorio_dashboard(df_graus, df_ego, regioes_data, df_nos, os.path.join(expl_dir, "viz_explanatorio_dashboard.png"))
 
     if caminho_rec_poa and caminho_mao_gru:
         print("Árvore de percurso")
         plot_arvore_percurso(grafo, caminho_rec_poa, caminho_mao_gru,
+                             out_png=os.path.join(int_dir, "arvore_percurso.png"),
+                             out_html=os.path.join(int_dir, "arvore_percurso.html"),
                              rotas_df=df_rotas_out)
         print("Grafo interativo")
-        gerar_grafo_interativo(grafo, df_graus, df_ego, df_rotas_out)
+        gerar_grafo_interativo(grafo, df_graus, df_ego, df_rotas_out,
+                               output_path=os.path.join(int_dir, "grafo_interativo.html"))
     else:
         print("Aviso: caminhos obrigatórios não encontrados em distancias_rotas.csv; "
               "pulando árvore de percurso e grafointerativo.")
 
-    print("Todas as visualizações geradas em out/")
+    print(f"Todas as visualizações geradas em {out_dir}/")

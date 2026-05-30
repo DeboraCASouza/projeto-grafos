@@ -49,15 +49,16 @@ _NAVBAR_CSS = """
   background:transparent;border:1px solid #313244;color:#cdd6f4;
   padding:7px 14px;border-radius:7px;cursor:pointer;font-size:13px;
   transition:background .15s,color .15s;white-space:nowrap;
+  user-select:none;
 }
-.dropbtn:hover,.dropbtn.active{background:#313244;color:#cba6f7;border-color:#45475a}
+.dropbtn:hover,.dropbtn.active,.dropbtn.open{background:#313244;color:#cba6f7;border-color:#45475a}
 .dropdown-content{
   display:none;position:absolute;top:46px;left:0;
   background:#181825;border:1px solid #313244;border-radius:10px;
   min-width:230px;box-shadow:0 12px 32px #0008;
   z-index:10000;overflow:hidden;
 }
-.dropdown:hover .dropdown-content{display:block}
+.dropdown-content.open{display:block}
 .dropdown-content a{
   display:flex;align-items:center;gap:10px;
   color:#a6adc8;padding:10px 16px;text-decoration:none;
@@ -71,6 +72,29 @@ _NAVBAR_CSS = """
   font-size:11px;padding:2px 8px;border-radius:99px;
 }
 </style>
+<script>
+(function(){
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('.dropdown').forEach(function(dd){
+      var btn=dd.querySelector('.dropbtn');
+      var menu=dd.querySelector('.dropdown-content');
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        var isOpen=menu.classList.contains('open');
+        // fecha todos
+        document.querySelectorAll('.dropdown-content.open').forEach(function(m){m.classList.remove('open');});
+        document.querySelectorAll('.dropbtn.open').forEach(function(b){b.classList.remove('open');});
+        // abre este se estava fechado
+        if(!isOpen){menu.classList.add('open');btn.classList.add('open');}
+      });
+    });
+    document.addEventListener('click',function(){
+      document.querySelectorAll('.dropdown-content.open').forEach(function(m){m.classList.remove('open');});
+      document.querySelectorAll('.dropbtn.open').forEach(function(b){b.classList.remove('open');});
+    });
+  });
+})();
+</script>
 """
 
 def _navbar(atual: str = "") -> str:
@@ -460,7 +484,7 @@ def gerar_grafo_amostra_html(grafo, caminho_saida: str, top_n: int = 9999) -> No
     
     /* ── Chart Strip ── */
     #chart-strip {{
-      height: 240px; flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr 1fr;
+      height: 340px; flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr 1fr;
       border-top: 1px solid #334155; background: #080F1A;
     }}
     .cp {{ display: flex; flex-direction: column; padding: 8px 12px 6px; border-right: 1px solid #1a2540; overflow: hidden; }}
@@ -789,16 +813,32 @@ document.getElementById('search-input').addEventListener('input', function() {{
   applyFilters();
 }});
 
+var savedPositions = {{}};
+
 function applyFilters() {{
   if (selectedNodeId && !isNodeVisible(selectedNodeId)) {{
     selectNode(null);
   }}
+
+  // salva posições antes de remover nós do DataView
+  Object.assign(savedPositions, network.getPositions());
+
   nodesView.refresh();
   edgesView.refresh();
-  
+
+  // restaura posições dos nós que voltaram a ficar visíveis
+  setTimeout(function() {{
+    var ids = nodesView.getIds();
+    ids.forEach(function(id) {{
+      if (savedPositions[id]) {{
+        network.moveNode(id, savedPositions[id].x, savedPositions[id].y);
+      }}
+    }});
+  }}, 0);
+
   var visCount = ALL_NODES.filter(function(n) {{ return isNodeVisible(n.id); }}).length;
   document.getElementById('m-vis').textContent = visCount;
-  
+
   drawCharts();
 }}
 
@@ -1146,21 +1186,21 @@ drawCharts();
 # ---------------------------------------------------------------------------
 
 _PARTE1_IMGS = [
-    ("viz_analitica_distribuicao_graus.png",  "Distribuição de Graus",
+    ("../visualizacoes/analitica/viz_analitica_distribuicao_graus.png",  "Distribuição de Graus",
      "Histograma dos graus dos 20 aeroportos. Evidencia a estrutura hub-and-spoke: GRU, CNF e BSB dominam com grau 19."),
-    ("viz_analitica_ranking_aeroportos.png",  "Ranking de Aeroportos",
+    ("../visualizacoes/analitica/viz_analitica_ranking_aeroportos.png",  "Ranking de Aeroportos",
      "Barras ordenadas por grau decrescente. Permite identificar rapidamente os hubs nacionais e regionais."),
-    ("viz_analitica_comparacao_regional.png", "Comparação Regional",
+    ("../visualizacoes/analitica/viz_analitica_comparacao_regional.png", "Comparação Regional",
      "Densidade por região. Sudeste, Sul e Centro-Oeste têm densidade 1,0; Norte é o menos denso (0,67)."),
-    ("viz_analitica_subgrafo_maior_grau.png", "Subgrafo dos Hubs",
+    ("../visualizacoes/analitica/viz_analitica_subgrafo_maior_grau.png", "Subgrafo dos Hubs",
      "Os 5 aeroportos de maior grau e suas interconexões. Formam um clique quase completo no núcleo da rede."),
-    ("viz_exploratorio_grau_vs_densidade.png","Grau vs Densidade Ego",
+    ("../visualizacoes/exploratoria/viz_exploratorio_grau_vs_densidade.png","Grau vs Densidade Ego",
      "Dispersão: aeroportos com alto grau (hubs) têm menor densidade ego; aeroportos pequenos têm ego-redes completas."),
-    ("viz_exploratorio_ego_metricas.png",     "Métricas de Ego-Redes",
+    ("../visualizacoes/exploratoria/viz_exploratorio_ego_metricas.png",     "Métricas de Ego-Redes",
      "Painel comparativo com grau, tamanho e densidade da ego-rede por aeroporto."),
-    ("viz_explanatorio_rede_completa.png",    "Rede Completa",
+    ("../visualizacoes/explanatoria/viz_explanatorio_rede_completa.png",    "Rede Completa",
      "Grafo completo com 20 nós e 115 arestas. Nós coloridos por região, tamanho proporcional ao grau."),
-    ("viz_explanatorio_dashboard.png",        "Dashboard Executivo",
+    ("../visualizacoes/explanatoria/viz_explanatorio_dashboard.png",        "Dashboard Executivo",
      "Síntese dos principais achados da Parte 1 em um único painel."),
     ("arvore_percurso.png",                   "Árvore de Percurso",
      "Caminhos obrigatórios REC→POA e MAO→GRU destacados sobre o grafo de aeroportos."),
