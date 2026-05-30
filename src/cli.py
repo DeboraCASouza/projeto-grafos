@@ -27,10 +27,13 @@ def cmd_alg(args):
 
     alg = args.alg.upper()
 
+    alg_dir = os.path.join(args.out, "algoritmos")
+    os.makedirs(alg_dir, exist_ok=True)
+
     if alg == "BFS":
         resultado = bfs(grafo, args.source)
         print(f"BFS a partir de {args.source}: {' → '.join(resultado)}")
-        out_file = os.path.join(args.out, f"bfs_{args.source}.json")
+        out_file = os.path.join(alg_dir, f"bfs_{args.source}.json")
         with open(out_file, "w") as f:
             json.dump({"algoritmo": "BFS", "origem": args.source, "ordem_visita": resultado}, f, indent=2)
         print(f"Salvo: {out_file}")
@@ -38,7 +41,7 @@ def cmd_alg(args):
     elif alg == "DFS":
         resultado = dfs(grafo, args.source)
         print(f"DFS a partir de {args.source}: {' → '.join(resultado)}")
-        out_file = os.path.join(args.out, f"dfs_{args.source}.json")
+        out_file = os.path.join(alg_dir, f"dfs_{args.source}.json")
         with open(out_file, "w") as f:
             json.dump({"algoritmo": "DFS", "origem": args.source, "ordem_visita": resultado}, f, indent=2)
         print(f"Salvo: {out_file}")
@@ -52,7 +55,7 @@ def cmd_alg(args):
             print(f"Sem caminho de {args.source} para {args.target}.")
         else:
             print(f"Custo: {round(custo, 4)}  |  Caminho: {' → '.join(caminho)}")
-        out_file = os.path.join(args.out, f"dijkstra_{args.source}_{args.target}.json")
+        out_file = os.path.join(alg_dir, f"dijkstra_{args.source}_{args.target}.json")
         with open(out_file, "w") as f:
             json.dump({
                 "algoritmo": "DIJKSTRA",
@@ -70,12 +73,13 @@ def cmd_alg(args):
 
 def cmd_solve(args):
     from src.solve import processar_parte1, processar_rotas
-    _ensure_out(args.out)
+    metricas_dir = os.path.join(args.out, "metricas")
+    _ensure_out(metricas_dir)
     print("Executando solver (parte 1)…")
-    processar_parte1()
+    processar_parte1(metricas_dir)
     print("Computando rotas (Dijkstra)…")
-    processar_rotas()
-    print("Concluído. Saídas em out/")
+    processar_rotas(metricas_dir)
+    print(f"Concluído. Saídas em {args.out}/")
 
 
 def cmd_viz(args):
@@ -83,14 +87,16 @@ def cmd_viz(args):
     from src.viz import gerar_todas
     adj_path = args.adjacencias or _adjacencias_path(args.dataset)
     grafo = carregar_grafo(args.dataset, adj_path)
-    _ensure_out(args.out)
+    metricas_dir = os.path.join(args.out, "metricas")
+    _ensure_out(metricas_dir)
     gerar_todas(
         grafo,
         path_nos=args.dataset,
-        path_ego=os.path.join(args.out, "ego_aeroportos.csv"),
-        path_graus=os.path.join(args.out, "graus.csv"),
-        path_regioes=os.path.join(args.out, "regioes.json"),
-        path_rotas=os.path.join(args.out, "distancias_rotas.csv"),
+        path_ego=os.path.join(metricas_dir, "ego_aeroportos.csv"),
+        path_graus=os.path.join(metricas_dir, "graus.csv"),
+        path_regioes=os.path.join(metricas_dir, "regioes.json"),
+        path_rotas=os.path.join(metricas_dir, "distancias_rotas.csv"),
+        out_dir=args.out,
     )
 
 
