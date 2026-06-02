@@ -1,3 +1,4 @@
+from __future__ import annotations
 from src.graphs.graph import GrafoAeroportos
 
 def bfs(grafo: GrafoAeroportos, origem: str):
