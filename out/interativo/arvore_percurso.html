@@ -364,206 +364,209 @@
 </head>
 
 <body>
-  <div id="app">
+  <style>
+    body {
+      padding-top: 52px !important
+    }
+  </style>
 
+  <style id="topbar-style">
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box
+    }
 
-    <style id="topbar-style">
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box
-      }
+    #topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      background: #1e1e2e;
+      border-bottom: 1px solid #313244;
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      gap: 18px;
+      z-index: 9999;
+      box-shadow: 0 2px 16px #0006;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
 
-      #topbar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 52px;
-        background: #1e1e2e;
-        border-bottom: 1px solid #313244;
-        display: flex;
-        align-items: center;
-        padding: 0 22px;
-        gap: 18px;
-        z-index: 9999;
-        box-shadow: 0 2px 16px #0006;
-        font-family: 'Segoe UI', Arial, sans-serif;
-      }
+    .nav-brand {
+      color: #cba6f7;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      white-space: nowrap;
+      letter-spacing: -.3px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
 
-      .nav-brand {
-        color: #cba6f7;
-        font-weight: 700;
-        font-size: 15px;
-        text-decoration: none;
-        white-space: nowrap;
-        letter-spacing: -.3px;
-        display: flex;
-        align-items: center;
-        gap: 7px;
-      }
+    .nav-brand:hover {
+      color: #f5c2e7
+    }
 
-      .nav-brand:hover {
-        color: #f5c2e7
-      }
+    .nav-sep {
+      width: 1px;
+      height: 28px;
+      background: #313244;
+      flex-shrink: 0
+    }
 
-      .nav-sep {
-        width: 1px;
-        height: 28px;
-        background: #313244;
-        flex-shrink: 0
-      }
+    .nav-links {
+      display: flex;
+      gap: 6px;
+      align-items: center
+    }
 
-      .nav-links {
-        display: flex;
-        gap: 6px;
-        align-items: center
-      }
+    .dropdown {
+      position: relative
+    }
 
-      .dropdown {
-        position: relative
-      }
+    .dropbtn {
+      background: transparent;
+      border: 1px solid #313244;
+      color: #cdd6f4;
+      padding: 7px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+      user-select: none;
+    }
 
-      .dropbtn {
-        background: transparent;
-        border: 1px solid #313244;
-        color: #cdd6f4;
-        padding: 7px 14px;
-        border-radius: 7px;
-        cursor: pointer;
-        font-size: 13px;
-        transition: background .15s, color .15s;
-        white-space: nowrap;
-        user-select: none;
-      }
+    .dropbtn:hover,
+    .dropbtn.active,
+    .dropbtn.open {
+      background: #313244;
+      color: #cba6f7;
+      border-color: #45475a
+    }
 
-      .dropbtn:hover,
-      .dropbtn.active,
-      .dropbtn.open {
-        background: #313244;
-        color: #cba6f7;
-        border-color: #45475a
-      }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 46px;
+      left: 0;
+      background: #181825;
+      border: 1px solid #313244;
+      border-radius: 10px;
+      min-width: 230px;
+      box-shadow: 0 12px 32px #0008;
+      z-index: 10000;
+      overflow: hidden;
+    }
 
-      .dropdown-content {
-        display: none;
-        position: absolute;
-        top: 46px;
-        left: 0;
-        background: #181825;
-        border: 1px solid #313244;
-        border-radius: 10px;
-        min-width: 230px;
-        box-shadow: 0 12px 32px #0008;
-        z-index: 10000;
-        overflow: hidden;
-      }
+    .dropdown-content.open {
+      display: block
+    }
 
-      .dropdown-content.open {
-        display: block
-      }
+    .dropdown-content a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #a6adc8;
+      padding: 10px 16px;
+      text-decoration: none;
+      font-size: 13px;
+      transition: background .1s, color .1s;
+      border-bottom: 1px solid #31324430;
+    }
 
-      .dropdown-content a {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #a6adc8;
-        padding: 10px 16px;
-        text-decoration: none;
-        font-size: 13px;
-        transition: background .1s, color .1s;
-        border-bottom: 1px solid #31324430;
-      }
+    .dropdown-content a:last-child {
+      border-bottom: none
+    }
 
-      .dropdown-content a:last-child {
-        border-bottom: none
-      }
+    .dropdown-content a:hover {
+      background: #31324470;
+      color: #cba6f7
+    }
 
-      .dropdown-content a:hover {
-        background: #31324470;
-        color: #cba6f7
-      }
+    .dropdown-content a.current {
+      color: #cba6f7;
+      background: #31324450;
+      font-weight: 600
+    }
 
-      .dropdown-content a.current {
-        color: #cba6f7;
-        background: #31324450;
-        font-weight: 600
-      }
-
-      .nav-tag {
-        margin-left: auto;
-        background: #31324460;
-        color: #a6adc8;
-        font-size: 11px;
-        padding: 2px 8px;
-        border-radius: 99px;
-      }
-    </style>
-    <script>
-      (function () {
-        document.addEventListener('DOMContentLoaded', function () {
-          document.querySelectorAll('.dropdown').forEach(function (dd) {
-            var btn = dd.querySelector('.dropbtn');
-            var menu = dd.querySelector('.dropdown-content');
-            btn.addEventListener('click', function (e) {
-              e.stopPropagation();
-              var isOpen = menu.classList.contains('open');
-              // fecha todos
-              document.querySelectorAll('.dropdown-content.open').forEach(function (m) { m.classList.remove('open'); });
-              document.querySelectorAll('.dropbtn.open').forEach(function (b) { b.classList.remove('open'); });
-              // abre este se estava fechado
-              if (!isOpen) { menu.classList.add('open'); btn.classList.add('open'); }
-            });
-          });
-          document.addEventListener('click', function () {
+    .nav-tag {
+      margin-left: auto;
+      background: #31324460;
+      color: #a6adc8;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+  </style>
+  <script>
+    (function () {
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.dropdown').forEach(function (dd) {
+          var btn = dd.querySelector('.dropbtn');
+          var menu = dd.querySelector('.dropdown-content');
+          btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var isOpen = menu.classList.contains('open');
+            // fecha todos
             document.querySelectorAll('.dropdown-content.open').forEach(function (m) { m.classList.remove('open'); });
             document.querySelectorAll('.dropbtn.open').forEach(function (b) { b.classList.remove('open'); });
+            // abre este se estava fechado
+            if (!isOpen) { menu.classList.add('open'); btn.classList.add('open'); }
           });
         });
-      })();
-    </script>
+        document.addEventListener('click', function () {
+          document.querySelectorAll('.dropdown-content.open').forEach(function (m) { m.classList.remove('open'); });
+          document.querySelectorAll('.dropbtn.open').forEach(function (b) { b.classList.remove('open'); });
+        });
+      });
+    })();
+  </script>
 
-    <div class="sb-actions">
-      <button class="btn-all" id="btn-all">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="flex-shrink:0;">
-          <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.4" />
-          <path d="M1 6.5h11M6.5 1a8 8 0 0 1 0 11M6.5 1a8 8 0 0 0 0 11" stroke="currentColor" stroke-width="1.2" />
-        </svg>
-        Mostrar Todas as Rotas
-      </button>
+  <div class="sb-actions">
+    <button class="btn-all" id="btn-all">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="flex-shrink:0;">
+        <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.4" />
+        <path d="M1 6.5h11M6.5 1a8 8 0 0 1 0 11M6.5 1a8 8 0 0 0 0 11" stroke="currentColor" stroke-width="1.2" />
+      </svg>
+      Mostrar Todas as Rotas
+    </button>
+  </div>
+
+  <div class="sb-label">Rotas Calculadas</div>
+  <div class="sb-routes" id="sb-routes"></div>
+  <div style="height:8px;"></div>
+
+  <div class="sb-legend">
+    <h3>Legenda</h3>
+    <div class="leg-row">
+      <div class="leg-dot" style="background:#2D3F55;border:1px solid #3D4F63;"></div>
+      Aeroporto (fora da rota)
     </div>
-
-    <div class="sb-label">Rotas Calculadas</div>
-    <div class="sb-routes" id="sb-routes"></div>
-    <div style="height:8px;"></div>
-
-    <div class="sb-legend">
-      <h3>Legenda</h3>
-      <div class="leg-row">
-        <div class="leg-dot" style="background:#2D3F55;border:1px solid #3D4F63;"></div>
-        Aeroporto (fora da rota)
-      </div>
-      <div class="leg-row">
-        <div class="leg-dot" style="background:white;box-shadow:0 0 5px rgba(255,255,255,.5);"></div>
-        Origem / Destino
-      </div>
-      <div class="leg-row">
-        <div class="leg-dot" style="background:#CBD5E1;border:2px solid white;"></div>
-        Escala / Conexão
-      </div>
-      <div class="leg-row">
-        <div class="leg-line" style="background:linear-gradient(90deg,#A855F7,#67E8F9);"></div>
-        Caminho mínimo (animado)
-      </div>
+    <div class="leg-row">
+      <div class="leg-dot" style="background:white;box-shadow:0 0 5px rgba(255,255,255,.5);"></div>
+      Origem / Destino
     </div>
-
-    <div style="height:8px;"></div>
-
-    <div class="sb-footer">
-      Algoritmo: Dijkstra<br>
-      Grafo: não-direcionado ponderado<br>
-      20 aeroportos · 116 arestas
+    <div class="leg-row">
+      <div class="leg-dot" style="background:#CBD5E1;border:2px solid white;"></div>
+      Escala / Conexão
     </div>
+    <div class="leg-row">
+      <div class="leg-line" style="background:linear-gradient(90deg,#A855F7,#67E8F9);"></div>
+      Caminho mínimo (animado)
+    </div>
+  </div>
+
+  <div style="height:8px;"></div>
+
+  <div class="sb-footer">
+    Algoritmo: Dijkstra<br>
+    Grafo: não-direcionado ponderado<br>
+    20 aeroportos · 116 arestas
+  </div>
   </div>
 
   <!-- ── MAP ──────────────────────────────────────────────────────────── -->
