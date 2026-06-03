@@ -11,7 +11,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'dashboard', label: 'Dashboard Geral', icon: LayoutDashboard, color: 'text-purple-400' },
     { id: 'parte1', label: 'Parte 1 — Mapa', icon: Plane, color: 'text-sky-400' },
     { id: 'parte1_stats', label: 'Parte 1 — Estatísticas', icon: FileText, color: 'text-emerald-400' },
-    { id: 'parte2', label: 'Parte 2 — Netflix', icon: Film, color: 'text-rose-400' },
+    { id: 'parte2', label: 'Parte 2 — Rede', icon: Film, color: 'text-rose-400' },
+    { id: 'parte2_stats', label: 'Parte 2 — Estatísticas', icon: FileText, color: 'text-pink-400' },
     { id: 'docs', label: 'Documentação', icon: FileText, color: 'text-amber-400' },
   ];
 
@@ -19,7 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     <nav className="sticky top-0 z-50 w-full glass border-b border-slate-800 px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <span className="text-xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-sky-400 bg-clip-text text-transparent tracking-tight">
-          Projeto Garotas
+          Projeto Grafos
         </span>
       </div>
 
