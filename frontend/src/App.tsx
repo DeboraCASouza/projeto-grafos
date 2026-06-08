@@ -3,8 +3,12 @@ import { Navbar } from './components/Navbar';
 import { DashboardGeneral } from './pages/DashboardGeneral';
 import { Parte1Airports } from './pages/Parte1Airports';
 import { Parte1Stats } from './pages/Parte1Stats';
+import { Parte1Gestalt } from './pages/Parte1Gestalt';
+import { Parte1Narrativa } from './pages/Parte1Narrativa';
 import { Parte2Netflix } from './pages/Parte2Netflix';
 import { Parte2Stats } from './pages/Parte2Stats';
+import { Parte2Benchmark } from './pages/Parte2Benchmark';
+import { Parte2Critica } from './pages/Parte2Critica';
 import { Documentation } from './pages/Documentation';
 
 function App() {
@@ -33,10 +37,14 @@ function App() {
         </div>
       ) : (
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-6 mb-12">
-          {activeTab === 'dashboard' && <DashboardGeneral onNavigate={setActiveTab} />}
-          {activeTab === 'parte1_stats' && <Parte1Stats />}
-          {activeTab === 'parte2_stats' && <Parte2Stats />}
-          {activeTab === 'docs' && <Documentation />}
+          {activeTab === 'dashboard'         && <DashboardGeneral onNavigate={setActiveTab} />}
+          {activeTab === 'parte1_stats'      && <Parte1Stats />}
+          {activeTab === 'parte1_gestalt'    && <Parte1Gestalt />}
+          {activeTab === 'parte1_narrativa'  && <Parte1Narrativa />}
+          {activeTab === 'parte2_stats'      && <Parte2Stats />}
+          {activeTab === 'parte2_benchmark'  && <Parte2Benchmark />}
+          {activeTab === 'parte2_critica'    && <Parte2Critica />}
+          {activeTab === 'docs'              && <Documentation />}
         </main>
       )}
 

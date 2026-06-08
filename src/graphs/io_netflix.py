@@ -1,14 +1,14 @@
 import csv
 import itertools
-from graph import GrafoGenerico
+from .graph import Grafo
 
 
 def _parse_set(texto: str, sep: str = ',') -> set:
     return {item.strip() for item in texto.split(sep) if item.strip()}
 
 
-def construir_grafo_netflix(caminho_csv: str) -> GrafoGenerico:
-    grafo = GrafoGenerico(dirigido=False)
+def construir_grafo_netflix(caminho_csv: str) -> Grafo:
+    grafo = Grafo(dirigido=False)
 
     with open(caminho_csv, newline='', encoding='latin-1') as f:
         reader = csv.DictReader(f)

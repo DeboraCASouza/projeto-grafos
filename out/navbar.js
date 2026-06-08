@@ -55,7 +55,7 @@
   ].join('');
 
   var HTML = [
-    '<a class="nb-brand" href="index.html">✈ Projeto Grafos</a>',
+    '<a class="nb-brand" href="index.html">✈ Projeto Garotas</a>',
     '<div class="nb-sep"></div>',
     '<div class="nb-links">',
 
