@@ -15,7 +15,7 @@ export const RechartsDegreeDist: React.FC<RechartsDegreeDistProps> = ({ data }) 
   const sortedData = [...data].sort((a, b) => a.degree - b.degree);
 
   return (
-    <div className="w-full h-72">
+    <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={sortedData}
