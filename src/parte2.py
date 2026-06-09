@@ -334,3 +334,18 @@ def gerar_relatorio(caminho_csv: str, caminho_saida: str,
         json.dump(relatorio, f, ensure_ascii=False, indent=2)
 
     return grafo, relatorio
+
+
+if __name__ == "__main__":
+    CSV = os.path.join("data", "dataset_parte2", "01_Netflix_2016_2025.csv")
+    SAIDA = os.path.join("out", "parte2_report.json")
+    VIZ_DIR = "out"
+
+    if not os.path.exists(CSV):
+        print(f"Erro: dataset não encontrado em {CSV}")
+        raise SystemExit(1)
+
+    print("=== Parte 2 — Netflix Top Shows 2016-2025 ===")
+    grafo, relatorio = gerar_relatorio(CSV, SAIDA, VIZ_DIR)
+    print(f"\nRelatório salvo em: {SAIDA}")
+    print(f"Nós: {relatorio['dataset']['V']}  |  Arestas: {relatorio['dataset']['E']}")

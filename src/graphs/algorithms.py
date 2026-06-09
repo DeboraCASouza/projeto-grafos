@@ -136,7 +136,7 @@ def dfs_ciclos(grafo: Grafo, origem: str) -> dict:
     arestas_retorno: list = []
     ordem: list = []
 
-    def visitar(u: str, pai: str | None) -> None:
+    def visitar(u: str, pai) -> None:
         cor[u] = "cinza"
         ordem.append(u)
         for aresta in grafo.obter_vizinhos(u):

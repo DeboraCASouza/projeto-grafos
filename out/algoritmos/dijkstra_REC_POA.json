@@ -2,10 +2,9 @@
   "algoritmo": "DIJKSTRA",
   "origem": "REC",
   "destino": "POA",
-  "custo": 4.02,
+  "custo": 3.62,
   "caminho": [
     "REC",
-    "CNF",
     "POA"
   ]
 }

@@ -158,7 +158,7 @@
             "Ms. Rachel",
             "Gabby's Dollhouse"
           ],
-          "tempo_ms": 0.1136
+          "tempo_ms": 0.1435
         },
         "GLOW": {
           "origem": "GLOW",
@@ -273,7 +273,7 @@
             "The Gardener",
             "Cabinet of Curiosities"
           ],
-          "tempo_ms": 0.0891
+          "tempo_ms": 0.1226
         },
         "Little Women": {
           "origem": "Little Women",
@@ -388,7 +388,7 @@
             "Ms. Rachel",
             "Gabby's Dollhouse"
           ],
-          "tempo_ms": 0.081
+          "tempo_ms": 0.1213
         }
       }
     },
@@ -511,7 +511,7 @@
             "Chilling Adventures of Sabrina",
             "Raising Voices"
           ],
-          "tempo_ms": 0.1849
+          "tempo_ms": 0.2231
         },
         "GLOW": {
           "origem": "GLOW",
@@ -625,7 +625,7 @@
             "Cunk on Earth",
             "Schitt's Creek"
           ],
-          "tempo_ms": 0.1629
+          "tempo_ms": 0.2564
         },
         "Little Women": {
           "origem": "Little Women",
@@ -739,7 +739,7 @@
             "Chilling Adventures of Sabrina",
             "Raising Voices"
           ],
-          "tempo_ms": 0.1444
+          "tempo_ms": 0.2584
         }
       }
     },
@@ -776,7 +776,7 @@
             "3%",
             "Flaked"
           ],
-          "tempo_ms": 0.2769
+          "tempo_ms": 0.27
         },
         {
           "origem": "3%",
@@ -787,7 +787,7 @@
             "3%",
             "Russian Doll"
           ],
-          "tempo_ms": 0.3594
+          "tempo_ms": 0.3984
         },
         {
           "origem": "Flaked",
@@ -798,7 +798,7 @@
             "Flaked",
             "Little Women"
           ],
-          "tempo_ms": 0.417
+          "tempo_ms": 0.445
         },
         {
           "origem": "GLOW",
@@ -809,7 +809,7 @@
             "GLOW",
             "Russian Doll"
           ],
-          "tempo_ms": 0.3343
+          "tempo_ms": 0.4575
         },
         {
           "origem": "Russian Doll",
@@ -818,10 +818,10 @@
           "comprimento_caminho": 3,
           "caminho": [
             "Russian Doll",
-            "1899",
+            "GLOW",
             "Fake Profile"
           ],
-          "tempo_ms": 0.6977
+          "tempo_ms": 0.7217
         }
       ]
     },
@@ -831,7 +831,7 @@
         "origem": "3%",
         "tem_ciclo_negativo": false,
         "nos_alcancados": 99,
-        "tempo_ms": 1.2839
+        "tempo_ms": 1.6576
       },
       "caso2_peso_negativo_sem_ciclo": {
         "descricao": "Grafo sintético dirigido: A→B:4, A→C:5, B→C:-3, C→D:2. Sem ciclo negativo; BF deve encontrar distâncias corretas.",
@@ -850,7 +850,7 @@
           "C": 1,
           "D": 3
         },
-        "tempo_ms": 0.0126
+        "tempo_ms": 0.0121
       },
       "caso3_ciclo_negativo": {
         "descricao": "Grafo sintético dirigido: A→B:1, B→C:2, C→B:-4, C→D:1. Ciclo negativo B→C→B = -2; BF deve detectar e sinalizar.",
@@ -858,7 +858,7 @@
         "ciclo_negativo_exemplo": "B→C→B = 2 + (-4) = -2",
         "origem": "A",
         "tem_ciclo_negativo": true,
-        "tempo_ms": 0.0091
+        "tempo_ms": 0.0145
       }
     }
   },
@@ -874,42 +874,42 @@
       {
         "algoritmo": "BFS",
         "complexidade": "O(V+E)",
-        "media_ms": 0.1146,
-        "min_ms": 0.1058,
-        "max_ms": 0.1575,
-        "desvio_ms": 0.0127,
-        "media_kb": 5.79,
-        "pico_kb": 5.91
+        "media_ms": 0.2259,
+        "min_ms": 0.2005,
+        "max_ms": 0.5183,
+        "desvio_ms": 0.0705,
+        "media_kb": 7.45,
+        "pico_kb": 7.45
       },
       {
         "algoritmo": "DFS",
         "complexidade": "O(V+E)",
-        "media_ms": 0.7159,
-        "min_ms": 0.6816,
-        "max_ms": 0.766,
-        "desvio_ms": 0.022,
-        "media_kb": 44.88,
-        "pico_kb": 44.99
+        "media_ms": 0.6468,
+        "min_ms": 0.3477,
+        "max_ms": 1.4644,
+        "desvio_ms": 0.3399,
+        "media_kb": 22.21,
+        "pico_kb": 41.47
       },
       {
         "algoritmo": "Dijkstra",
         "complexidade": "O(V²)",
-        "media_ms": 0.5881,
-        "min_ms": 0.5484,
-        "max_ms": 0.7169,
-        "desvio_ms": 0.051,
-        "media_kb": 26.21,
-        "pico_kb": 26.45
+        "media_ms": 0.8812,
+        "min_ms": 0.8348,
+        "max_ms": 1.0409,
+        "desvio_ms": 0.052,
+        "media_kb": 33.02,
+        "pico_kb": 33.27
       },
       {
         "algoritmo": "Bellman-Ford",
         "complexidade": "O(V·E)",
-        "media_ms": 4.3236,
-        "min_ms": 3.5981,
-        "max_ms": 5.9505,
-        "desvio_ms": 0.6403,
-        "media_kb": 26.46,
-        "pico_kb": 28.64
+        "media_ms": 3.068,
+        "min_ms": 2.7397,
+        "max_ms": 3.8291,
+        "desvio_ms": 0.3256,
+        "media_kb": 31.71,
+        "pico_kb": 33.89
       }
     ]
   },

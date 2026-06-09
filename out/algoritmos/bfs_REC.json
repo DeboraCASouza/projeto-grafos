@@ -3,24 +3,24 @@
   "origem": "REC",
   "ordem_visita": [
     "REC",
+    "CGH",
+    "NAT",
+    "SSA",
     "BSB",
     "GRU",
     "CNF",
+    "POA",
     "GIG",
+    "GYN",
     "FOR",
+    "JPA",
     "MAO",
     "BEL",
     "THE",
-    "POA",
-    "JPA",
-    "GYN",
-    "NAT",
+    "VIX",
     "FLN",
     "CWB",
-    "RBR",
-    "VIX",
-    "SSA",
     "PVH",
-    "CGH"
+    "RBR"
   ]
 }

@@ -54,9 +54,9 @@ const PRINCIPLES = [
 
 const HUB_GROUPS = [
   { label: 'Hubs Nacionais', range: '≥ 17', iatas: ['GRU', 'BSB', 'GIG', 'CNF'], color: '#D946EF' },
-  { label: 'Hubs Regionais', range: '11–16', iatas: ['REC', 'SSA', 'MAO', 'CGH', 'POA'], color: '#A855F7' },
-  { label: 'Conectores', range: '6–10', iatas: ['FOR', 'NAT', 'VIX', 'CWB', 'FLN', 'BEL'], color: '#7C3AED' },
-  { label: 'Periféricos', range: '≤ 5', iatas: ['THE', 'RBR', 'PVH', 'JPA', 'GYN'], color: '#6D28D9' },
+  { label: 'Hubs Regionais', range: 'topo/região', iatas: ['REC', 'SSA', 'MAO', 'CGH', 'POA'], color: '#A855F7' },
+  { label: 'Conectores', range: '6–11', iatas: ['FOR', 'NAT', 'VIX', 'CWB', 'FLN', 'BEL', 'JPA', 'GYN', 'PVH'], color: '#7C3AED' },
+  { label: 'Periféricos', range: '≤ 5', iatas: ['THE', 'RBR'], color: '#6D28D9' },
 ];
 
 export const Parte1Gestalt: React.FC = () => {

@@ -76,6 +76,76 @@
   </style>
 </head>
 <body>
+<style>body{padding-top:52px!important}#map{height:calc(100vh - 52px)!important}</style>
+
+<style id="topbar-style">
+*,*::before,*::after{box-sizing:border-box}
+#topbar{
+  position:fixed;top:0;left:0;right:0;height:52px;
+  background:#1e1e2e;border-bottom:1px solid #313244;
+  display:flex;align-items:center;padding:0 22px;gap:18px;
+  z-index:9999;box-shadow:0 2px 16px #0006;
+  font-family:'Segoe UI',Arial,sans-serif;
+}
+.nav-brand{
+  color:#cba6f7;font-weight:700;font-size:15px;
+  text-decoration:none;white-space:nowrap;letter-spacing:-.3px;
+  display:flex;align-items:center;gap:7px;
+}
+.nav-brand:hover{color:#f5c2e7}
+.nav-sep{width:1px;height:28px;background:#313244;flex-shrink:0}
+.nav-links{display:flex;gap:6px;align-items:center}
+.dropdown{position:relative}
+.dropbtn{
+  background:transparent;border:1px solid #313244;color:#cdd6f4;
+  padding:7px 14px;border-radius:7px;cursor:pointer;font-size:13px;
+  transition:background .15s,color .15s;white-space:nowrap;
+}
+.dropbtn:hover,.dropbtn.active{background:#313244;color:#cba6f7;border-color:#45475a}
+.dropdown-content{
+  display:none;position:absolute;top:46px;left:0;
+  background:#181825;border:1px solid #313244;border-radius:10px;
+  min-width:230px;box-shadow:0 12px 32px #0008;
+  z-index:10000;overflow:hidden;
+}
+.dropdown:hover .dropdown-content{display:block}
+.dropdown-content a{
+  display:flex;align-items:center;gap:10px;
+  color:#a6adc8;padding:10px 16px;text-decoration:none;
+  font-size:13px;transition:background .1s,color .1s;border-bottom:1px solid #31324430;
+}
+.dropdown-content a:last-child{border-bottom:none}
+.dropdown-content a:hover{background:#31324470;color:#cba6f7}
+.dropdown-content a.current{color:#cba6f7;background:#31324450;font-weight:600}
+.nav-tag{
+  margin-left:auto;background:#31324460;color:#a6adc8;
+  font-size:11px;padding:2px 8px;border-radius:99px;
+}
+</style>
+
+<nav id="topbar">
+  <a class="nav-brand" href="index.html">✈ Projeto Garotas</a>
+  <div class="nav-sep"></div>
+  <div class="nav-links">
+    <div class="dropdown">
+      <button class="dropbtn  active">Parte 1 — Aeroportos ▾</button>
+      <div class="dropdown-content">
+        <a href="grafo_interativo.html" class="current">🗺 Grafo Interativo</a>
+        <a href="arvore_percurso.html">🌳 Árvore de Percurso</a>
+        <a href="parte1_galeria.html">📊 Galeria de Visualizações</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropbtn">Parte 2 — Netflix ▾</button>
+      <div class="dropdown-content">
+        <a href="parte2_grafo_amostra.html">🎬 Dashboard Interativo</a>
+        <a href="parte2_distribuicao_graus.html">📈 Distribuição de Graus</a>
+        <a href="parte2_comparacao_algoritmos.html">⚡ Comparação de Algoritmos</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
 
   <div id="sidebar">
     <h1>Rede Aeroportuária</h1>
@@ -105,7 +175,7 @@
   <div id="map"></div>
 
   <script>
-    const data = {"nodes": {"REC": {"cidade": "Recife", "regiao": "Nordeste", "lat": -8.13, "lng": -34.92, "grau": 8, "densidade": 0.444444}, "SSA": {"cidade": "Salvador", "regiao": "Nordeste", "lat": -12.91, "lng": -38.32, "grau": 6, "densidade": 0.47619}, "FOR": {"cidade": "Fortaleza", "regiao": "Nordeste", "lat": -3.78, "lng": -38.53, "grau": 5, "densidade": 0.466667}, "NAT": {"cidade": "Natal", "regiao": "Nordeste", "lat": -5.91, "lng": -35.25, "grau": 4, "densidade": 0.5}, "JPA": {"cidade": "João Pessoa", "regiao": "Nordeste", "lat": -7.15, "lng": -34.95, "grau": 4, "densidade": 0.5}, "GRU": {"cidade": "São Paulo", "regiao": "Sudeste", "lat": -23.44, "lng": -46.47, "grau": 9, "densidade": 0.266667}, "CGH": {"cidade": "São Paulo", "regiao": "Sudeste", "lat": -23.63, "lng": -46.66, "grau": 9, "densidade": 0.4}, "GIG": {"cidade": "Rio de Janeiro", "regiao": "Sudeste", "lat": -22.81, "lng": -43.25, "grau": 11, "densidade": 0.30303}, "CNF": {"cidade": "Belo Horizonte", "regiao": "Sudeste", "lat": -19.62, "lng": -43.97, "grau": 11, "densidade": 0.227273}, "VIX": {"cidade": "Vitória", "regiao": "Sudeste", "lat": -20.26, "lng": -40.29, "grau": 3, "densidade": 0.333333}, "BSB": {"cidade": "Brasília", "regiao": "Centro-Oeste", "lat": -15.87, "lng": -47.92, "grau": 14, "densidade": 0.257143}, "GYN": {"cidade": "Goiânia", "regiao": "Centro-Oeste", "lat": -16.63, "lng": -49.22, "grau": 4, "densidade": 0.5}, "CWB": {"cidade": "Curitiba", "regiao": "Sul", "lat": -25.53, "lng": -49.18, "grau": 3, "densidade": 0.5}, "FLN": {"cidade": "Florianópolis", "regiao": "Sul", "lat": -27.67, "lng": -48.55, "grau": 3, "densidade": 0.5}, "POA": {"cidade": "Porto Alegre", "regiao": "Sul", "lat": -29.99, "lng": -51.17, "grau": 7, "densidade": 0.428571}, "MAO": {"cidade": "Manaus", "regiao": "Norte", "lat": -3.04, "lng": -60.05, "grau": 5, "densidade": 0.4}, "BEL": {"cidade": "Belém", "regiao": "Norte", "lat": -1.38, "lng": -48.48, "grau": 3, "densidade": 0.5}, "PVH": {"cidade": "Porto Velho", "regiao": "Norte", "lat": -8.71, "lng": -63.9, "grau": 2, "densidade": 0.333333}, "RBR": {"cidade": "Rio Branco", "regiao": "Norte", "lat": -9.87, "lng": -67.9, "grau": 2, "densidade": 0.333333}, "THE": {"cidade": "Teresina", "regiao": "Nordeste", "lat": -5.06, "lng": -42.82, "grau": 2, "densidade": 0.333333}}, "edges": [{"source": "REC", "target": "BSB"}, {"source": "REC", "target": "GRU"}, {"source": "REC", "target": "CNF"}, {"source": "REC", "target": "GIG"}, {"source": "REC", "target": "FOR"}, {"source": "REC", "target": "MAO"}, {"source": "REC", "target": "BEL"}, {"source": "REC", "target": "THE"}, {"source": "SSA", "target": "BSB"}, {"source": "SSA", "target": "REC"}, {"source": "SSA", "target": "GIG"}, {"source": "SSA", "target": "POA"}, {"source": "SSA", "target": "CNF"}, {"source": "SSA", "target": "NAT"}, {"source": "FOR", "target": "SSA"}, {"source": "FOR", "target": "GRU"}, {"source": "FOR", "target": "BEL"}, {"source": "FOR", "target": "NAT"}, {"source": "FOR", "target": "MAO"}, {"source": "NAT", "target": "REC"}, {"source": "NAT", "target": "GIG"}, {"source": "NAT", "target": "GRU"}, {"source": "NAT", "target": "MAO"}, {"source": "JPA", "target": "SSA"}, {"source": "JPA", "target": "GRU"}, {"source": "JPA", "target": "REC"}, {"source": "JPA", "target": "NAT"}, {"source": "GRU", "target": "VIX"}, {"source": "GRU", "target": "CNF"}, {"source": "GRU", "target": "SSA"}, {"source": "GRU", "target": "THE"}, {"source": "GRU", "target": "BEL"}, {"source": "GRU", "target": "FLN"}, {"source": "GRU", "target": "PVH"}, {"source": "GRU", "target": "RBR"}, {"source": "GRU", "target": "CGH"}, {"source": "CGH", "target": "CNF"}, {"source": "CGH", "target": "REC"}, {"source": "CGH", "target": "VIX"}, {"source": "CGH", "target": "SSA"}, {"source": "CGH", "target": "FOR"}, {"source": "CGH", "target": "BSB"}, {"source": "CGH", "target": "JPA"}, {"source": "CGH", "target": "CWB"}, {"source": "CGH", "target": "NAT"}, {"source": "GIG", "target": "MAO"}, {"source": "GIG", "target": "VIX"}, {"source": "GIG", "target": "BSB"}, {"source": "GIG", "target": "GRU"}, {"source": "GIG", "target": "CWB"}, {"source": "GIG", "target": "CGH"}, {"source": "GIG", "target": "GYN"}, {"source": "GIG", "target": "FOR"}, {"source": "GIG", "target": "JPA"}, {"source": "GIG", "target": "BEL"}, {"source": "GIG", "target": "PVH"}, {"source": "CNF", "target": "VIX"}, {"source": "CNF", "target": "FOR"}, {"source": "CNF", "target": "GYN"}, {"source": "CNF", "target": "POA"}, {"source": "CNF", "target": "GIG"}, {"source": "CNF", "target": "FLN"}, {"source": "CNF", "target": "CWB"}, {"source": "CNF", "target": "NAT"}, {"source": "CNF", "target": "JPA"}, {"source": "CNF", "target": "PVH"}, {"source": "CNF", "target": "BEL"}, {"source": "VIX", "target": "SSA"}, {"source": "VIX", "target": "REC"}, {"source": "VIX", "target": "FLN"}, {"source": "BSB", "target": "MAO"}, {"source": "BSB", "target": "CNF"}, {"source": "BSB", "target": "POA"}, {"source": "BSB", "target": "GRU"}, {"source": "BSB", "target": "JPA"}, {"source": "BSB", "target": "GYN"}, {"source": "BSB", "target": "BEL"}, {"source": "BSB", "target": "NAT"}, {"source": "BSB", "target": "FLN"}, {"source": "BSB", "target": "CWB"}, {"source": "BSB", "target": "FOR"}, {"source": "BSB", "target": "THE"}, {"source": "BSB", "target": "RBR"}, {"source": "BSB", "target": "VIX"}, {"source": "GYN", "target": "CGH"}, {"source": "GYN", "target": "GRU"}, {"source": "GYN", "target": "REC"}, {"source": "GYN", "target": "SSA"}, {"source": "CWB", "target": "GRU"}, {"source": "CWB", "target": "SSA"}, {"source": "CWB", "target": "GYN"}, {"source": "FLN", "target": "CWB"}, {"source": "FLN", "target": "CGH"}, {"source": "FLN", "target": "GIG"}, {"source": "POA", "target": "GIG"}, {"source": "POA", "target": "GRU"}, {"source": "POA", "target": "FLN"}, {"source": "POA", "target": "REC"}, {"source": "POA", "target": "CGH"}, {"source": "POA", "target": "MAO"}, {"source": "POA", "target": "CWB"}, {"source": "MAO", "target": "FLN"}, {"source": "MAO", "target": "SSA"}, {"source": "MAO", "target": "CNF"}, {"source": "MAO", "target": "GRU"}, {"source": "MAO", "target": "PVH"}, {"source": "BEL", "target": "SSA"}, {"source": "BEL", "target": "MAO"}, {"source": "BEL", "target": "NAT"}, {"source": "PVH", "target": "BSB"}, {"source": "PVH", "target": "RBR"}, {"source": "RBR", "target": "MAO"}, {"source": "RBR", "target": "CNF"}, {"source": "THE", "target": "CNF"}, {"source": "THE", "target": "FOR"}], "routes": [{"id": "rec-poa", "label": "⭐ REC → POA", "path": ["REC", "CNF", "POA"], "color": "#A855F7"}, {"id": "mao-gru", "label": "⭐ MAO → GRU", "path": ["MAO", "GRU"], "color": "#F472B6"}, {"id": "for-cgh", "label": "FOR → CGH", "path": ["FOR", "GRU", "CGH"], "color": "#34D399"}, {"id": "bsb-bel", "label": "BSB → BEL", "path": ["BSB", "BEL"], "color": "#60A5FA"}, {"id": "cwb-nat", "label": "CWB → NAT", "path": ["CWB", "SSA", "NAT"], "color": "#FBBF24"}, {"id": "vix-mao", "label": "VIX → MAO", "path": ["VIX", "SSA", "BSB", "MAO"], "color": "#F87171"}, {"id": "ssa-fln", "label": "SSA → FLN", "path": ["SSA", "CNF", "FLN"], "color": "#67E8F9"}]};
+    const data = {"nodes": {"REC": {"cidade": "Recife", "regiao": "Nordeste", "lat": -8.13, "lng": -34.92, "grau": 15, "densidade": 0.733333}, "SSA": {"cidade": "Salvador", "regiao": "Nordeste", "lat": -12.91, "lng": -38.32, "grau": 15, "densidade": 0.758333}, "FOR": {"cidade": "Fortaleza", "regiao": "Nordeste", "lat": -3.78, "lng": -38.53, "grau": 11, "densidade": 0.878788}, "NAT": {"cidade": "Natal", "regiao": "Nordeste", "lat": -5.91, "lng": -35.25, "grau": 11, "densidade": 0.924242}, "JPA": {"cidade": "João Pessoa", "regiao": "Nordeste", "lat": -7.15, "lng": -34.95, "grau": 8, "densidade": 1.0}, "GRU": {"cidade": "São Paulo", "regiao": "Sudeste", "lat": -23.44, "lng": -46.47, "grau": 19, "densidade": 0.605263}, "CGH": {"cidade": "São Paulo", "regiao": "Sudeste", "lat": -23.63, "lng": -46.66, "grau": 14, "densidade": 0.771429}, "GIG": {"cidade": "Rio de Janeiro", "regiao": "Sudeste", "lat": -22.81, "lng": -43.25, "grau": 17, "densidade": 0.686275}, "CNF": {"cidade": "Belo Horizonte", "regiao": "Sudeste", "lat": -19.62, "lng": -43.97, "grau": 19, "densidade": 0.605263}, "VIX": {"cidade": "Vitória", "regiao": "Sudeste", "lat": -20.26, "lng": -40.29, "grau": 8, "densidade": 0.944444}, "BSB": {"cidade": "Brasília", "regiao": "Centro-Oeste", "lat": -15.87, "lng": -47.92, "grau": 19, "densidade": 0.605263}, "GYN": {"cidade": "Goiânia", "regiao": "Centro-Oeste", "lat": -16.63, "lng": -49.22, "grau": 8, "densidade": 0.972222}, "CWB": {"cidade": "Curitiba", "regiao": "Sul", "lat": -25.53, "lng": -49.18, "grau": 9, "densidade": 0.933333}, "FLN": {"cidade": "Florianópolis", "regiao": "Sul", "lat": -27.67, "lng": -48.55, "grau": 9, "densidade": 0.888889}, "POA": {"cidade": "Porto Alegre", "regiao": "Sul", "lat": -29.99, "lng": -51.17, "grau": 10, "densidade": 0.909091}, "MAO": {"cidade": "Manaus", "regiao": "Norte", "lat": -3.04, "lng": -60.05, "grau": 13, "densidade": 0.747253}, "BEL": {"cidade": "Belém", "regiao": "Norte", "lat": -1.38, "lng": -48.48, "grau": 9, "densidade": 1.0}, "PVH": {"cidade": "Porto Velho", "regiao": "Norte", "lat": -8.71, "lng": -63.9, "grau": 6, "densidade": 0.952381}, "RBR": {"cidade": "Rio Branco", "regiao": "Norte", "lat": -9.87, "lng": -67.9, "grau": 5, "densidade": 1.0}, "THE": {"cidade": "Teresina", "regiao": "Nordeste", "lat": -5.06, "lng": -42.82, "grau": 5, "densidade": 1.0}}, "edges": [{"source": "REC", "target": "CGH"}, {"source": "REC", "target": "NAT"}, {"source": "REC", "target": "SSA"}, {"source": "REC", "target": "BSB"}, {"source": "REC", "target": "GRU"}, {"source": "REC", "target": "CNF"}, {"source": "REC", "target": "POA"}, {"source": "REC", "target": "GIG"}, {"source": "REC", "target": "GYN"}, {"source": "REC", "target": "FOR"}, {"source": "REC", "target": "JPA"}, {"source": "REC", "target": "MAO"}, {"source": "REC", "target": "BEL"}, {"source": "REC", "target": "THE"}, {"source": "REC", "target": "VIX"}, {"source": "SSA", "target": "BSB"}, {"source": "SSA", "target": "JPA"}, {"source": "SSA", "target": "MAO"}, {"source": "SSA", "target": "GIG"}, {"source": "SSA", "target": "BEL"}, {"source": "SSA", "target": "GRU"}, {"source": "SSA", "target": "POA"}, {"source": "SSA", "target": "CNF"}, {"source": "SSA", "target": "CGH"}, {"source": "SSA", "target": "VIX"}, {"source": "SSA", "target": "FOR"}, {"source": "SSA", "target": "NAT"}, {"source": "SSA", "target": "CWB"}, {"source": "SSA", "target": "GYN"}, {"source": "FOR", "target": "CNF"}, {"source": "FOR", "target": "CGH"}, {"source": "FOR", "target": "BSB"}, {"source": "FOR", "target": "GIG"}, {"source": "FOR", "target": "GRU"}, {"source": "FOR", "target": "BEL"}, {"source": "FOR", "target": "THE"}, {"source": "FOR", "target": "NAT"}, {"source": "FOR", "target": "MAO"}, {"source": "NAT", "target": "BSB"}, {"source": "NAT", "target": "GIG"}, {"source": "NAT", "target": "GRU"}, {"source": "NAT", "target": "CNF"}, {"source": "NAT", "target": "CGH"}, {"source": "NAT", "target": "BEL"}, {"source": "NAT", "target": "MAO"}, {"source": "NAT", "target": "JPA"}, {"source": "JPA", "target": "BSB"}, {"source": "JPA", "target": "CGH"}, {"source": "JPA", "target": "GRU"}, {"source": "JPA", "target": "GIG"}, {"source": "JPA", "target": "CNF"}, {"source": "GRU", "target": "BSB"}, {"source": "GRU", "target": "VIX"}, {"source": "GRU", "target": "CNF"}, {"source": "GRU", "target": "POA"}, {"source": "GRU", "target": "CWB"}, {"source": "GRU", "target": "GIG"}, {"source": "GRU", "target": "MAO"}, {"source": "GRU", "target": "GYN"}, {"source": "GRU", "target": "THE"}, {"source": "GRU", "target": "BEL"}, {"source": "GRU", "target": "FLN"}, {"source": "GRU", "target": "PVH"}, {"source": "GRU", "target": "RBR"}, {"source": "GRU", "target": "CGH"}, {"source": "CGH", "target": "CNF"}, {"source": "CGH", "target": "VIX"}, {"source": "CGH", "target": "FLN"}, {"source": "CGH", "target": "BSB"}, {"source": "CGH", "target": "GYN"}, {"source": "CGH", "target": "POA"}, {"source": "CGH", "target": "GIG"}, {"source": "CGH", "target": "CWB"}, {"source": "GIG", "target": "MAO"}, {"source": "GIG", "target": "POA"}, {"source": "GIG", "target": "VIX"}, {"source": "GIG", "target": "BSB"}, {"source": "GIG", "target": "CWB"}, {"source": "GIG", "target": "FLN"}, {"source": "GIG", "target": "CNF"}, {"source": "GIG", "target": "GYN"}, {"source": "GIG", "target": "BEL"}, {"source": "GIG", "target": "PVH"}, {"source": "CNF", "target": "BSB"}, {"source": "CNF", "target": "VIX"}, {"source": "CNF", "target": "MAO"}, {"source": "CNF", "target": "GYN"}, {"source": "CNF", "target": "POA"}, {"source": "CNF", "target": "FLN"}, {"source": "CNF", "target": "CWB"}, {"source": "CNF", "target": "PVH"}, {"source": "CNF", "target": "RBR"}, {"source": "CNF", "target": "BEL"}, {"source": "CNF", "target": "THE"}, {"source": "VIX", "target": "BSB"}, {"source": "VIX", "target": "FLN"}, {"source": "BSB", "target": "MAO"}, {"source": "BSB", "target": "POA"}, {"source": "BSB", "target": "GYN"}, {"source": "BSB", "target": "BEL"}, {"source": "BSB", "target": "FLN"}, {"source": "BSB", "target": "CWB"}, {"source": "BSB", "target": "PVH"}, {"source": "BSB", "target": "THE"}, {"source": "BSB", "target": "RBR"}, {"source": "GYN", "target": "CWB"}, {"source": "CWB", "target": "FLN"}, {"source": "CWB", "target": "POA"}, {"source": "FLN", "target": "MAO"}, {"source": "FLN", "target": "POA"}, {"source": "POA", "target": "MAO"}, {"source": "MAO", "target": "PVH"}, {"source": "MAO", "target": "BEL"}, {"source": "MAO", "target": "RBR"}, {"source": "PVH", "target": "RBR"}], "routes": [{"id": "rec-poa", "label": "⭐ REC → POA", "path": ["REC", "POA"], "color": "#A855F7"}, {"id": "mao-gru", "label": "⭐ MAO → GRU", "path": ["MAO", "GRU"], "color": "#F472B6"}, {"id": "for-cgh", "label": "FOR → CGH", "path": ["FOR", "CGH"], "color": "#34D399"}, {"id": "bsb-bel", "label": "BSB → BEL", "path": ["BSB", "BEL"], "color": "#60A5FA"}, {"id": "cwb-nat", "label": "CWB → NAT", "path": ["CWB", "GRU", "NAT"], "color": "#FBBF24"}, {"id": "vix-mao", "label": "VIX → MAO", "path": ["VIX", "CNF", "MAO"], "color": "#F87171"}, {"id": "ssa-fln", "label": "SSA → FLN", "path": ["SSA", "GIG", "FLN"], "color": "#67E8F9"}]};
     const REGION_COLORS = { "Norte": "#34D399", "Nordeste": "#FBBF24", "Sudeste": "#60A5FA", "Sul": "#F472B6", "Centro-Oeste": "#A855F7" };
     
     const map = L.map('map', {zoomControl: true}).setView([-15, -50], 4);
@@ -191,9 +261,12 @@
 
     function updateEdgesVisibility() {
       edgeLayers.forEach(edge => {
-        const sourceVisible = map.hasLayer(nodeLayers.find(n => n.iata === edge.source).layer);
-        const targetVisible = map.hasLayer(nodeLayers.find(n => n.iata === edge.target).layer);
-        if (sourceVisible && targetVisible) { map.addLayer(edge.layer); } 
+        const srcNode = nodeLayers.find(n => n.iata === edge.source);
+        const tgtNode = nodeLayers.find(n => n.iata === edge.target);
+        if (!srcNode || !tgtNode) return;
+        const sourceVisible = map.hasLayer(srcNode.layer);
+        const targetVisible = map.hasLayer(tgtNode.layer);
+        if (sourceVisible && targetVisible) { map.addLayer(edge.layer); }
         else { map.removeLayer(edge.layer); }
       });
     }

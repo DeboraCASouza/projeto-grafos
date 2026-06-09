@@ -38,8 +38,8 @@ const GLOBAL_METRICS = {
 
 const REGION_DATA = [
   { regiao: 'Norte',        V: 4,  E: 4,  densidade: 0.667 },
-  { regiao: 'Nordeste',     V: 6,  E: 10, densidade: 0.667 },
-  { regiao: 'Sudeste',      V: 5,  E: 8,  densidade: 0.800 },
+  { regiao: 'Nordeste',     V: 6,  E: 11, densidade: 0.733 },
+  { regiao: 'Sudeste',      V: 5,  E: 10, densidade: 1.000 },
   { regiao: 'Sul',          V: 3,  E: 3,  densidade: 1.000 },
   { regiao: 'Centro-Oeste', V: 2,  E: 1,  densidade: 1.000 },
 ];
