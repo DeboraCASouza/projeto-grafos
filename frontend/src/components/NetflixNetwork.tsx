@@ -41,23 +41,19 @@ export const NetflixNetwork: React.FC<NetflixNetworkProps> = ({
     return '#94a3b8';
   };
 
+  // ── Cria/recria a rede apenas quando os dados mudam ──
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Convert data to vis format
     const visNodes = nodes.map((n) => {
       const color = getCountryColor(n.pais);
-
-      // Create DOM element for the tooltip
       const tooltipEl = document.createElement('div');
-      tooltipEl.className = 'flex flex-col gap-1';
       tooltipEl.innerHTML = `
-        <div style="font-weight: 700; color: #ffffff; border-bottom: 1px solid #334155; padding-bottom: 4px; margin-bottom: 4px; font-size: 12px; font-family: 'Outfit', sans-serif;">${n.label}</div>
-        <div style="color: #94a3b8; font-family: 'Outfit', sans-serif;">IMDb: <strong style="color: #fbbf24;">${n.imdb}</strong></div>
-        <div style="color: #94a3b8; font-family: 'Outfit', sans-serif;">Ano: <strong style="color: #f1f5f9;">${n.ano}</strong></div>
-        <div style="color: #94a3b8; font-family: 'Outfit', sans-serif;">País: <strong style="color: #60a5fa;">${n.pais}</strong></div>
+        <div style="font-weight:700;color:#ffffff;border-bottom:1px solid #334155;padding-bottom:4px;margin-bottom:4px;font-size:12px;font-family:'Outfit',sans-serif;">${n.label}</div>
+        <div style="color:#94a3b8;font-family:'Outfit',sans-serif;">IMDb: <strong style="color:#fbbf24;">${n.imdb}</strong></div>
+        <div style="color:#94a3b8;font-family:'Outfit',sans-serif;">Ano: <strong style="color:#f1f5f9;">${n.ano}</strong></div>
+        <div style="color:#94a3b8;font-family:'Outfit',sans-serif;">País: <strong style="color:#60a5fa;">${n.pais}</strong></div>
       `;
-
       return {
         id: n.id,
         label: n.label,
@@ -76,20 +72,16 @@ export const NetflixNetwork: React.FC<NetflixNetworkProps> = ({
 
     const visEdges = edges.map((e) => {
       const isHighlighted = selectedNode && (e.from === selectedNode.id || e.to === selectedNode.id);
-
-      // Create DOM element for the edge tooltip
       const tooltipEl = document.createElement('div');
-      tooltipEl.className = 'flex flex-col gap-1';
       tooltipEl.innerHTML = `
-        <div style="font-weight: 700; color: #ffffff; border-bottom: 1px solid #334155; padding-bottom: 4px; margin-bottom: 4px; font-size: 11px; font-family: 'Outfit', sans-serif;">Atributos Compartilhados</div>
-        <div style="color: #a7f3d0; font-size: 10px; max-width: 220px; white-space: normal; word-wrap: break-word; font-family: 'Outfit', sans-serif; line-height: 1.3;">${e.title}</div>
+        <div style="font-weight:700;color:#ffffff;border-bottom:1px solid #334155;padding-bottom:4px;margin-bottom:4px;font-size:11px;font-family:'Outfit',sans-serif;">Atributos Compartilhados</div>
+        <div style="color:#a7f3d0;font-size:10px;max-width:220px;white-space:normal;word-wrap:break-word;font-family:'Outfit',sans-serif;line-height:1.3;">${e.title}</div>
       `;
-
       return {
         from: e.from,
         to: e.to,
         width: e.width || 2,
-        color: isHighlighted 
+        color: isHighlighted
           ? { color: '#f43f5e', opacity: 0.9 }
           : { color: e.width >= 8 ? '#cba6f7' : '#334155', opacity: 0.4 },
         title: tooltipEl,
@@ -104,22 +96,12 @@ export const NetflixNetwork: React.FC<NetflixNetworkProps> = ({
     const options = {
       nodes: {
         shape: 'dot',
-        scaling: {
-          min: 8,
-          max: 30,
-        },
+        scaling: { min: 8, max: 30 },
         borderWidth: 1.5,
       },
       edges: {
-        color: {
-          color: '#334155',
-          highlight: '#f43f5e',
-          hover: '#60a5fa',
-        },
-        smooth: {
-          type: 'continuous',
-          forceDirection: 'none',
-        },
+        color: { color: '#334155', highlight: '#f43f5e', hover: '#60a5fa' },
+        smooth: { type: 'continuous', forceDirection: 'none' },
       },
       interaction: {
         hover: true,
@@ -128,7 +110,7 @@ export const NetflixNetwork: React.FC<NetflixNetworkProps> = ({
         selectConnectedEdges: true,
       },
       physics: {
-        enabled: physicsEnabled,
+        enabled: true,          // sempre começa com física ligada para distribuir os nós
         barnesHut: {
           gravitationalConstant: -2000,
           centralGravity: 0.3,
@@ -148,7 +130,13 @@ export const NetflixNetwork: React.FC<NetflixNetworkProps> = ({
     const network = new Network(containerRef.current, data as any, options as any);
     networkRef.current = network;
 
-    // Events
+    // Aplica o estado atual de física (caso o usuário já tenha desligado antes)
+    network.on('stabilizationIterationsDone', () => {
+      if (!physicsEnabled) {
+        network.setOptions({ physics: { enabled: false } });
+      }
+    });
+
     network.on('click', (params) => {
       if (params.nodes.length > 0) {
         const clickedId = params.nodes[0];
@@ -165,7 +153,13 @@ export const NetflixNetwork: React.FC<NetflixNetworkProps> = ({
         networkRef.current = null;
       }
     };
-  }, [nodes, edges, physicsEnabled]);
+  }, [nodes, edges]); // physicsEnabled foi removido daqui propositalmente
+
+  // ── Atualiza física no grafo existente sem recriar a rede ──
+  useEffect(() => {
+    if (!networkRef.current) return;
+    networkRef.current.setOptions({ physics: { enabled: physicsEnabled } });
+  }, [physicsEnabled]);
 
   // Adjust camera to fit content
   const handleFit = () => {

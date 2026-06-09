@@ -2,19 +2,20 @@ import React, { useState, useMemo } from 'react';
 import { ALL_NODES, ALL_EDGES } from '../data/netflixData';
 import type { NetflixNode } from '../data/netflixData';
 import { NetflixNetwork } from '../components/NetflixNetwork';
-import { Search, ArrowLeft } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Globe, SlidersHorizontal, Link2, Info, BarChart2 } from 'lucide-react';
 
 interface Parte2NetflixProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
-export const Parte2Netflix: React.FC<Parte2NetflixProps> = ({ onBack }) => {
+export const Parte2Netflix: React.FC<Parte2NetflixProps> = () => {
   // Filters state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('Todos');
   const [minDegree, setMinDegree] = useState(0);
   const [minSimilarity, setMinSimilarity] = useState(1);
   const [selectedNode, setSelectedNode] = useState<NetflixNode | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Country counts from raw data for counts in the buttons
   const rawCountryCounts = useMemo(() => {
@@ -93,160 +94,156 @@ export const Parte2Netflix: React.FC<Parte2NetflixProps> = ({ onBack }) => {
   }, [filteredNodes]);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden animate-fade-in">
+    <div className="flex w-full overflow-hidden animate-fade-in" style={{ height: 'calc(100vh - 48px)' }}>
       
-      {/* ── Left Sidebar (284px) ── */}
-      <aside className="w-[284px] shrink-0 bg-slate-950/85 backdrop-blur-md border-r border-slate-900 flex flex-col overflow-y-auto scrollbar-thin select-none">
-        
-        {/* Header with Back button */}
-        <div className="p-4 border-b border-slate-900 flex items-center gap-3">
+      {/* ── Left Sidebar ── */}
+      <aside
+        className={`${sidebarOpen ? 'w-[284px]' : 'w-12'} shrink-0 bg-slate-950/85 backdrop-blur-md border-r border-slate-900 flex flex-col overflow-hidden transition-all duration-200 select-none`}
+      >
+        {/* Header */}
+        <div className="p-3 border-b border-slate-900 flex items-center gap-2 shrink-0">
+          {sidebarOpen && (
+            <div className="flex-1 min-w-0">
+              <h1 className="text-sm font-bold text-slate-100 tracking-tight truncate">Rede Netflix</h1>
+              <p className="text-[10px] text-slate-500 font-medium truncate">Parte 2 · Grafo Interativo</p>
+            </div>
+          )}
           <button
-            onClick={onBack}
-            className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 cursor-pointer transition-colors"
-            title="Voltar para o Dashboard"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 cursor-pointer transition-colors shrink-0 ml-auto"
+            title={sidebarOpen ? 'Colapsar barra' : 'Expandir barra'}
           >
-            <ArrowLeft className="w-4 h-4" />
+            {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
-          <div>
-            <h1 className="text-sm font-bold text-slate-100 tracking-tight">Dashboard Interativo</h1>
-            <p className="text-[10px] text-slate-500 font-medium">Recomendações Netflix · Parte 2</p>
-          </div>
         </div>
 
-        {/* Section: Search */}
-        <div className="p-3.5 border-b border-slate-900 flex flex-col gap-2">
-          <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Busca por título</label>
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Digite o título do show..."
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg py-1.5 pl-8 pr-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-rose-500 transition-colors"
-            />
-            <Search className="w-3.5 h-3.5 text-slate-600 absolute left-2.5 top-2" />
+        {/* Collapsed: icon strip */}
+        {!sidebarOpen && (
+          <div className="flex flex-col items-center gap-4 py-4 flex-1">
+            <div title="Busca"><Search            className="w-4 h-4 text-slate-600" /></div>
+            <div title="País"><Globe              className="w-4 h-4 text-slate-600" /></div>
+            <div title="Grau mínimo"><SlidersHorizontal className="w-4 h-4 text-slate-600" /></div>
+            <div title="Força de conexão"><Link2  className="w-4 h-4 text-slate-600" /></div>
+            <div title="Título selecionado"><Info className="w-4 h-4 text-slate-600" /></div>
+            <div title="Métricas do subgrafo"><BarChart2 className="w-4 h-4 text-slate-600" /></div>
           </div>
-        </div>
+        )}
 
-        {/* Section: Country Filters */}
-        <div className="p-3.5 border-b border-slate-900 flex flex-col gap-2">
-          <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Filtrar por País</label>
-          <div className="flex flex-col gap-1">
-            {countryOptions.map((opt) => {
-              const isActive = selectedCountry === opt.id;
-              return (
-                <button
-                  key={opt.id}
-                  onClick={() => setSelectedCountry(opt.id)}
-                  style={{
-                    borderColor: isActive ? `${opt.color}40` : 'transparent',
-                    backgroundColor: isActive ? `${opt.color}08` : 'transparent',
-                  }}
-                  className={`flex items-center gap-2.5 px-2 py-1.5 rounded-lg border text-left cursor-pointer transition-all duration-150 ${
-                    isActive ? 'text-slate-200' : 'text-slate-500 hover:bg-slate-900/30'
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: opt.color }} />
-                  <span className="text-[11px] font-semibold">{opt.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Section: Degree Filter */}
-        <div className="p-3.5 border-b border-slate-900 flex flex-col gap-2">
-          <div className="flex justify-between items-center text-[10px]">
-            <span className="font-bold text-slate-500 uppercase tracking-wider">Filtrar por Grau Mínimo</span>
-            <span className="font-mono text-rose-400 font-bold">Grau ≥ {minDegree}</span>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={20}
-            value={minDegree}
-            onChange={(e) => setMinDegree(Number(e.target.value))}
-            className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-rose-500"
-          />
-        </div>
-
-        {/* Section: Connection Strength Filter */}
-        <div className="p-3.5 border-b border-slate-900 flex flex-col gap-2">
-          <div className="flex justify-between items-center text-[10px]">
-            <span className="font-bold text-slate-500 uppercase tracking-wider">Força de Conexão Mínima</span>
-            <span className="font-mono text-purple-400 font-bold">
-              {minSimilarity === 1 ? '1+ (Tudo)' : minSimilarity === 2 ? '2+ (Média)' : minSimilarity === 3 ? '3+ (Forte)' : '4+ (Exclusiva)'}
-            </span>
-          </div>
-          <input
-            type="range"
-            min={1}
-            max={4}
-            value={minSimilarity}
-            onChange={(e) => setMinSimilarity(Number(e.target.value))}
-            className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-purple-500"
-          />
-        </div>
-
-        {/* Section: Selected Node Info */}
-        <div className="p-3.5 border-b border-slate-900 flex flex-col gap-2">
-          <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Título Selecionado</label>
-          <div className="bg-slate-900/50 border border-slate-900/80 rounded-lg p-2.5 min-h-[50px] flex flex-col gap-1.5 justify-center">
-            {selectedNode ? (
-              <>
-                <div className="flex items-baseline justify-between">
-                  <span
-                    className="text-xs font-extrabold font-mono leading-none text-rose-400"
-                  >
-                    {selectedNode.label}
-                  </span>
-                  <span className="text-[9px] font-semibold text-slate-500 uppercase">
-                    {selectedNode.ano}
-                  </span>
-                </div>
-                <div className="text-[10px] font-bold text-slate-300">
-                  IMDb: <strong className="text-amber-400 font-mono">{selectedNode.imdb}</strong>
-                </div>
-                <div className="text-[10px] text-slate-500 border-t border-slate-900/40 pt-1.5 flex flex-col gap-1">
-                  <div>País: <strong className="text-slate-300">{selectedNode.pais}</strong></div>
-                  <div>Grau original: <strong className="text-slate-300">{selectedNode.value}</strong></div>
-                </div>
-              </>
-            ) : (
-              <span className="text-[10px] text-slate-600 italic text-center">Clique em um título no grafo</span>
-            )}
-          </div>
-        </div>
-
-        {/* Section: Subgraph Metrics */}
-        <div className="p-3.5 flex flex-col gap-2">
-          <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Métricas do Subgrafo</label>
-          <div className="grid grid-cols-2 gap-1.5">
-            <div className="bg-slate-900/50 border border-slate-900/80 rounded-lg p-2 flex flex-col justify-between">
-              <span className="text-base font-extrabold text-rose-400 font-mono leading-none">{filteredNodes.length}</span>
-              <span className="text-[8.5px] text-slate-500 font-semibold mt-1">Shows (|V|)</span>
+        {/* Expanded content */}
+        {sidebarOpen && (
+          <div className="flex flex-col flex-1 overflow-y-auto scrollbar-thin">
+            <div className="p-3.5 border-b border-slate-900 flex flex-col gap-2">
+              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Busca por título</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Digite o título do show..."
+                  className="w-full bg-slate-900 border border-slate-800 rounded-lg py-1.5 pl-8 pr-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-rose-500 transition-colors"
+                />
+                <Search className="w-3.5 h-3.5 text-slate-600 absolute left-2.5 top-2" />
+              </div>
             </div>
-            <div className="bg-slate-900/50 border border-slate-900/80 rounded-lg p-2 flex flex-col justify-between">
-              <span className="text-base font-extrabold text-purple-400 font-mono leading-none">{filteredEdges.length}</span>
-              <span className="text-[8.5px] text-slate-500 font-semibold mt-1">Arestas (|E|)</span>
+
+            <div className="p-3.5 border-b border-slate-900 flex flex-col gap-2">
+              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Filtrar por País</label>
+              <div className="flex flex-col gap-1">
+                {countryOptions.map((opt) => {
+                  const isActive = selectedCountry === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      onClick={() => setSelectedCountry(opt.id)}
+                      style={{ borderColor: isActive ? `${opt.color}40` : 'transparent', backgroundColor: isActive ? `${opt.color}08` : 'transparent' }}
+                      className={`flex items-center gap-2.5 px-2 py-1.5 rounded-lg border text-left cursor-pointer transition-all duration-150 ${isActive ? 'text-slate-200' : 'text-slate-500 hover:bg-slate-900/30'}`}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: opt.color }} />
+                      <span className="text-[11px] font-semibold">{opt.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="bg-slate-950/40 p-2 rounded-lg border border-slate-900 col-span-2 flex justify-between items-center px-3">
-              <span className="text-[8.5px] text-slate-500 font-semibold">Média IMDb</span>
-              <span className="text-sm font-extrabold text-amber-400 font-mono">{averageImdb.toFixed(2)}</span>
+
+            <div className="p-3.5 border-b border-slate-900 flex flex-col gap-2">
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="font-bold text-slate-500 uppercase tracking-wider">Grau Mínimo</span>
+                <span className="font-mono text-rose-400 font-bold">≥ {minDegree}</span>
+              </div>
+              <input
+                type="range" min={0} max={20} value={minDegree}
+                onChange={(e) => setMinDegree(Number(e.target.value))}
+                className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-rose-500"
+              />
+            </div>
+
+            <div className="p-3.5 border-b border-slate-900 flex flex-col gap-2">
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="font-bold text-slate-500 uppercase tracking-wider">Força de Conexão</span>
+                <span className="font-mono text-purple-400 font-bold">
+                  {minSimilarity === 1 ? 'Tudo' : minSimilarity === 2 ? '2+ Média' : minSimilarity === 3 ? '3+ Forte' : '4+ Exclusiva'}
+                </span>
+              </div>
+              <input
+                type="range" min={1} max={4} value={minSimilarity}
+                onChange={(e) => setMinSimilarity(Number(e.target.value))}
+                className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-purple-500"
+              />
+            </div>
+
+            <div className="p-3.5 border-b border-slate-900 flex flex-col gap-2">
+              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Título Selecionado</label>
+              <div className="bg-slate-900/50 border border-slate-900/80 rounded-lg p-2.5 min-h-[50px] flex flex-col gap-1.5 justify-center">
+                {selectedNode ? (
+                  <>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs font-extrabold font-mono leading-none text-rose-400">{selectedNode.label}</span>
+                      <span className="text-[9px] font-semibold text-slate-500 uppercase">{selectedNode.ano}</span>
+                    </div>
+                    <div className="text-[10px] font-bold text-slate-300">
+                      IMDb: <strong className="text-amber-400 font-mono">{selectedNode.imdb}</strong>
+                    </div>
+                    <div className="text-[10px] text-slate-500 border-t border-slate-900/40 pt-1.5 flex flex-col gap-1">
+                      <div>País: <strong className="text-slate-300">{selectedNode.pais}</strong></div>
+                      <div>Grau original: <strong className="text-slate-300">{selectedNode.value}</strong></div>
+                    </div>
+                  </>
+                ) : (
+                  <span className="text-[10px] text-slate-600 italic text-center">Clique em um título no grafo</span>
+                )}
+              </div>
+            </div>
+
+            <div className="p-3.5 flex flex-col gap-2">
+              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Métricas do Subgrafo</label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <div className="bg-slate-900/50 border border-slate-900/80 rounded-lg p-2 flex flex-col justify-between">
+                  <span className="text-base font-extrabold text-rose-400 font-mono leading-none">{filteredNodes.length}</span>
+                  <span className="text-[8.5px] text-slate-500 font-semibold mt-1">Shows (|V|)</span>
+                </div>
+                <div className="bg-slate-900/50 border border-slate-900/80 rounded-lg p-2 flex flex-col justify-between">
+                  <span className="text-base font-extrabold text-purple-400 font-mono leading-none">{filteredEdges.length}</span>
+                  <span className="text-[8.5px] text-slate-500 font-semibold mt-1">Arestas (|E|)</span>
+                </div>
+                <div className="bg-slate-950/40 p-2 rounded-lg border border-slate-900 col-span-2 flex justify-between items-center px-3">
+                  <span className="text-[8.5px] text-slate-500 font-semibold">Média IMDb</span>
+                  <span className="text-sm font-extrabold text-amber-400 font-mono">{averageImdb.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3 mt-auto text-[8.5px] text-slate-600 border-t border-slate-900/50 leading-relaxed font-semibold">
+              Rede de Recomendação Netflix
+              <br />
+              182 shows · 615 arestas
             </div>
           </div>
-        </div>
-
-        {/* Sidebar Footer */}
-        <div className="p-3 mt-auto text-[8.5px] text-slate-600 border-t border-slate-900/50 leading-relaxed font-semibold">
-          Rede de Recomendação Netflix
-          <br />
-          182 shows · 615 arestas
-        </div>
+        )}
       </aside>
 
-      {/* ── Main Map Area ── */}
-      <main className="flex-grow flex flex-col relative min-w-0 bg-slate-950">
+      {/* ── Main Graph Area ── */}
+      <main className="flex-1 min-h-0 min-w-0 flex flex-col relative bg-slate-950">
         <NetflixNetwork
           nodes={filteredNodes}
           edges={filteredEdges}

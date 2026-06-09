@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Film, LayoutDashboard, FileText, Eye, BookOpen, Cpu, AlertTriangle, BarChart3, Map } from 'lucide-react';
+import { Film, LayoutDashboard, FileText, BookOpen, Cpu, BarChart3, Map } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -17,10 +17,9 @@ const GROUPS = [
     label: 'Parte 1',
     color: 'text-sky-500',
     tabs: [
-      { id: 'parte1',        label: 'Mapa',        icon: Map,       color: 'text-sky-400' },
-      { id: 'parte1_stats',  label: 'Estatísticas', icon: BarChart3, color: 'text-emerald-400' },
-      { id: 'parte1_gestalt', label: 'Gestalt',     icon: Eye,       color: 'text-violet-400' },
-      { id: 'parte1_narrativa', label: 'Narrativa', icon: BookOpen,  color: 'text-teal-400' },
+      { id: 'parte1',           label: 'Mapa',         icon: Map,       color: 'text-sky-400' },
+      { id: 'parte1_stats',     label: 'Estatísticas', icon: BarChart3, color: 'text-emerald-400' },
+      { id: 'parte1_narrativa', label: 'Narrativa',    icon: BookOpen,  color: 'text-teal-400' },
     ],
   },
   {
@@ -30,7 +29,7 @@ const GROUPS = [
       { id: 'parte2',           label: 'Rede',        icon: Film,         color: 'text-rose-400' },
       { id: 'parte2_stats',     label: 'Estatísticas', icon: BarChart3,   color: 'text-pink-400' },
       { id: 'parte2_benchmark', label: 'Benchmark',   icon: Cpu,          color: 'text-amber-400' },
-      { id: 'parte2_critica',   label: 'Crítica AVD', icon: AlertTriangle, color: 'text-orange-400' },
+      { id: 'parte2_narrativa', label: 'Narrativa',   icon: BookOpen,      color: 'text-orange-400' },
     ],
   },
   {
