@@ -2,6 +2,9 @@
 @import "leaflet/dist/leaflet.css";
 
 @layer base {
+  html {
+    font-size: 17px;
+  }
   body {
     background-color: #090d16;
     color: #e2e8f0;
@@ -60,7 +63,7 @@
 }
 
 .tt-title {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: bold;
   color: #ffffff;
   margin-bottom: 4px;
@@ -68,7 +71,7 @@
   padding-bottom: 2px;
 }
 .tt-stat {
-  font-size: 11px;
+  font-size: 13px;
   color: #94a3b8;
   margin-bottom: 1px;
 }
@@ -118,7 +121,23 @@ div.vis-tooltip {
   padding: 8px 12px !important;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
   font-family: 'Outfit', 'Inter', sans-serif !important;
-  font-size: 11px !important;
+  font-size: 13px !important;
   pointer-events: none !important;
   z-index: 9999 !important;
+}
+
+/* Recharts Tooltip — força texto branco em todos os sub-elementos */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 8px !important;
+}
+.recharts-tooltip-label {
+  color: #f1f5f9 !important;
+}
+.recharts-tooltip-item-name,
+.recharts-tooltip-item-value,
+.recharts-tooltip-item-separator,
+.recharts-tooltip-item-unit {
+  color: #cbd5e1 !important;
 }
