@@ -354,7 +354,6 @@ export const Parte1Narrativa: React.FC = () => {
               ].map((item) => (
                 <div key={item.title} className={`border rounded-xl p-4 ${item.color}`}>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-base">{item.icon}</span>
                     <span className="text-xs font-bold text-slate-200">{item.title}</span>
                   </div>
                   <p className="text-[11px] leading-relaxed">{item.body}</p>
@@ -388,7 +387,6 @@ export const Parte1Narrativa: React.FC = () => {
               ].map((item) => (
                 <div key={item.title} className="bg-slate-900/50 border border-slate-800 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">{item.icon}</span>
                     <span className={`text-xs font-bold ${item.color}`}>{item.title}</span>
                   </div>
                   <p className="text-[11px] leading-relaxed">{item.body}</p>

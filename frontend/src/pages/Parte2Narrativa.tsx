@@ -474,7 +474,6 @@ export const Parte2Narrativa: React.FC = () => {
               ].map((item) => (
                 <div key={item.title} className="bg-slate-900/50 border border-slate-800 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">{item.icon}</span>
                     <span className={`text-xs font-bold ${item.color}`}>{item.title}</span>
                   </div>
                   <p className="text-[11px] leading-relaxed">{item.body}</p>
