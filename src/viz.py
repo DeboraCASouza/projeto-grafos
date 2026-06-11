@@ -929,9 +929,12 @@ _GRAFO_INTERATIVO_TEMPLATE = """\
 
     function updateEdgesVisibility() {
       edgeLayers.forEach(edge => {
-        const sourceVisible = map.hasLayer(nodeLayers.find(n => n.iata === edge.source).layer);
-        const targetVisible = map.hasLayer(nodeLayers.find(n => n.iata === edge.target).layer);
-        if (sourceVisible && targetVisible) { map.addLayer(edge.layer); } 
+        const srcNode = nodeLayers.find(n => n.iata === edge.source);
+        const tgtNode = nodeLayers.find(n => n.iata === edge.target);
+        if (!srcNode || !tgtNode) return;
+        const sourceVisible = map.hasLayer(srcNode.layer);
+        const targetVisible = map.hasLayer(tgtNode.layer);
+        if (sourceVisible && targetVisible) { map.addLayer(edge.layer); }
         else { map.removeLayer(edge.layer); }
       });
     }

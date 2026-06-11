@@ -3,8 +3,7 @@ from .graph import Grafo
 
 def carregar_grafo(caminho_nos, caminho_arestas):
 
-    # Instanciando a nova classe (dirigido=True faz sentido para rotas aéreas)
-    grafo = Grafo(dirigido=True)
+    grafo = Grafo(dirigido=False)
 
     df_nos = pd.read_csv(caminho_nos)
     for _, linha in df_nos.iterrows():

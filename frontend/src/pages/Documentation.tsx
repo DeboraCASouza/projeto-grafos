@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, AlertTriangle, ShieldCheck, HelpCircle, Code, Plane, BarChart3, Scale, Film } from 'lucide-react';
+import { BookOpen, AlertTriangle, ShieldCheck, HelpCircle, Code, Plane, BarChart3, Scale, Film, Lightbulb, Network, GitBranch } from 'lucide-react';
 
 export const Documentation: React.FC = () => {
   return (
@@ -111,6 +111,56 @@ export const Documentation: React.FC = () => {
           </div>
         </div>
 
+        {/* O Mesmo Algoritmo, Dois Domínios */}
+        <div className="glass-card rounded-2xl border border-slate-800 p-6 flex flex-col gap-4">
+          <h2 className="text-md font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+            <Network className="w-4 h-4 text-teal-400" />
+            O Mesmo Algoritmo, Dois Domínios: Diferenças de Interpretação
+          </h2>
+
+          <p className="text-xs text-slate-400 leading-relaxed">
+            BFS e DFS têm a mesma complexidade e estrutura, mas o que revelam depende inteiramente do domínio em que operam. Na rede de aeroportos, cada camada do BFS é uma "escala" de voo; na rede Netflix, cada camada é um "grau de separação de conteúdo". A mesma execução produz insights completamente diferentes.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
+            <div className="flex flex-col gap-3">
+              <h3 className="font-bold text-amber-400 text-sm flex items-center gap-1.5">
+                <Plane className="w-3.5 h-3.5" /> Aeroportos (Parte 1)
+              </h3>
+              <div className="bg-slate-950/40 p-3 rounded-xl border border-slate-900 flex flex-col gap-1.5">
+                <strong className="text-emerald-400">BFS → Alcance Operacional</strong>
+                <p className="text-slate-400 leading-relaxed">
+                  A rede é densa (densidade 0,606), então BFS a partir de qualquer aeroporto alcança <em>todos os outros em no máximo 2 camadas</em>. Isso confirma que a malha modelada não tem ilhas regionais isoladas — mesmo aeroportos do Norte (MAO, BEL) atingem os do Sul em poucos saltos via hubs centrais, sem necessidade de múltiplas escalas.
+                </p>
+              </div>
+              <div className="bg-slate-950/40 p-3 rounded-xl border border-slate-900 flex flex-col gap-1.5">
+                <strong className="text-pink-400">DFS → Robustez da Malha</strong>
+                <p className="text-slate-400 leading-relaxed">
+                  O alto número de ciclos detectados pelo DFS confirma ausência de "pontes críticas": não existe nenhum aeroporto cuja remoção desconectaria o grafo. Para infraestrutura de transporte, isso é uma propriedade desejável — a rede tem redundância e não depende de um único ponto de falha.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <h3 className="font-bold text-rose-400 text-sm flex items-center gap-1.5">
+                <Film className="w-3.5 h-3.5" /> Netflix (Parte 2)
+              </h3>
+              <div className="bg-slate-950/40 p-3 rounded-xl border border-slate-900 flex flex-col gap-1.5">
+                <strong className="text-emerald-400">BFS → Graus de Separação de Conteúdo</strong>
+                <p className="text-slate-400 leading-relaxed">
+                  A rede é esparsa (densidade 0,037), então o BFS precisa de mais camadas — até 6 — para atravessar a maior componente. Os títulos com grau mais alto (≥20) funcionam como "âncoras": a partir deles, praticamente todo o conteúdo da componente principal está a 2–3 camadas, tornando-os pontos naturais para iniciar recomendações em cadeia.
+                </p>
+              </div>
+              <div className="bg-slate-950/40 p-3 rounded-xl border border-slate-900 flex flex-col gap-1.5">
+                <strong className="text-pink-400">DFS → Clusters Temáticos</strong>
+                <p className="text-slate-400 leading-relaxed">
+                  As 456 arestas de retorno (em apenas 99 nós da componente principal) revelam que o grafo está cheio de ciclos curtos — grupos de títulos que se interconectam densamente por gênero. Drama e Comedy, por serem gêneros muito frequentes, criam "bolhas" onde quase todos os títulos do grupo se conectam entre si.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Modelagem do Grafo de Aeroportos: Pesos e Critérios de Conexão */}
         <div className="glass-card rounded-2xl border border-slate-800 p-6 flex flex-col gap-4">
           <h2 className="text-md font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
@@ -149,6 +199,40 @@ export const Documentation: React.FC = () => {
             <div className="p-4 bg-slate-950/40 border border-slate-900 rounded-xl">
               <strong className="text-slate-200 block mb-1">Limitações do Modelo</strong>
               O peso reflete apenas a duração média do voo (não incorpora preço de passagem, frequência de voos ou sazonalidade real), e a separação "hub"/"regional" é uma simplificação da malha aérea verdadeira, que possui muito mais aeroportos e rotas do que os 20 modelados aqui.
+            </div>
+          </div>
+        </div>
+
+        {/* Insights da Parte 1 */}
+        <div className="glass-card rounded-2xl border border-slate-800 p-6 flex flex-col gap-4">
+          <h2 className="text-md font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+            <Lightbulb className="w-4 h-4 text-amber-400" />
+            Insights da Parte 1: O Que os Algoritmos Disseram sobre a Malha Aérea
+          </h2>
+          <p className="text-xs text-slate-400 leading-relaxed -mt-2">
+            Além de verificar corretude, cada execução produziu informações interpretáveis sobre a estrutura da rede.
+          </p>
+
+          <div className="flex flex-col gap-3 text-xs text-slate-300">
+            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-900 flex flex-col gap-2 leading-relaxed">
+              <strong className="text-sky-400 text-sm">BFS a partir de qualquer aeroporto — Conectividade Total em 2 Saltos</strong>
+              <p className="text-slate-400">
+                A camada 1 do BFS a partir de REC contém os aeroportos do próprio Nordeste e alguns hubs inter-regionais diretos. A camada 2 já alcança todos os 19 aeroportos restantes. Isso é evidência concreta da alta densidade da rede: nenhum passageiro no modelo precisa de mais de uma escala para chegar a qualquer destino, o que é compatível com a realidade da aviação comercial brasileira concentrada em poucos hubs como GRU e BSB.
+              </p>
+            </div>
+
+            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-900 flex flex-col gap-2 leading-relaxed">
+              <strong className="text-pink-400 text-sm">DFS — Ciclos Confirmam Redundância de Rotas</strong>
+              <p className="text-slate-400">
+                O DFS identificou ciclos em todas as regiões. As sub-redes de Sudeste, Sul e Centro-Oeste têm densidade 1,0 internamente (grafos completos), o que já garante múltiplos ciclos. O mais relevante é que os ciclos também atravessam regiões — confirmando que a malha inter-regional não é uma árvore simples, mas uma rede com alternativas. Em termos práticos: se uma conexão via BSB estiver indisponível, existem rotas alternativas via GRU ou GIG para a mesma origem-destino.
+              </p>
+            </div>
+
+            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-900 flex flex-col gap-2 leading-relaxed">
+              <strong className="text-amber-400 text-sm">Dijkstra — O Que as Rotas Obrigatórias Revelaram</strong>
+              <p className="text-slate-400">
+                As rotas calculadas por Dijkstra mostraram que <strong className="text-amber-300">REC → POA</strong> e <strong className="text-amber-300">MAO → GRU</strong> não têm conexão direta no modelo — ambas passam por hubs intermediários. Isso reflete fielmente a malha real: conexões diretas entre Nordeste/Sul e Norte/Sudeste são operacionalmente raras. O custo total de MAO→GRU ser maior que REC→POA também é esperado: Manaus está geograficamente mais isolada e seus aeroportos têm menos conexões inter-regionais diretas. O algoritmo não "inventou" esse insight — ele emergiu naturalmente do modelo de pesos construído a partir dos dados reais.
+              </p>
             </div>
           </div>
         </div>
@@ -258,6 +342,99 @@ export const Documentation: React.FC = () => {
                 <strong className="text-pink-300 block mb-1">Limitações do Design de Pesos (peso = 1 / total_compartilhado)</strong>
                 O modelo é simples e interpretável (quanto mais atributos em comum, menor o custo), mas trata ator, diretor e gênero como igualmente relevantes. Uma evolução natural seria ponderar cada tipo de atributo (ex.: peso_ator &gt; peso_diretor &gt; peso_gênero) para refletir melhor a "similaridade real" entre títulos. Além disso, 24 dos 182 nós são isolados, ou seja, não compartilham nenhum atributo com o restante, o que limita o alcance de qualquer algoritmo de caminho à maior componente, de 99 nós.
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modelagem do Grafo Netflix */}
+        <div className="glass-card rounded-2xl border border-slate-800 p-6 flex flex-col gap-4">
+          <h2 className="text-md font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+            <GitBranch className="w-4 h-4 text-rose-400" />
+            Modelagem do Grafo Netflix: Régua de Pesos e Decisões de Design
+          </h2>
+
+          <div className="text-xs text-slate-300 flex flex-col gap-3 leading-relaxed">
+            <p>
+              Enquanto no grafo de aeroportos as arestas são definidas por rotas reais e os pesos por duração de voo, no grafo Netflix tanto a existência quanto o custo de cada aresta são <strong>construídos a partir do dataset</strong>. Essas decisões de design determinam o que os algoritmos conseguem — e não conseguem — revelar.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="bg-slate-950/40 p-3 rounded-xl border border-slate-900 flex flex-col gap-1.5">
+                <h3 className="font-bold text-rose-400 text-sm">Atores Compartilhados</h3>
+                <p className="text-slate-400 leading-relaxed">
+                  A conexão mais específica e semanticamente forte. Dois títulos com o mesmo ator principal têm um vínculo direto de identidade criativa. Como atores populares aparecem em poucos títulos, essas arestas são raras mas de alta confiabilidade — tendem a ligar obras do mesmo universo ou estilo.
+                </p>
+              </div>
+              <div className="bg-slate-950/40 p-3 rounded-xl border border-slate-900 flex flex-col gap-1.5">
+                <h3 className="font-bold text-rose-400 text-sm">Diretores/Criadores Compartilhados</h3>
+                <p className="text-slate-400 leading-relaxed">
+                  Conexão de assinatura autoral. Um diretor recorrente conecta obras com linguagem visual e narrativa similar. Mais raro que gênero, mas mais específico — títulos conectados por diretor tendem a ter estilo mais próximo do que dois títulos do mesmo gênero.
+                </p>
+              </div>
+              <div className="bg-slate-950/40 p-3 rounded-xl border border-slate-900 flex flex-col gap-1.5">
+                <h3 className="font-bold text-rose-400 text-sm">Gêneros Compartilhados</h3>
+                <p className="text-slate-400 leading-relaxed">
+                  A conexão mais frequente e menos específica. Gêneros populares (Drama, Comedy, Thriller) conectam dezenas de títulos entre si, criando clusters densos. São responsáveis pela maioria das 615 arestas e pela alta contagem de ciclos no DFS — mas individualmente carregam menos informação que ator ou diretor.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-rose-950/20 border border-rose-900/30 rounded-xl flex gap-3">
+              <HelpCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-rose-300 block mb-1">A Inversão de Peso: Transformando Similaridade em Distância</strong>
+                <p className="leading-relaxed">
+                  A escolha de <code className="text-rose-300">peso = 1 / total_compartilhado</code> é uma decisão de design que "inverte a semântica" do grafo: quanto <em>mais</em> similar, <em>menor</em> a distância. Isso permite reutilizar diretamente o Dijkstra — que minimiza custo — para encontrar o "caminho de máxima afinidade" entre dois títulos, sem precisar de nenhuma adaptação no algoritmo. Um par com 4 atributos em comum tem peso 0,25 (muito próximos); um par com apenas 1 atributo tem peso 1,0 (conexão fraca). O caminho mínimo encontrado pelo Dijkstra representa a sequência de títulos com maior densidade de atributos compartilhados ao longo de toda a rota.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-950/40 border border-slate-900 rounded-xl">
+              <strong className="text-slate-200 block mb-1">Por que 24 Nós são Isolados?</strong>
+              <p className="text-slate-400 leading-relaxed">
+                Os 24 títulos sem nenhuma aresta são obras que, dentro do recorte de 182 títulos, não compartilham nenhum ator, diretor ou gênero com nenhum outro título. Isso não significa que são "únicos" no mundo — apenas que, no dataset utilizado, eles não têm par. Esses nós ficam inacessíveis para qualquer algoritmo de caminho: são casos em que a limitação do dataset cria diretamente uma limitação algorítmica.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Insights da Parte 2 */}
+        <div className="glass-card rounded-2xl border border-slate-800 p-6 flex flex-col gap-4">
+          <h2 className="text-md font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+            <Lightbulb className="w-4 h-4 text-violet-400" />
+            Insights da Parte 2: O Que os Algoritmos Disseram sobre o Catálogo Netflix
+          </h2>
+          <p className="text-xs text-slate-400 leading-relaxed -mt-2">
+            Cada execução produziu resultados interpretáveis sobre a estrutura do catálogo — não apenas métricas de desempenho.
+          </p>
+
+          <div className="flex flex-col gap-3 text-xs text-slate-300">
+            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-900 flex flex-col gap-2 leading-relaxed">
+              <strong className="text-sky-400 text-sm">BFS — O "Mundo Pequeno" do Conteúdo Netflix</strong>
+              <p className="text-slate-400">
+                Apesar da baixa densidade (0,037), a maior componente (99 nós) exibe o fenômeno de "mundo pequeno": o diâmetro máximo observado é de apenas 6 camadas. Os títulos-hub com grau ≥20 funcionam como atalhos estruturais — sua presença reduz drasticamente o número médio de saltos entre qualquer par. Para sistemas de recomendação, isso significa que um usuário pode ser "guiado" de qualquer título da componente principal até qualquer outro em no máximo 6 recomendações em cadeia, mesmo numa rede tão esparsa.
+              </p>
+            </div>
+
+            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-900 flex flex-col gap-2 leading-relaxed">
+              <strong className="text-pink-400 text-sm">DFS — 456 Ciclos Revelam a Dominância dos Gêneros</strong>
+              <p className="text-slate-400">
+                O DFS identificou 456 arestas de retorno em 99 nós — uma razão de ~4,6 ciclos por nó, muito acima do esperado numa rede esparsa aleatória. Esses ciclos não se distribuem uniformemente: concentram-se nos clusters de gêneros populares, onde praticamente todos os títulos de Drama ou Comedy se conectam uns aos outros. A conclusão é que gênero, apesar de ser o atributo individual mais fraco (peso 1,0), é o principal responsável pela conectividade global do grafo — ele é a "cola" estrutural da rede.
+              </p>
+            </div>
+
+            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-900 flex flex-col gap-2 leading-relaxed">
+              <strong className="text-amber-400 text-sm">Dijkstra — Caminhos de Afinidade Passam por Pontes de Gênero</strong>
+              <p className="text-slate-400">
+                Os caminhos mínimos calculados raramente são conexões diretas de ator para ator: na maioria dos pares testados, o caminho de menor custo passa por títulos que servem como "pontes de gênero" — obras que conectam domínios distintos (ex.: um thriller que também é drama conecta o cluster de ação ao cluster de drama). Isso confirma que gênero é o conector estrutural dominante, e que o Dijkstra acaba "aproveitando" esses atalhos de gênero para minimizar o custo total do caminho.
+              </p>
+            </div>
+
+            <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-900 flex flex-col gap-2 leading-relaxed">
+              <strong className="text-purple-400 text-sm">Bellman-Ford — Validação Cruzada e Preparação para Extensões</strong>
+              <p className="text-slate-400">
+                No grafo real Netflix (todos os pesos positivos), o Bellman-Ford produziu exatamente os mesmos caminhos que o Dijkstra — confirmando por validação cruzada que ambas as implementações estão corretas. Nos grafos sintéticos com pesos negativos, o algoritmo demonstrou sua capacidade distintiva: detectar quando um "bônus de similaridade" cria um ciclo que tornaria o problema matematicamente sem solução. Essa propriedade seria necessária se o modelo de pesos fosse expandido para incluir penalidades (ex.: incompatibilidade de público-alvo subtraindo da similaridade), um caminho natural de evolução do modelo atual.
+              </p>
             </div>
           </div>
         </div>

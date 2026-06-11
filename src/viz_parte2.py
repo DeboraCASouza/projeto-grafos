@@ -81,7 +81,7 @@ def _navbar(atual: str = "") -> str:
 
     return f"""{_NAVBAR_CSS}
 <nav id="topbar">
-  <a class="nav-brand" href="index.html">✈ Projeto Grafos</a>
+  <a class="nav-brand" href="index.html">✈ Projeto Garotas</a>
   <div class="nav-sep"></div>
   <div class="nav-links">
     <div class="dropdown">
@@ -190,7 +190,7 @@ def _page(titulo: str, corpo: str, pagina_atual: str = "", nota: str = "") -> st
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{titulo} — Projeto Grafos</title>
+  <title>{titulo} — Projeto Garotas</title>
   <style>
     body{{margin:0;padding:52px 0 0;background:#11111b;color:#cdd6f4;
          font-family:'Segoe UI',Arial,sans-serif;min-height:100vh}}
@@ -379,7 +379,7 @@ def gerar_grafo_amostra_html(grafo, caminho_saida: str, top_n: int = 9999) -> No
 <html lang="pt-br">
 <head>
   <meta charset="utf-8">
-  <title>Dashboard Interativo Netflix — Projeto Grafos</title>
+  <title>Dashboard Interativo Netflix — Projeto Garotas</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" crossorigin="anonymous"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -1077,7 +1077,7 @@ function drawCountriesChart(visNodes) {{
   var counts = {{}};
   visNodes.forEach(function(n) {{
     if (n.pais && n.pais !== '-') {{
-      var parts = n.pais.split(/[\\\\/,]/);
+      var parts = n.pais.split(/[\\/,]/);
       parts.forEach(function(p) {{
         p = p.trim();
         if (p) counts[p] = (counts[p] || 0) + 1;
@@ -1203,7 +1203,7 @@ def gerar_index_html(caminho_saida: str) -> None:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Projeto Grafos — Rede de Aeroportos + Netflix</title>
+  <title>Projeto Garotas — Rede de Aeroportos + Netflix</title>
   <style>
     *{{box-sizing:border-box;margin:0;padding:0}}
     body{{background:#11111b;color:#cdd6f4;font-family:'Segoe UI',Arial,sans-serif;
@@ -1228,7 +1228,7 @@ def gerar_index_html(caminho_saida: str) -> None:
 <body>
 {_navbar("index.html")}
 <div class="hero">
-  <h1>✈ Projeto Grafos</h1>
+  <h1>✈ Projeto Garotas</h1>
   <p>Teoria dos Grafos + Análise e Visualização de Dados<br>
      Rede de Aeroportos Brasileira (Parte 1) · Similaridade Netflix (Parte 2)</p>
 </div>
