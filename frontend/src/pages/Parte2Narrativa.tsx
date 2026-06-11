@@ -25,7 +25,7 @@ const TOOLTIP_STYLE = {
 /* ── dados de suporte ── */
 
 const GLOBAL_METRICS = {
-  V: 182, E: 780, densidade: 0.0474,
+  V: 182, E: 615, densidade: 0.0474,
   grauMedio: 8.57, grauMax: 20, grauMin: 0,
 };
 
