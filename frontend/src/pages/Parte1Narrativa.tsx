@@ -334,25 +334,21 @@ export const Parte1Narrativa: React.FC = () => {
                 {
                   title: 'Grafo estático × realidade dinâmica',
                   color: 'border-rose-800/40 bg-rose-900/10',
-                  icon: '📅',
                   body: 'O dataset captura uma "fotografia" da malha. Rotas são canceladas, novas são abertas, frequências mudam sazonalmente. Um grafo estático com 20 nós não captura o peso real de uma rota com 50 voos/dia vs. uma com 2 voos/semana.',
                 },
                 {
                   title: 'Peso euclidiano vs. custo real',
                   color: 'border-amber-800/40 bg-amber-900/10',
-                  icon: '✈️',
                   body: 'A distância euclidiana ignora: altitude de voo, rotas de tráfego aéreo, restrições de espaço aéreo, ventos predominantes e diferenças de infraestrutura aeroportuária. Dois aeroportos a 1.000 km podem ter custos operacionais muito diferentes.',
                 },
                 {
                   title: 'Viés de centralidade do Sudeste',
                   color: 'border-purple-800/40 bg-purple-900/10',
-                  icon: '🗺️',
                   body: 'GRU, GIG e CNF concentram ~57% das arestas. O layout geográfico amplifica visualmente o Norte (maior área física) mas subestima a densidade real de voos no Sudeste. A visualização pode induzir a conclusão errada sobre "onde o Brasil voa mais".',
                 },
                 {
                   title: 'Aeroportos vs. cidades',
                   color: 'border-sky-800/40 bg-sky-900/10',
-                  icon: '🏙️',
                   body: 'São Paulo tem dois aeroportos (GRU e CGH). Tratá-los como nós separados sub-representa a força do hub São Paulo. No mundo real, a conectividade de SP seria a soma de ambos, tornando-a o hub mais dominante da rede por larga margem.',
                 },
               ].map((item) => (
@@ -376,19 +372,16 @@ export const Parte1Narrativa: React.FC = () => {
               {[
                 {
                   title: 'Alta resiliência, alta concentração',
-                  icon: '🔗',
                   color: 'text-purple-400',
                   body: 'Densidade global de 0,605 significa rede robusta — qualquer par de aeroportos se comunica em ≤ 2 saltos. Mas os 4 hubs nacionais (GRU, BSB, GIG, CNF) são pontos únicos de falha: remover qualquer um fragmentaria a rede.',
                 },
                 {
                   title: 'Sul e Centro-Oeste são cliques',
-                  icon: '⭕',
                   color: 'text-emerald-400',
                   body: 'Densidade 1,0 nessas regiões: todo aeroporto conecta-se a todos os outros da região. Isso reflete a maturidade da malha no Sul e a função estratégica de BSB/GYN no Centro-Oeste.',
                 },
                 {
                   title: 'Norte precisa de mais hubs',
-                  icon: '🌿',
                   color: 'text-amber-400',
                   body: 'Com apenas 4 aeroportos e 4 arestas internas, o Norte tem a menor densidade (0,667) e aeroportos periféricos (PVH, RBR grau ≤ 6). Uma rota PVH-BEL direta aumentaria significativamente a conectividade da região.',
                 },

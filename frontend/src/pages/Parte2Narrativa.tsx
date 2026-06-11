@@ -458,19 +458,16 @@ export const Parte2Narrativa: React.FC = () => {
               {[
                 {
                   title: 'Rede esparsa com núcleo denso',
-                  icon: '🕸️',
                   color: 'text-rose-400',
                   body: 'Densidade global 0,047 — mas a componente principal (99 nós) é internamente densa. O efeito "mundo pequeno" aparece: qualquer título conectado chega a qualquer outro em ≤ 6 camadas via BFS.',
                 },
                 {
                   title: 'Hubs são portais de recomendação',
-                  icon: '⭐',
                   color: 'text-amber-400',
                   body: 'Shows com grau alto (Stranger Things, Narcos, Money Heist) funcionam como hubs de recomendação: ao chegar neles via Dijkstra, o usuário pode ser redirecionado para qualquer nicho do grafo com poucos saltos.',
                 },
                 {
                   title: '24 títulos isolados = nichos ignorados',
-                  icon: '🏝️',
                   color: 'text-purple-400',
                   body: 'Dark, BoJack Horseman, Mindhunter e outros 21 títulos estão fora da rede principal. São produções altamente originais com alto IMDb — o modelo atual os invisibiliza. Uma melhoria seria adicionar arestas por tema narrativo.',
                 },
