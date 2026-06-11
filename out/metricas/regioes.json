@@ -2,31 +2,31 @@
     {
         "regiao": "Norte",
         "ordem": 4,
-        "tamanho": 4,
-        "densidade": 0.666667
+        "tamanho": 2,
+        "densidade": 0.333333
     },
     {
         "regiao": "Nordeste",
         "ordem": 6,
-        "tamanho": 11,
-        "densidade": 0.733333
+        "tamanho": 5,
+        "densidade": 0.333333
     },
     {
         "regiao": "Sudeste",
         "ordem": 5,
-        "tamanho": 10,
-        "densidade": 1.0
+        "tamanho": 5,
+        "densidade": 0.5
     },
     {
         "regiao": "Sul",
         "ordem": 3,
-        "tamanho": 3,
-        "densidade": 1.0
+        "tamanho": 1,
+        "densidade": 0.333333
     },
     {
         "regiao": "Centro-Oeste",
         "ordem": 2,
-        "tamanho": 1,
-        "densidade": 1.0
+        "tamanho": 0,
+        "densidade": 0.0
     }
 ]
