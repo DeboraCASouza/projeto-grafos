@@ -39,6 +39,8 @@ export const RechartsBenchmark: React.FC = () => {
                   fontSize: '12px',
                   fontFamily: 'Outfit, sans-serif'
                 }}
+                itemStyle={{ color: '#ffffff' }}
+                labelStyle={{ color: '#ffffff' }}
                 formatter={(value: any, _: any, props: any) => [
                   `${value} ms (${props.payload.complexity})`,
                   'Tempo Médio'
@@ -74,6 +76,8 @@ export const RechartsBenchmark: React.FC = () => {
                   fontSize: '12px',
                   fontFamily: 'Outfit, sans-serif'
                 }}
+                itemStyle={{ color: '#ffffff' }}
+                labelStyle={{ color: '#ffffff' }}
                 formatter={(value: any) => [`${value} KB`, 'Pico de Memória']}
               />
               <Bar dataKey="memory" radius={[4, 4, 0, 0]} maxBarSize={45}>
