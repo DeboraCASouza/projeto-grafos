@@ -106,7 +106,7 @@ export const Parte2Benchmark: React.FC = () => {
         <h1 className="text-2xl font-bold text-white tracking-tight">Parte 2 — Benchmark Visual de Algoritmos</h1>
         <p className="text-xs text-slate-400 mt-1">
           Comparação empírica (20 execuções, tracemalloc) de BFS, DFS, Dijkstra e Bellman-Ford no grafo Netflix
-          (182 nós, ~780 arestas). Eixos padronizados e cores consistentes entre todos os gráficos.
+          (182 nós, ~615 arestas). Eixos padronizados e cores consistentes entre todos os gráficos.
         </p>
       </div>
 
